@@ -1,10 +1,10 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
-#include <string>
-
 #include <limits>
-
+#include <istream>
+#include <sstream>
+#include <string>
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief Max and infinite values for floats. Useful when you want to loop through a bunch of values to find the highest/
@@ -12,6 +12,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 #define F_MAX std::numeric_limits<float>::max()
 #define F_INF std::numeric_limits<float>::infinity()
+
+std::istream& getlineSafe(std::istream& is, std::string& t);
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief Returns a random number between two values.
@@ -26,5 +28,8 @@ t randNum(t _low, t _high)
 }
 
 int levenshtein(const std::string &_a, const std::string &_b);
+
+std::vector<std::string> split(std::string _str, char _delim);
+std::vector<std::string> split(std::string _str, std::string _delims);
 
 #endif

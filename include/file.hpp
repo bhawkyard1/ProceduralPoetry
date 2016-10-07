@@ -6,5 +6,6 @@
 #include <sstream>
 #include <vector>
 
+std::vector<std::string> loadSource(const std::string _path);
 
 #endif

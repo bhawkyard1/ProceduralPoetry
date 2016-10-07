@@ -13,6 +13,8 @@ public:
 
     void addNode(const markovState &_node) {m_states.push_back(_node);}
 
+    void loadSource( const std::string _path );
+
     void writePoem();
 private:
     slotMap<markovState> m_states;
