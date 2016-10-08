@@ -1,0 +1,22 @@
+bieber/Bigger.txt
+bieber/Common Denominator.txt
+bieber/Down To Earth.txt
+bieber/Favorite Girl.txt
+bieber/First Dance.txt
+bieber/Love Me.txt
+bieber/One Less Lonely Girl.txt
+bieber/One Time.txt
+bieber/Sorry.txt
+bieber/Mark My Words.txt
+bieber/Baby.txt
+bieber/Somebody To Love.txt
+bieber/Stuck in the Moment.txt
+bieber/U Smile.txt
+bieber/Runaway Love.txt
+bieber/Never Let You Go.txt
+bieber/Overboard.txt
+bieber/Eenie Meenie.txt
+bieber/Up.txt
+bieber/That Should Be Me.txt
+bieber/Kiss and Tell.txt
+bieber/Where Are You Now.txt

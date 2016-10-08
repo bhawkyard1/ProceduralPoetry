@@ -15,6 +15,7 @@ public:
 
     markovEdge getConnection(const size_t _i) const {return m_connections[_i];}
     std::vector<markovEdge> getConnections() const {return m_connections;}
+    size_t getNumConnections() const {return m_connections.size();}
 
     markovEdge getRandomConnection();
 private:

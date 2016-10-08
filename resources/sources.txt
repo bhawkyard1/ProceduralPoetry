@@ -1,10 +1,1 @@
-bieber/Bigger.txt
-bieber/Common Denominator.txt
-bieber/Down To Earth.txt
-bieber/Favorite Girl.txt
-bieber/First Dance.txt
-bieber/Love Me.txt
-bieber/One Less Lonely Girl.txt
-bieber/One Time.txt
-bieber/Sorry.txt
-bieber/Mark My Words.txt
+jokes/jokes.txt
