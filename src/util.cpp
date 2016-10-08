@@ -129,7 +129,8 @@ std::vector<std::string> split(std::string _str, char _delim)
 
     while( getline( ss, sub, _delim ) )
     {
-        ret.push_back(sub);
+        if(sub != "")
+            ret.push_back(sub);
     }
 
     return ret;
@@ -150,7 +151,8 @@ std::vector<std::string> split(std::string _str, std::string _delims)
 
     while( getline( ss, sub, _delims[0] ) )
     {
-        ret.push_back(sub);
+        if(sub != "")
+            ret.push_back(sub);
     }
 
     return ret;

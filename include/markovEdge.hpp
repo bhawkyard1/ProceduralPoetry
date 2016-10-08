@@ -1,11 +1,11 @@
 #ifndef MARKOVEDGE_HPP
 #define MARKOVEDGE_HPP
 
-#include "slotMap.hpp"
+#include <string>
 
 struct markovEdge
 {
-    slotID m_node;
+    std::string m_node;
     float m_probability;
 };
 

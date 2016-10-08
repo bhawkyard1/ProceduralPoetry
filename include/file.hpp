@@ -6,6 +6,8 @@
 #include <sstream>
 #include <vector>
 
-std::vector<std::string> loadSource(const std::string _path);
+std::vector<std::string> getSources();
+
+std::vector<std::string> loadMarkovSource(const std::string _path);
 
 #endif

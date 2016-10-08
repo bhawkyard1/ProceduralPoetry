@@ -5,13 +5,16 @@
 
 #include "util.hpp"
 
-markovState::markovState(const std::string &_contents)
+#ifdef _WIN32
+#include <ciso646>
+#endif
+
+markovState::markovState()
 {
-    m_contents = _contents;
     m_maxProbability = 0.0f;
 }
 
-void markovState::addConnection(slotID _id)
+void markovState::addConnection(const std::string &_id)
 {
     //Increase max probability by 1,0f, indicating new entry
     m_maxProbability += 1.0f;
