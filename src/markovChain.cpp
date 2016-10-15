@@ -87,23 +87,6 @@ void markovChain::loadSource(const std::string _path)
                 m_states[ key ].addConnection( inputs[i + 1] );
             }
         }
-
-        //Add node if none exists
-        /*if(m_states.count(inputs[i]) == 0)
-        {
-            //std::cout << "Adding node " << inputs[i] << '\n';
-            std::pair<std::string, markovState> entry (inputs[i], markovState());
-            m_states.insert(
-                        entry
-                        );
-        }
-
-        //Connect
-        for(size_t j = i + 1; j < i + m_order + 1 and j < inputs.size(); ++j)
-        {
-            //std::cout << "Connecting node " << inputs[i] << " to " << inputs[j] << '\n';
-            m_states[inputs[i]].addConnection(inputs[j]);
-        }*/
     }
 }
 

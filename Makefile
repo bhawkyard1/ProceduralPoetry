@@ -54,31 +54,39 @@ SOURCES       = main.cpp \
 		src/markovChain.cpp \
 		src/markovEdge.cpp \
 		src/markovState.cpp \
+		src/matrices.cpp \
 		src/slotMap.cpp \
-		src/util.cpp 
+		src/util.cpp \
+		src/visualiser.cpp 
 OBJECTS       = obj/main.o \
 		obj/common.o \
 		obj/file.o \
 		obj/markovChain.o \
 		obj/markovEdge.o \
 		obj/markovState.o \
+		obj/matrices.o \
 		obj/slotMap.o \
-		obj/util.o
+		obj/util.o \
+		obj/visualiser.o
 DIST          = .qmake.stash \
 		PoetryGenerator.pro include/common.hpp \
 		include/file.hpp \
 		include/markovChain.hpp \
 		include/markovEdge.hpp \
 		include/markovState.hpp \
+		include/matrices.hpp \
 		include/slotMap.hpp \
-		include/util.hpp main.cpp \
+		include/util.hpp \
+		include/visualiser.hpp main.cpp \
 		src/common.cpp \
 		src/file.cpp \
 		src/markovChain.cpp \
 		src/markovEdge.cpp \
 		src/markovState.cpp \
+		src/matrices.cpp \
 		src/slotMap.cpp \
-		src/util.cpp
+		src/util.cpp \
+		src/visualiser.cpp
 QMAKE_TARGET  = PoetryGenerator
 DESTDIR       = 
 TARGET        = PoetryGenerator
@@ -413,8 +421,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents include/common.hpp include/file.hpp include/markovChain.hpp include/markovEdge.hpp include/markovState.hpp include/slotMap.hpp include/util.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp src/common.cpp src/file.cpp src/markovChain.cpp src/markovEdge.cpp src/markovState.cpp src/slotMap.cpp src/util.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/common.hpp include/file.hpp include/markovChain.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/slotMap.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp src/common.cpp src/file.cpp src/markovChain.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/slotMap.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -485,11 +493,19 @@ obj/markovState.o: src/markovState.cpp include/markovState.hpp \
 		include/util.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/markovState.o src/markovState.cpp
 
+obj/matrices.o: src/matrices.cpp include/matrices.hpp \
+		include/util.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/matrices.o src/matrices.cpp
+
 obj/slotMap.o: src/slotMap.cpp include/slotMap.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/slotMap.o src/slotMap.cpp
 
-obj/util.o: src/util.cpp include/util.hpp
+obj/util.o: src/util.cpp include/matrices.hpp \
+		include/util.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/util.o src/util.cpp
+
+obj/visualiser.o: src/visualiser.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/visualiser.o src/visualiser.cpp
 
 ####### Install
 

@@ -10,7 +10,7 @@ int main(void)
 
     srand(time(NULL));
 
-    markovChain mark (3);
+    markovChain mark (2);
 
     bool done = false;
     while(!done)

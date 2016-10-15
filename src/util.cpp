@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "matrices.hpp"
 #include "util.hpp"
 
 std::istream& getlineSafe(std::istream& is, std::string& t)
@@ -38,9 +39,8 @@ std::istream& getlineSafe(std::istream& is, std::string& t)
 
 int levenshtein(const std::string &_a, const std::string &_b)
 {
-    return 0;
     //Record string lengths.
-    /*size_t m = _a.length();
+    size_t m = _a.length();
     size_t n = _b.length();
 
     //Edge case, one or both strings are length zero.
@@ -53,16 +53,11 @@ int levenshtein(const std::string &_a, const std::string &_b)
     m++;
 
     //Declare matrix
-    std::vector<std::vector<size_t>> matrix;
-
-    //For every x...
-    for(size_t x = 0; x < m; ++x)
-    {
-        //Create and dop in column of length n.
-        std::vector<size_t> temp;
-        temp.assign(n, 0);
-        matrix.push_back(temp);
-    }
+    matrix<size_t> mat (m, n);
+    for(size_t i = 0; i < m; ++i)
+        mat[i][0] = i;
+    for(size_t j = 0; j < n; ++j)
+        mat[0][j] = j;
 
     //Decrement m and n
     n--;
@@ -70,11 +65,23 @@ int levenshtein(const std::string &_a, const std::string &_b)
 
     for(size_t x = 0; x < m; ++x)
     {
+        size_t mx = x + 1;
         for(size_t y = 0; y < n; ++y)
         {
+            size_t my = y +1;
 
+            size_t cost = 0;
+            if(_a[x][y] != _b[x][y])
+                cost = 1;
+
+            size_t min = std::min( mat[mx][my - 1] + 1, mat[mx - 1][my] + 1 );
+            min = std::min( min, mat[mx - 1][my - 1] + cost);
+
+            mat[mx][my] = min;
         }
-    }*/
+    }
+
+    return mat[m][n];
 }
 
 /*
