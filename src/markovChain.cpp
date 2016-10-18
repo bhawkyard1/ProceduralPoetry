@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "markovChain.hpp"
+#include "printer.hpp"
 #include "file.hpp"
 #include "util.hpp"
 
@@ -14,13 +15,32 @@ markovChain::markovChain(size_t _order)
 
     resetBuffers();
 
-    std::cout << "Loading sources...\n";
+    load();
+}
+
+void markovChain::reload(int _order)
+{
+    printer pr;
+    m_order = _order;
+    pr.message( "New order is " + std::to_string(m_order));
+    resetBuffers();
+    m_states.clear();
+    pr.message("States cleared, size " + std::to_string(m_states.size()));
+
+    load();
+}
+
+void markovChain::load()
+{
+    printer pr;
+
+    pr.message( "Loading sources...\n", BRIGHTGREEN );
     std::vector<std::string> sources = getSources();
-    std::cout << "Generating chain...\n";
+    pr.message( "Generating chain...\n" );
     for(auto &source : sources)
         loadSource(source);
 
-    std::cout << "Chain size : " << m_states.size() << '\n';
+    pr.message( "Chain size : " + std::to_string(m_states.size()) + '\n' );
 }
 
 void markovChain::addNode(const markovState &_node)
@@ -92,8 +112,9 @@ void markovChain::loadSource(const std::string _path)
 
 void markovChain::write()
 {
+    printer pr;
     resetBuffers();
-    std::cout << "Writing...";
+    pr.message("Writing...", RED);
 
     //Word counting variables
     size_t wordCount = randNum(100, 200);
@@ -107,28 +128,31 @@ void markovChain::write()
     for(auto &str : curKey)
         addContext(str);
 
-    std::cout << "Initial key is ";
-    for(auto &i : curKey) std::cout << i << ' ';
-    std::cout << '\n';
+    pr.message("Initial key is ", CYAN);
+    for(auto &i : curKey)pr.message( i + ' ' );
+    pr.br();
 
     //Terminate when we have exceeded the word count and the current word is a line break.
     while(curWord < wordCount or m_seekBuffer[0] != "\n")
     {
-        std::cout << "Iteration " << curWord << '\n';
-        std::cout << "Key ";
-        for(auto &str : curKey) std::cout << str << ' ';
-        std::cout << '\n';
+        pr.message( "Iteration  " + curWord + '\n', WHITE );
+        pr.message( "Key " );
+        for(auto &str : curKey) pr.message( str + ' ' );
+        pr.br();
 
         //Grab outbound connection
         std::string next = m_states[ curKey ].getRandomConnection().m_node;
 
-        std::cout << "Next is " << next << '\n';
+        pr.message( "Next is " + next + '\n' );
 
         if(next == "")
             break;
 
         //Write to buffer
-        m_writeBuffer += next + ' ';
+        if(next != "\n")
+            m_writeBuffer += next + ' ';
+        else
+            m_writeBuffer += next;
 
         //Add to context
         addContext( next );
@@ -138,5 +162,5 @@ void markovChain::write()
 
         curWord++;
     }
-    std::cout << m_writeBuffer;
+    pr.message( "\n\n" + m_writeBuffer + "\n\n", BRIGHTWHITE );
 }

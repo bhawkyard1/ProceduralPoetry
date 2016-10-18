@@ -394,4 +394,69 @@ void matrix<ptype>::deleteDigits()
     clearMatrix(m_digits, m_width, m_height);
 }
 
+
+template<typename T>
+T ** constructMatrix(size_t _w, size_t _h)
+{
+    if(_w <= 0)
+        return nullptr;
+    T ** ret = new T * [_w];
+    for(size_t i = 0; i < _w; ++i)
+    {
+        if(_h > 0) ret[i] = new T [_h];
+        else ret[i] = nullptr;
+    }
+    return ret;
+}
+
+template<typename T, typename B>
+void fillMatrix(
+        T ** _mat,
+        size_t _w,
+        size_t _h,
+        B _val
+        )
+{
+    for(size_t i = 0; i < _w; ++i)
+    {
+        std::fill(&_mat[i][0], &_mat[i][0] + _h, _val);
+    }
+}
+
+template<typename T>
+void cpyMatrix(
+        T ** _src,
+        T ** _dst,
+        size_t _srcw,
+        size_t _srch,
+        size_t _dstw,
+        size_t _dsth)
+{
+    //We will not copy too much data.
+    //This guarantees that the source dimensions will not exceed those of the destination.
+    size_t copyWidth = std::min(_srcw, _dstw);
+    size_t copyHeight = std::min(_srch, _dsth);
+
+    for(size_t i = 0; i < copyWidth; ++i)
+    {
+        for(size_t j = 0; j < copyHeight; ++j)
+            _dst[i][j] = _src[i][j];
+    }
+}
+
+template<typename T>
+void clearMatrix(T ** _mat, size_t _major, size_t _minor)
+{
+    if(_minor > 0)
+    {
+        for(size_t i = 0; i < _major; ++i)
+        {
+            delete [] _mat[i];
+            _mat[i] = nullptr;
+        }
+    }
+    if(_mat != nullptr) delete [] _mat;
+    _mat = nullptr;
+}
+
 #endif

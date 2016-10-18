@@ -71,7 +71,7 @@ int levenshtein(const std::string &_a, const std::string &_b)
             size_t my = y +1;
 
             size_t cost = 0;
-            if(_a[x][y] != _b[x][y])
+            if(_a[x] != _b[y])
                 cost = 1;
 
             size_t min = std::min( mat[mx][my - 1] + 1, mat[mx - 1][my] + 1 );

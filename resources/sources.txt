@@ -20,3 +20,4 @@ bieber/Up.txt
 bieber/That Should Be Me.txt
 bieber/Kiss and Tell.txt
 bieber/Where Are You Now.txt
+wu tang/wu tang.txt

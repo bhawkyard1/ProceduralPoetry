@@ -5,6 +5,7 @@
 #include <istream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 //----------------------------------------------------------------------------------------------------------------------
 /// \brief Max and infinite values for floats. Useful when you want to loop through a bunch of values to find the highest/

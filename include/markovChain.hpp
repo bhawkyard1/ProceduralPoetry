@@ -19,6 +19,9 @@ public:
     void loadSource( const std::string _path );
 
     void write();
+
+    void reload(int _order);
+    size_t getOrder() {return m_order;}
 private:
     size_t m_order;
 
@@ -35,6 +38,8 @@ private:
     void addContext(const std::string &_str);
     std::vector<std::string> getKeyFromContext();
     void resetBuffers() {m_writeBuffer = ""; m_seekBuffer.clear();}
+
+    void load();
 };
 
 #endif
