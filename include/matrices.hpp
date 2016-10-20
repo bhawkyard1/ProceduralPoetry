@@ -10,6 +10,25 @@
 #include "util.hpp"
 
 void ps(std::string str);
+template<typename T>
+T ** constructMatrix(size_t _w, size_t _h);
+template<typename T, typename B>
+void fillMatrix(
+        T ** _mat,
+        size_t _w,
+        size_t _h,
+        B _val
+        );
+template<typename T>
+void cpyMatrix(
+        T ** _src,
+        T ** _dst,
+        size_t _srcw,
+        size_t _srch,
+        size_t _dstw,
+        size_t _dsth);
+template<typename T>
+void clearMatrix(T ** _mat, size_t _major, size_t _minor);
 
 template<class ptype> class matrix
 {
@@ -31,7 +50,55 @@ public:
 
     size_t getWidth() const {return m_width;}
     size_t getHeight() const {return m_height;}
-    size_t getArea() const {return m_width * m_height;}
+    size_t getArea() const {return m_width * m_height;}template<typename T, typename B>
+    void fillMatrix(
+            T ** _mat,
+            size_t _w,
+            size_t _h,
+            B _val
+            )
+    {
+        for(size_t i = 0; i < _w; ++i)
+        {
+            std::fill(&_mat[i][0], &_mat[i][0] + _h, _val);
+        }
+    }
+
+    template<typename T>
+    void cpyMatrix(
+            T ** _src,
+            T ** _dst,
+            size_t _srcw,
+            size_t _srch,
+            size_t _dstw,
+            size_t _dsth)
+    {
+        //We will not copy too much data.
+        //This guarantees that the source dimensions will not exceed those of the destination.
+        size_t copyWidth = std::min(_srcw, _dstw);
+        size_t copyHeight = std::min(_srch, _dsth);
+
+        for(size_t i = 0; i < copyWidth; ++i)
+        {
+            for(size_t j = 0; j < copyHeight; ++j)
+                _dst[i][j] = _src[i][j];
+        }
+    }
+
+    template<typename T>
+    void clearMatrix(T ** _mat, size_t _major, size_t _minor)
+    {
+        if(_minor > 0)
+        {
+            for(size_t i = 0; i < _major; ++i)
+            {
+                delete [] _mat[i];
+                _mat[i] = nullptr;
+            }
+        }
+        if(_mat != nullptr) delete [] _mat;
+        _mat = nullptr;
+    }
 
     void transpose();
 
@@ -298,20 +365,20 @@ matrix<ptype> matrix<ptype>::getMinor(int _i, int _j, int _q)
 
     if( _q == 1 )
     {
-        rm.setDim( _i - 1 - width, _j );
+        rm.setDim( _i - 1 - m_width, _j );
         return rm;
         xadd = _i;
     }
     else if( _q == 2 )
     {
-        rm.setDim( _i, height - 1 - _j );
+        rm.setDim( _i, m_height - 1 - _j );
         yadd = _j + 1;
     }
     else if( _q == 3 )
     {
         return rm;
         std::cout << "q3" << std::endl;
-        rm.setDim( width - 1 - _i, height - 1 - _j );
+        rm.setDim( m_width - 1 - _i, m_height - 1 - _j );
         xadd = _i;
         yadd = _j + 1;
     }
@@ -326,7 +393,7 @@ matrix<ptype> matrix<ptype>::getMinor(int _i, int _j, int _q)
     {
         for(int x = 0; x < rm.getWidth(); ++x)
         {
-            rm[x][y] = digits[x + xadd][y + yadd];
+            rm[x][y] = m_digits[x + xadd][y + yadd];
         }
     }
 

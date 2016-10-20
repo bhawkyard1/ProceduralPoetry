@@ -33,4 +33,6 @@ int levenshtein(const std::string &_a, const std::string &_b);
 std::vector<std::string> split(std::string _str, char _delim);
 std::vector<std::string> split(std::string _str, std::string _delims);
 
+void errorExit(const std::string &_msg);
+
 #endif

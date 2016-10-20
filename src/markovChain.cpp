@@ -55,12 +55,47 @@ void markovChain::addContext(const std::string &_str)
         m_seekBuffer.pop_front();
 }
 
+void markovChain::diagnoseNode( const std::string &_str )
+{
+    std::vector<std::string> context = split(_str, ',');
+    /*std::cout << "Split is ";
+    for(auto &i : context)
+        std::cout << i << ' ';
+    std::cout << '\n';*/
+
+    if(context.size() != m_order)
+    {
+        std::cerr << "Warning! Size of context is " << context.size() << ", which does not match the chain order, which is " << m_order << '\n';
+        return;
+    }
+
+    if(m_states.count( context ) == 0)
+    {
+        std::cerr << "Warning! No node with this context!\n";
+        return;
+    }
+
+    std::cout << "Diagnosing node '";
+    for(auto &i : context) std::cout << ' ' << i;
+    std::cout << "'\n";
+
+    std::cout << "Connections : " << m_states[ context ].getNumConnections() << "\n     To nodes :\n";
+    for(auto &i : m_states[ context ].getConnections())
+    {
+        std::string node = i.m_node;
+        if(node == "\n")
+            node = "\\n";
+        std::cout << "      " << node << " P:" << (i.m_probability / m_states[context].getMaxProb()) << "\n";
+    }
+    std::cout << '\n';
+}
+
 float markovChain::getAverageNumConnections()
 {
     size_t cons = 0;
     for(auto &i : m_states)
         cons += i.second.getNumConnections();
-    cons /= (float)m_states.size();
+    cons = (float)cons / (float)m_states.size();
     return cons;
 }
 
@@ -77,7 +112,7 @@ std::vector<std::string> markovChain::getKeyFromContext()
 void markovChain::loadSource(const std::string _path)
 {
     resetBuffers();
-    //std::cout << "Reading from " << _path << '\n';
+    std::cout << "Reading from " << _path << '\n';
     std::vector<std::string> inputs = loadMarkovSource(_path);
 
     for(size_t i = 0; i < inputs.size(); ++i)
@@ -110,14 +145,13 @@ void markovChain::loadSource(const std::string _path)
     }
 }
 
-void markovChain::write()
+void markovChain::write(size_t _wordCount)
 {
     printer pr;
     resetBuffers();
     pr.message("Writing...", RED);
 
     //Word counting variables
-    size_t wordCount = randNum(100, 200);
     size_t curWord = 0;
 
     //Grab a random key from m_states
@@ -133,7 +167,7 @@ void markovChain::write()
     pr.br();
 
     //Terminate when we have exceeded the word count and the current word is a line break.
-    while(curWord < wordCount or m_seekBuffer[0] != "\n")
+    while(curWord < _wordCount or m_seekBuffer[0] != "\n")
     {
         pr.message( "Iteration  " + curWord + '\n', WHITE );
         pr.message( "Key " );

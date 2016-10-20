@@ -164,3 +164,9 @@ std::vector<std::string> split(std::string _str, std::string _delims)
 
     return ret;
 }
+
+void errorExit(const std::string &_msg)
+{
+    std::cerr << &_msg << '\n';
+    exit(EXIT_FAILURE);
+}

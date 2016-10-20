@@ -37,20 +37,25 @@ void processInput(const std::string &_input, markovChain &_mark)
 {
     printer pr;
     std::vector<std::string> cmds = split( _input, ' ' );
-    std::cout << "Vec : ";
-    for(auto &str : cmds)
-        std::cout << str;
-    std::cout << "END";
-    pr.br();
 
     if(levenshtein(cmds[0],  "write") < LEV_THRESHOLD)
     {
-        _mark.write();
+        size_t wordCount = randNum(100, 200);
+        if(cmds.size() > 1)
+            wordCount = stoi(cmds[1]);
+        _mark.write(wordCount);
     }
     else if(levenshtein(cmds[0], "diagnose") < LEV_THRESHOLD)
     {
-        std::string ret = "Average number of connections per node in this chain : " + std::to_string(_mark.getAverageNumConnections()) + '\n';
-        pr.message( ret, BLUE );
+        if(cmds.size() < 2)
+        {
+            std::string ret = "Average number of connections per node in this chain : " + std::to_string(_mark.getAverageNumConnections()) + '\n';
+            pr.message( ret, BLUE );
+        }
+        else
+        {
+            _mark.diagnoseNode( cmds[1] );
+        }
     }
     else if(levenshtein(cmds[0], "order") < LEV_THRESHOLD)
     {
@@ -61,6 +66,10 @@ void processInput(const std::string &_input, markovChain &_mark)
             pr.message( "Setting order.\n", YELLOW );
             _mark.reload( std::stoi( cmds[1] ) );
         }
+    }
+    else if(levenshtein(cmds[0], "quit") < LEV_THRESHOLD)
+    {
+        exit( EXIT_SUCCESS );
     }
 
     std::cin.clear();

@@ -14,11 +14,13 @@ public:
 
     void addNode(const markovState &_node);
 
+    void diagnoseNode( const std::string &_str );
+
     float getAverageNumConnections();
 
     void loadSource( const std::string _path );
 
-    void write();
+    void write(size_t _wordCount);
 
     void reload(int _order);
     size_t getOrder() {return m_order;}

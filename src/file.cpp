@@ -14,7 +14,7 @@ std::vector<std::string> getSources()
 
     while(getlineSafe(src, cur))
     {
-        if(cur != "")
+        if(cur != "" and cur[0] != '#')
             ret.push_back(cur);
     }
 
