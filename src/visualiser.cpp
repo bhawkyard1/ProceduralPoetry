@@ -59,16 +59,12 @@ visualiser::visualiser()
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );
 
+    m_framebuffer.addColourAttachment( "diffuse", GL_RGBA, GL_RGBA );
+    m_framebuffer.addColourAttachment( "normal", GL_RGBA, GL_RGBA16F );
+    m_framebuffer.addColourAttachment( "position", GL_RGBA, GL_RGBA16F );
 
+    m_framebuffer.addDepthAttachment( "depth", )
 
-    //Generate textures
-    m_bufferBackgroundDiffuse = genTexture(m_w, m_h, GL_RGBA, GL_RGBA);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    m_bufferLitNormal = genTexture(m_w, m_h, GL_RGBA, GL_RGBA16F);
-    m_bufferLitPosition = genTexture(m_w, m_h, GL_RGBA, GL_RGBA16F);
-    m_bufferLitDiffuse = genTexture(m_w, m_h, GL_RGBA, GL_RGBA);
-    m_bufferEffectsDiffuse = genTexture(m_w, m_h, GL_RGBA, GL_RGBA);
 
     glGenRenderbuffers(1, &m_bufferBackgroundDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, m_bufferBackgroundDepth);

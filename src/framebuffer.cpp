@@ -10,6 +10,9 @@ framebuffer::framebuffer()
 
     glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &m_maxColourTarget );
     m_maxColourTarget += GL_COLOR_ATTACHMENT0;
+
+    for(GLint i = GL_COLOR_ATTACHMENT0; i < m_maxColourTarget; ++i)
+        m_colourAttachments.push_back( i );
 }
 
 void framebuffer::activeColourAttachments(const std::vector<GLenum> _bufs)
@@ -22,14 +25,21 @@ void framebuffer::activeColourAttachments(const std::vector<GLenum> _bufs)
     glDrawBuffers(_bufs.size(), &_bufs[0]);
 }
 
-void framebuffer::addColourAttachment(GLenum _format, GLenum _iformat)
+void framebuffer::addTexture(const std::string &_identifier, GLenum _format, GLenum _iformat )
 {
-    m_colourTargets.push_back( genTexture(m_w, m_h, _format, _iformat) );
+    addTexture(_identifier, m_w, m_h, _format, _iformat);
 }
 
-void framebuffer::addColourAttachment(GLenum _format, GLenum _iformat)
+void framebuffer::addTexture(const std::string &_identifier, int _w, int _h, GLenum _format, GLenum _iformat )
 {
-    m_colourTargets.push_back( genTexture(_w, _h, _format, _iformat) );
+    //Generate colour attachment.
+
+
+    //Create texture.
+    std::pair<std::string, GLuint> tex ( _identifier, genTexture(_w, _h, _format, _iformat) );
+    m_textures.insert( tex );
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_textures[ _identifier ], 0);
 }
 
 GLuint framebuffer::genTexture(int _width, int _height, GLint _format, GLint _internalFormat)
