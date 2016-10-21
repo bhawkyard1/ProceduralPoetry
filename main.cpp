@@ -10,7 +10,7 @@
 
 void processInput(const std::string &_input, markovChain &_mark);
 
-int main(void)
+int main(int argc, char* argv[])
 {
     std::cout << "Oh heck!\n";
 
@@ -43,7 +43,7 @@ void processInput(const std::string &_input, markovChain &_mark)
     printer pr;
     std::vector<std::string> cmds = split( _input, ' ' );
 
-    if(levenshtein(cmds[0],  "write") < LEV_THRESHOLD)
+    if(levenshtein(cmds[0], "write") < LEV_THRESHOLD)
     {
         size_t wordCount = randInt(100, 200);
         if(cmds.size() > 1)

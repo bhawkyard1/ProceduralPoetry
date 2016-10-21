@@ -65,11 +65,13 @@ void markovChain::recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::
         std::vector<std::string> seek;
         for(auto &i : localContext) seek.push_back( i );
 
-        std::cout << "exploring node\n";
+        /*std::cout << "exploring node\n";
 
         for(auto &i : localContext)
             std::cout << i << ' ';
-        std::cout << '\n';
+        std::cout << '\n';*/
+
+        std::cout << "nodes with seek id " << m_states.count( seek ) << '\n';
 
         recursiveNodeData( m_states[ seek ], _origin, localContext );
     }

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <ngl/NGLInit.h>
 #include <ngl/Mat3.h>
 #include <ngl/Mat4.h>
