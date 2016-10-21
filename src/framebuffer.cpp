@@ -3,16 +3,14 @@
 #include "framebuffer.hpp"
 #include "util.hpp"
 
-framebuffer::framebuffer()
+void framebuffer::initialise()
 {
     glGenFramebuffers(1, &m_framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+    bind();
 
-    glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &m_maxColourTarget );
-    m_maxColourTarget += GL_COLOR_ATTACHMENT0;
-
-    for(GLint i = GL_COLOR_ATTACHMENT0; i < m_maxColourTarget; ++i)
-        m_colourAttachments.push_back( i );
+    GLint numColAttachments = 0;
+    glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &numColAttachments );
+    m_maxColourTarget = numColAttachments + GL_COLOR_ATTACHMENT0;
 }
 
 void framebuffer::activeColourAttachments(const std::vector<GLenum> _bufs)
@@ -25,21 +23,46 @@ void framebuffer::activeColourAttachments(const std::vector<GLenum> _bufs)
     glDrawBuffers(_bufs.size(), &_bufs[0]);
 }
 
-void framebuffer::addTexture(const std::string &_identifier, GLenum _format, GLenum _iformat )
+void framebuffer::addDepthAttachment(const std::string &_identifier)
 {
-    addTexture(_identifier, m_w, m_h, _format, _iformat);
+    addDepthAttachment( _identifier, m_w, m_h );
 }
 
-void framebuffer::addTexture(const std::string &_identifier, int _w, int _h, GLenum _format, GLenum _iformat )
+void framebuffer::addDepthAttachment(const std::string &_identifier, int _w, int _h)
 {
-    //Generate colour attachment.
+    GLuint depth;
+    glGenRenderbuffers(1, &depth);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth);
 
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, _w, _h);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 
+    std::pair<std::string, GLuint> tex ( _identifier, depth );
+    m_textures.insert( tex );
+}
+
+void framebuffer::addTexture(const std::string &_identifier, GLenum _format, GLenum _iformat , GLenum _attachment)
+{
+    addTexture(_identifier, m_w, m_h, _format, _iformat, _attachment);
+}
+
+void framebuffer::addTexture(const std::string &_identifier, int _w, int _h, GLenum _format, GLenum _iformat,  GLenum _attachment )
+{
     //Create texture.
     std::pair<std::string, GLuint> tex ( _identifier, genTexture(_w, _h, _format, _iformat) );
     m_textures.insert( tex );
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_textures[ _identifier ], 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_2D, m_textures[ _identifier ], 0);
+}
+
+void framebuffer::bind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+}
+
+bool framebuffer::checkComplete()
+{
+    return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
 GLuint framebuffer::genTexture(int _width, int _height, GLint _format, GLint _internalFormat)
@@ -54,4 +77,9 @@ GLuint framebuffer::genTexture(int _width, int _height, GLint _format, GLint _in
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     return tex;
+}
+
+void framebuffer::unbind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -18,6 +18,63 @@ markovChain::markovChain(size_t _order)
     load();
 }
 
+void markovChain::constructVisualisation()
+{
+    std::cout << "visualising\n";
+    m_seekBuffer.clear();
+    std::vector<std::string> buff = split(m_writeBuffer, ' ');
+    std::cout << "p0\n";
+
+    std::vector<std::string> start = getRandomContext();
+
+    std::cout << "p1\n";
+
+    for(auto &i : start)
+        addContext( i );
+
+    std::cout << "p2\n";
+
+    ngl::Vec3 origin = ngl::Vec3(0.0f, 0.0f, 0.0f);
+
+    std::cout << "starting recursion\n";
+    recursiveNodeData(
+                m_states[ start ],
+                origin,
+                m_seekBuffer
+                );
+}
+
+void markovChain::recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::deque<std::string> _context)
+{
+    //Terminate if leaf node.
+    if(_state.getNumConnections() == 0)
+        return;
+
+    //Gather edges.
+    std::vector<markovEdge> edges = _state.getConnections();
+
+    //Iterate and recur through children via local context.
+    for(auto &edge : edges)
+    {
+        //Copy the input context.
+        std::deque<std::string> localContext = _context;
+        //Add current node to context.
+        localContext.pop_front();
+        localContext.push_back( edge.m_node );
+
+        std::vector<std::string> seek;
+        for(auto &i : localContext) seek.push_back( i );
+
+        std::cout << "exploring node\n";
+
+        for(auto &i : localContext)
+            std::cout << i << ' ';
+        std::cout << '\n';
+
+        recursiveNodeData( m_states[ seek ], _origin, localContext );
+    }
+}
+
 void markovChain::reload(int _order)
 {
     printer pr;
@@ -109,6 +166,22 @@ std::vector<std::string> markovChain::getKeyFromContext()
     return ret;
 }
 
+std::vector<std::string> markovChain::getRandomContext()
+{
+    //Grab a random key from m_states
+    auto it = m_states.begin();
+    int advance = randInt(0, m_states.size());
+    std::advance( it, advance );
+
+    std::vector<std::string> key = it->first;
+    std::cout << "Context is ";
+    for(auto &i : key)
+        std::cout << " " << i;
+    std::cout << '\n';
+
+    return key;
+}
+
 void markovChain::loadSource(const std::string _path)
 {
     resetBuffers();
@@ -154,19 +227,7 @@ void markovChain::write(size_t _wordCount)
     //Word counting variables
     size_t curWord = 0;
 
-    //Grab a random key from m_states
-    auto it = m_states.begin();
-    std::cout << "genning no. " << (int)m_states.size() << '\n';
-    int advance = randInt(0, m_states.size());
-    std::advance( it, advance );
-
-    std::cout << "it is " << (it == m_states.end()) << ", " << advance << '\n';
-
-    std::vector<std::string> curKey = it->first;
-
-    pr.message("Initial key is ", CYAN);
-    for(auto &i : curKey)pr.message( i + ' ' );
-    pr.br();
+    std::vector<std::string> curKey = getRandomContext();
 
     //Add each string in the initial key to the context
     for(auto &str : curKey)

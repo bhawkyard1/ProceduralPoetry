@@ -1,10 +1,14 @@
 #include <ngl/NGLInit.h>
+#include <ngl/Mat3.h>
+#include <ngl/Mat4.h>
+#include <ngl/VAOPrimitives.h>
 
 #include "visualiser.hpp"
 #include "util.hpp"
 
 visualiser::visualiser()
 {
+    std::cout << "p1\n";
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
         errorExit("SDL initialisation failed");
 
@@ -52,164 +56,139 @@ visualiser::visualiser()
     makeCurrent();
     SDL_GL_SetSwapInterval(1);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ngl::NGLInit::instance();
 
+    m_framebuffer.initialise();
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );
 
-    m_framebuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA );
-    m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F );
-    m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F );
+    m_framebuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT0 );
+    m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
+    m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT2 );
+    m_framebuffer.addDepthAttachment("depth");
 
-    /*m_framebuffer.addDepthAttachment( "depth", )
+    m_framebuffer.activeColourAttachments(
+    {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2}
+                );
 
+    if(!m_framebuffer.checkComplete())
+        errorExit( "Error! Framebuffer failed!\n" );
 
-    glGenRenderbuffers(1, &m_bufferBackgroundDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_bufferBackgroundDepth);
-
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_w, m_h);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_bufferBackgroundDepth);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_bufferEffectsDiffuse, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_bufferLitDiffuse, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_bufferLitNormal, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_bufferLitPosition, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, m_bufferBackgroundDiffuse, 0);
-
-    useAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "Error! Framebuffer failed!\n";
-        exit(EXIT_FAILURE);
-    }
-
-    //Set up framebuffer
-    glGenFramebuffers(1, &m_tinyFramebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_tinyFramebuffer);
-
-    m_bufferDownscaledBackgroundDiffuse = genTexture(m_w / AMBIENT_RESOLUTION_DIVIDER, m_h / AMBIENT_RESOLUTION_DIVIDER, GL_RGBA, GL_RGBA);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_bufferDownscaledBackgroundDiffuse, 0);
-
-    useAttachments({GL_COLOR_ATTACHMENT0});
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "Error! Framebuffer failed!\n";
-        exit(EXIT_FAILURE);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_framebuffer.unbind();
 
     glViewport(0, 0, m_w, m_h);
 
-    m_view = ngl::lookAt(ngl::Vec3(0,0,1),
-                         ngl::Vec3(0,0,0),
-                         ngl::Vec3(0,1,0));
-
-
-    float divz = 1 / g_ZOOM_LEVEL;
-    m_project = ngl::ortho(
-                -g_HALFWIN.m_x * divz + m_cameraShakeOffset.m_x,
-                g_HALFWIN.m_x * divz + m_cameraShakeOffset.m_x,
-                g_HALFWIN.m_y * divz + m_cameraShakeOffset.m_y,
-                -g_HALFWIN.m_y * divz + m_cameraShakeOffset.m_y,
-                -2048.0,
-                2048.0
+    m_cam = ngl::Camera(
+                ngl::Vec3(0,0,1),
+                ngl::Vec3(0,0,0),
+                ngl::Vec3(0,1,0)
                 );
 
-    m_uiProject = ngl::ortho(
-                0.0f,
-                m_w,
-                m_h,
-                0.0f,
-                -256.0,
-                256.0
+    m_cam.setShape(
+                45.0f,
+                m_w / (float)m_h,
+                0.01f,
+                10000.0f
+                );
+
+    ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
+    prim->createSphere( "sphere", 1.0f, 32.0f );
+
+    createVAO(
+                "screenquad",
+    {
+                    ngl::Vec3(-1.0f, -1.0f, 0.5f),
+                    ngl::Vec3(-1.0f, 1.0f, 0.5f),
+                    ngl::Vec3(1.0f, 1.0f, 0.5f),
+                    ngl::Vec3(1.0f, -1.0f, 0.5f)
+                }
                 );
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glGenBuffers(1, &m_vertBuffer);
-    glGenBuffers(1, &m_UVBuffer);
-    glGenBuffers(1, &m_colourBuffer);
-    glGenBuffers(1, &m_genericBuffer);
-
-    m_vao = createVAO({ngl::Vec3(0.0f, 0.0f, 0.0f), ngl::Vec3(0.0f, 1.0f, 0.0f)});
-
-    m_unit_square_vao = createVAO({
-                                      ngl::Vec3(-0.5f, -0.5f, 0.5f),
-                                      ngl::Vec3(-0.5f, 0.5f, 0.5f),
-                                      ngl::Vec3(0.5f, 0.5f, 0.5f),
-                                      ngl::Vec3(0.5f, -0.5f, 0.5f)
-                                  },
-    {
-                                      ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                      ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                      ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                      ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f)
-                                  },
-    {
-                                      ngl::Vec2(0.0, 0.0),
-                                      ngl::Vec2(0.0, 1.0),
-                                      ngl::Vec2(1.0, 1.0),
-                                      ngl::Vec2(1.0, 0.0)
-                                  }
-                                  );
-
-    m_spriteVAO = createVAO({
-                                ngl::Vec3(-1.0f, -1.0f, 0.5f),
-                                ngl::Vec3(-1.0f, 1.0f, 0.5f),
-                                ngl::Vec3(1.0f, 1.0f, 0.5f),
-                                ngl::Vec3(1.0f, -1.0f, 0.5f)
-                            },
-    {
-                                ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f),
-                                ngl::Vec4(0.0f, 0.0f, 0.0f, 1.0f)
-                            },
-    {
-                                ngl::Vec2(0.0, 0.0),
-                                ngl::Vec2(0.0, 1.0),
-                                ngl::Vec2(1.0, 1.0),
-                                ngl::Vec2(1.0, 0.0)
-                            }
-                            );
-
-    std::cout << "creating screen quad!\n";
-    m_screenQuadVAO = createVAO({
-                                    ngl::Vec3(-1.0f, -1.0f, 0.5f),
-                                    ngl::Vec3(-1.0f, 1.0f, 0.5f),
-                                    ngl::Vec3(1.0f, 1.0f, 0.5f),
-                                    ngl::Vec3(1.0f, -1.0f, 0.5f)
-                                },
-    {
-                                    ngl::Vec2(-0.5f, -0.5f),
-                                    ngl::Vec2(-0.5f, 0.5f),
-                                    ngl::Vec2(0.5f, 0.5f),
-                                    ngl::Vec2(0.5f, -0.5f)
-                                }
-                                );
-
-    m_pointVAO = createVAO({ngl::Vec3(0.0f, 0.0f, 0.0f)});
-
-    m_shield = new ngl::Obj(g_GRAPHICAL_RESOURCE_LOC + "models/shield.obj");
-    m_shield->createVAO();
-
-    resetLights();
-    m_activeLights = 0;
-
-    std::cout << "p1\n";
-    m_noise512 = loadTexture(g_GRAPHICAL_RESOURCE_LOC + "textures/util/noise512RGB.png", GL_RGB);
-    std::cout << "p2\n";
-
-    finalise(0.0f, vec2());
-
-    std::cout << "g_HALFWIN is " << g_HALFWIN.m_x << ", " << g_HALFWIN.m_y << std::endl;
-    std::cout << "Resolution: " << g_WIN_WIDTH << " x " << g_WIN_HEIGHT << std::endl;*/
-
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+GLuint visualiser::createBuffer1f(std::vector<float> _vec)
+{
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(float) * _vec.size(),
+                 &_vec[0],
+            GL_STATIC_DRAW
+            );
+    return buffer;
+}
+
+GLuint visualiser::createBuffer2f(std::vector<ngl::Vec2> _vec)
+{
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(ngl::Vec2) * _vec.size(),
+                 &_vec[0].m_x,
+            GL_STATIC_DRAW
+            );
+    return buffer;
+}
+
+GLuint visualiser::createBuffer3f(std::vector<ngl::Vec3> _vec)
+{
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(ngl::Vec3) * _vec.size(),
+                 &_vec[0].m_x,
+            GL_STATIC_DRAW
+            );
+    return buffer;
+}
+
+GLuint visualiser::createBuffer4f(std::vector<ngl::Vec4> _vec)
+{
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(ngl::Vec4) * _vec.size(),
+                 &_vec[0].m_x,
+            GL_STATIC_DRAW
+            );
+    return buffer;
+}
+
+void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts)
+{
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    //Generate a VBO
+    GLuint vertBuffer = createBuffer3f( _verts );
+    setBufferLocation( vertBuffer, 0, 3 );
+
+    std::pair<std::string, GLuint> p (_id, vao );
+    m_vaos.insert( p );
+}
+
+void visualiser::loadMatricesToShader()
+{
+    ngl::Mat4 VP = m_cam.getVPMatrix();
+    ngl::Mat3 normalMat = VP;
+    normalMat.inverse();
+}
+
+void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
+{
+    glEnableVertexAttribArray(_index);
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer);
+    glVertexAttribPointer( 0, _size, GL_FLOAT, GL_FALSE, 0, 0 );
+}
+
+

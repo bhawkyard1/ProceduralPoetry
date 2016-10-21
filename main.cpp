@@ -17,7 +17,9 @@ int main(void)
     std::random_device rnd;
     //g_RANDOM_TWISTER = std::mt19937( rnd );
 
+    std::cout << "p0\n";
     markovChain mark (3);
+    std::cout << "p2\n";
     printer pr;
 
     bool done = false;
@@ -70,9 +72,17 @@ void processInput(const std::string &_input, markovChain &_mark)
             _mark.reload( std::stoi( cmds[1] ) );
         }
     }
+    else if(levenshtein(cmds[0], "visualise") < LEV_THRESHOLD)
+    {
+        _mark.constructVisualisation();
+    }
     else if(levenshtein(cmds[0], "quit") < LEV_THRESHOLD)
     {
         exit( EXIT_SUCCESS );
+    }
+    else
+    {
+        pr.message( "Sorry, I did not understand that instruction :(\n" );
     }
 
     std::cin.clear();

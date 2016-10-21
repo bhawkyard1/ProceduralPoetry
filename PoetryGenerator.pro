@@ -43,6 +43,19 @@ win32 {
     QMAKE_CXXFLAGS += "_ITERATOR_DEBUG_LEVEL_0"
 }
 
+unix {
+    QMAKE_CXXFLAGS += $$system(sdl2-config --cflags)
+
+    QMAKE_CXXFLAGS -= -O
+    QMAKE_CXXFLAGS -= -O1
+    QMAKE_CXXFLAGS -= -O2
+
+    QMAKE_CXXFLAGS *= -O3
+
+    LIBS += $$system(sdl2-config --libs)
+    LIBS += -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+}
+
 !equals(PWD, $${OUT_PWD}){
         copydata.commands = echo "creating destination dirs";
         # now make a dir
