@@ -59,11 +59,11 @@ visualiser::visualiser()
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );
 
-    m_framebuffer.addColourAttachment( "diffuse", GL_RGBA, GL_RGBA );
-    m_framebuffer.addColourAttachment( "normal", GL_RGBA, GL_RGBA16F );
-    m_framebuffer.addColourAttachment( "position", GL_RGBA, GL_RGBA16F );
+    m_framebuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA );
+    m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F );
+    m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F );
 
-    m_framebuffer.addDepthAttachment( "depth", )
+    /*m_framebuffer.addDepthAttachment( "depth", )
 
 
     glGenRenderbuffers(1, &m_bufferBackgroundDepth);
@@ -210,6 +210,6 @@ visualiser::visualiser()
     finalise(0.0f, vec2());
 
     std::cout << "g_HALFWIN is " << g_HALFWIN.m_x << ", " << g_HALFWIN.m_y << std::endl;
-    std::cout << "Resolution: " << g_WIN_WIDTH << " x " << g_WIN_HEIGHT << std::endl;
+    std::cout << "Resolution: " << g_WIN_WIDTH << " x " << g_WIN_HEIGHT << std::endl;*/
 
 }

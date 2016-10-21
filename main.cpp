@@ -1,5 +1,7 @@
 #include <iostream>
 #include <time.h>
+#include <random>
+
 #include "markovChain.hpp"
 #include "printer.hpp"
 #include "util.hpp"
@@ -12,7 +14,8 @@ int main(void)
 {
     std::cout << "Oh heck!\n";
 
-    srand(time(NULL));
+    std::random_device rnd;
+    //g_RANDOM_TWISTER = std::mt19937( rnd );
 
     markovChain mark (3);
     printer pr;
@@ -40,7 +43,7 @@ void processInput(const std::string &_input, markovChain &_mark)
 
     if(levenshtein(cmds[0],  "write") < LEV_THRESHOLD)
     {
-        size_t wordCount = randNum(100, 200);
+        size_t wordCount = randInt(100, 200);
         if(cmds.size() > 1)
             wordCount = stoi(cmds[1]);
         _mark.write(wordCount);

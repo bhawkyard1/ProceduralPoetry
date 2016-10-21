@@ -156,28 +156,34 @@ void markovChain::write(size_t _wordCount)
 
     //Grab a random key from m_states
     auto it = m_states.begin();
-    std::advance( it, randNum((size_t)0, m_states.size()) );
+    std::cout << "genning no. " << (int)m_states.size() << '\n';
+    int advance = randInt(0, m_states.size());
+    std::advance( it, advance );
+
+    std::cout << "it is " << (it == m_states.end()) << ", " << advance << '\n';
+
     std::vector<std::string> curKey = it->first;
-    //Add each string in the initial key to the context
-    for(auto &str : curKey)
-        addContext(str);
 
     pr.message("Initial key is ", CYAN);
     for(auto &i : curKey)pr.message( i + ' ' );
     pr.br();
 
+    //Add each string in the initial key to the context
+    for(auto &str : curKey)
+        addContext(str);
+
     //Terminate when we have exceeded the word count and the current word is a line break.
     while(curWord < _wordCount or m_seekBuffer[0] != "\n")
     {
-        pr.message( "Iteration  " + curWord + '\n', WHITE );
+        /*pr.message( "Iteration  " + curWord + '\n', WHITE );
         pr.message( "Key " );
         for(auto &str : curKey) pr.message( str + ' ' );
-        pr.br();
+        pr.br();*/
 
         //Grab outbound connection
         std::string next = m_states[ curKey ].getRandomConnection().m_node;
 
-        pr.message( "Next is " + next + '\n' );
+        //pr.message( "Next is " + next + '\n' );
 
         if(next == "")
             break;

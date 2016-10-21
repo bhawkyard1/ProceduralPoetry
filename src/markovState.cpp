@@ -35,7 +35,7 @@ void markovState::addConnection(const std::string &_id)
 markovEdge markovState::getRandomConnection()
 {
     //Generate a random number between zero and m_maxProbability
-    float p = randNum(0.0f, m_maxProbability);
+    float p = randFlt(0.0f, m_maxProbability);
     float curProb = 0.0f;
 
     //Loop through connections...

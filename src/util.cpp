@@ -170,3 +170,21 @@ void errorExit(const std::string &_msg)
     std::cerr << &_msg << '\n';
     exit(EXIT_FAILURE);
 }
+
+int randInt(int _low, int _high)
+{
+    if( _low == _high )
+        return _low;
+
+    std::uniform_int_distribution< int > uni( _low, _high );
+    return uni( g_RANDOM_TWISTER );
+}
+
+float randFlt(float _low, float _high)
+{
+    if( _low == _high )
+        return _low;
+
+    std::uniform_real_distribution< float > uni( _low, _high );
+    return uni( g_RANDOM_TWISTER );
+}

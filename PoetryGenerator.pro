@@ -2,6 +2,8 @@ TARGET = PoetryGenerator
 
 OBJECTS_DIR = obj
 
+QT += opengl core
+
 isEqual(QT_MAJOR_VERSION, 5) {
         cache()
         #DEFINES  += QT5BUILD
@@ -21,6 +23,40 @@ OTHER_FILES += readme.md \
                            ./shaders/*.glsl
 
 CONFIG += console
+
+win32 {
+    INCLUDEPATH += C:\SDL2\i686-w64-mingw32\include\SDL2
+    INCLUDEPATH += C:\SDL2\i686-w64-mingw32\include
+    LIBS += -L"C:/SDL2/lib/x64/" -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+    #LIBS += -L"C:\SDL2\i686-w64-mingw32\lib" -mwindows -lmingw32 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2main -lSDL2
+    LIBS += -L"C:/NGL/lib/NGL.lib" -lNGL
+
+    PRE_TARGETDEPS += C:/NGL/lib/NGL.lib
+    INCLUDEPATH += -I c:/boost
+    INCLUDEPATH += C:/NGL/include/
+    DEFINES += GL42
+    DEFINES += WIN32
+    DEFINES += _WIN32
+    DEFINES += _USE_MATH_DEFINES
+    LIBS += -LC:/NGL/lib/ -lNGL
+    DEFINES += NO_DLL
+    QMAKE_CXXFLAGS += "_ITERATOR_DEBUG_LEVEL_0"
+}
+
+!equals(PWD, $${OUT_PWD}){
+        copydata.commands = echo "creating destination dirs";
+        # now make a dir
+        copydata.commands += mkdir -p $$OUT_PWD/shaders;
+        copydata.commands += echo "copying files";
+        # then copy the files
+        copydata.commands += $(COPY_DIR) $$PWD/shaders/* $$OUT_PWD/shaders/;
+        # now make sure the first target is built before copy
+        first.depends = $(first) copydata
+        export(first.depends)
+        export(copydata.commands)
+        # now add it as an extra target
+        QMAKE_EXTRA_TARGETS += first copydata
+}
 
 NGLPATH = $$(NGLDIR)
 isEmpty(NGLPATH){ # note brace must be here

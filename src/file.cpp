@@ -4,6 +4,10 @@
 #include "file.hpp"
 #include "util.hpp"
 
+#ifdef _WIN32
+#include <ciso646>
+#endif
+
 std::vector<std::string> getSources()
 {
     std::vector<std::string> ret;
