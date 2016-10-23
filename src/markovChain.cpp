@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ngl/Random.h>
 
 #include "markovChain.hpp"
 #include "printer.hpp"
@@ -20,15 +21,105 @@ markovChain::markovChain(size_t _order)
 
 void markovChain::constructVisualisation()
 {
-    std::cout << "visualising\n";
-    m_seekBuffer.clear();
-    std::vector<std::string> buff = split(m_writeBuffer, ' ');
-    std::cout << "p0\n";
+    m_visualiser.clearPoints();
 
+    ngl::Random * rnd = ngl::Random::instance();
+    std::cout << "visualising\n";
+    unsigned long cnt = 0;
+
+    std::cout << "p2\n";
+
+    ngl::Vec3 origin = ngl::Vec3(0.0f, 0.0f, 0.0f);
+
+    //A vector of all the keys that we have visited, we use this to keep track of nodes we have visited.
+    std::vector< mKey > visitedKeys;
+    //Connected keys to explore (will be checked agains visitedKeys PRIOR to adding).
+    std::vector< mKey > exploreKeys;
+    //Push back a random key to start on.
+    exploreKeys.push_back( getRandomContext() );
+
+    //Clear the seekbuffer, then construct a new context.
+    m_seekBuffer.clear();
+    for(auto &i : exploreKeys[0])
+        addContext( i );
+
+    //While there are keys to explore... keep exploring.
+    while( exploreKeys.size() != 0 )
+    {
+        std::cout << "exploring " << exploreKeys.size() << '\n';
+        //The keys that, based on the exploration or explorekeys, will be added at the next iteration of the while loop.
+        //This is just to avoid adding things straight to explorekeys, which I expect may cause problems, make the vector resize etc.
+        std::vector< mKey > newKeys;
+        for( auto &key : exploreKeys )
+        {
+            cnt++;
+            //Connections to the currently explored node.
+            std::vector< markovEdge > connections = m_states[ key ].getConnections();
+            for( auto &edge : connections )
+            {
+                //Create a key to consider
+                mKey testKey = key;
+                //Form context using current edge.
+                testKey.erase( testKey.begin() );
+                testKey.push_back( edge.m_node );
+
+                //If no node is associated with this key, continue
+                //This shouldn't happen, I don't think...
+                if( m_states.count( testKey ) == 0 )
+                    continue;
+
+                //Add testKey to newKeys
+                newKeys.push_back( testKey );
+            }
+
+            //Add point with offset.
+            origin += rnd->getRandomNormalizedVec3();
+            m_visualiser.addPoint( origin );
+
+            visitedKeys.push_back( key );
+        }
+
+        exploreKeys.clear();
+
+        for( auto &newKey : newKeys )
+        {
+            if( std::find(
+                        visitedKeys.begin(),
+                        visitedKeys.end(),
+                        newKey)
+                    ==
+                    visitedKeys.end()
+                    )
+            {
+                exploreKeys.push_back( newKey );
+            }
+        }
+    }
+    std::cout << "Total of " << cnt << " keys explored\n";
+
+    m_visualiser.show();
+}
+
+void markovChain::visualise()
+{
+    m_visualiser.update();
+    m_visualiser.clear();
+    m_visualiser.drawSpheres();
+    m_visualiser.swap();
+}
+
+/*
+void markovChain::constructVisualisation()
+{
+    std::cout << "visualising\n";
+
+    //Get random starting key.
     std::vector<std::string> start = getRandomContext();
 
     std::cout << "p1\n";
 
+    //Clear the seekbuffer, then construct a new context.
+    m_seekBuffer.clear();
     for(auto &i : start)
         addContext( i );
 
@@ -43,7 +134,7 @@ void markovChain::constructVisualisation()
                 m_seekBuffer
                 );
 }
-
+*/
 void markovChain::recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::deque<std::string> _context)
 {
     //Terminate if leaf node.
@@ -71,7 +162,7 @@ void markovChain::recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::
             std::cout << i << ' ';
         std::cout << '\n';*/
 
-        std::cout << "nodes with seek id " << m_states.count( seek ) << '\n';
+        std::cout << "nodes with seek dist " << _state.getNumConnections() << '\n';
 
         recursiveNodeData( m_states[ seek ], _origin, localContext );
     }
@@ -111,7 +202,7 @@ void markovChain::addContext(const std::string &_str)
 {
     m_seekBuffer.push_back(_str);
     if(m_seekBuffer.size() > m_order)
-        m_seekBuffer.pop_front();
+        m_seekBuffer.erase( m_seekBuffer.begin() );
 }
 
 void markovChain::diagnoseNode( const std::string &_str )
@@ -158,7 +249,7 @@ float markovChain::getAverageNumConnections()
     return cons;
 }
 
-std::vector<std::string> markovChain::getKeyFromContext()
+mKey markovChain::getKeyFromContext()
 {
     std::vector<std::string> ret;
 
@@ -168,7 +259,7 @@ std::vector<std::string> markovChain::getKeyFromContext()
     return ret;
 }
 
-std::vector<std::string> markovChain::getRandomContext()
+mKey markovChain::getRandomContext()
 {
     //Grab a random key from m_states
     auto it = m_states.begin();

@@ -9,4 +9,6 @@ struct markovEdge
     float m_probability;
 };
 
+bool operator==(const markovEdge &_lhs, const markovEdge &_rhs);
+
 #endif

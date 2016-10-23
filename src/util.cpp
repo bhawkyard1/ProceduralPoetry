@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <SDL2/SDL.h>
 
 #include "matrices.hpp"
 #include "util.hpp"
@@ -35,6 +36,15 @@ std::istream& getlineSafe(std::istream& is, std::string& t)
             t += (char)c;
         }
     }
+}
+
+ngl::Vec2 getMousePos()
+{
+    int x = 0;
+    int y = 0;
+    SDL_GetMouseState( &x, &y );
+
+    return ngl::Vec2( x, y );
 }
 
 int levenshtein(const std::string &_a, const std::string &_b)
@@ -98,6 +108,11 @@ std::vector<std::string> split(std::string _str, char _delim)
     }
 
     return ret;
+}
+
+float rad(const float _deg)
+{
+    return _deg * (M_PI / 180.0f);
 }
 
 

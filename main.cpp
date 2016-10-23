@@ -4,18 +4,17 @@
 
 #include "markovChain.hpp"
 #include "printer.hpp"
+#include "sim_time.hpp"
 #include "util.hpp"
 
 #define LEV_THRESHOLD 2
 
 void processInput(const std::string &_input, markovChain &_mark);
+void visualise( markovChain &_mark );
 
 int main(int argc, char* argv[])
 {
     std::cout << "Oh heck!\n";
-
-    std::random_device rnd;
-    //g_RANDOM_TWISTER = std::mt19937( rnd );
 
     std::cout << "p0\n";
     markovChain mark (3);
@@ -75,6 +74,7 @@ void processInput(const std::string &_input, markovChain &_mark)
     else if(levenshtein(cmds[0], "visualise") < LEV_THRESHOLD)
     {
         _mark.constructVisualisation();
+        visualise(_mark);
     }
     else if(levenshtein(cmds[0], "quit") < LEV_THRESHOLD)
     {
@@ -86,4 +86,43 @@ void processInput(const std::string &_input, markovChain &_mark)
     }
 
     std::cin.clear();
+}
+
+void visualise(markovChain &_mark)
+{
+    sim_time timer(120.0f);
+    bool done = false;
+    while(!done)
+    {
+        timer.setCur();
+        SDL_Event event;
+        while(SDL_PollEvent( &event ))
+        {
+            switch( event.type )
+            {
+            case SDL_QUIT:
+                return;
+            case SDL_KEYDOWN:
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                done = true;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                _mark.mouseDown( event );
+                break;
+            case SDL_MOUSEBUTTONUP:
+                _mark.mouseUp( event );
+                break;
+            case SDL_MOUSEWHEEL:
+                _mark.mouseWheel( event.wheel.y );
+                break;
+            default:
+                break;
+            }
+        }
+
+        g_TIME += timer.getDiff();
+
+        _mark.visualise();
+    }
+    _mark.hideVisualiser();
 }

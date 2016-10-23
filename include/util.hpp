@@ -8,6 +8,8 @@
 #include <vector>
 #include <random>
 
+#include <ngl/Vec2.h>
+
 #include "common.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -19,6 +21,8 @@
 
 std::istream& getlineSafe(std::istream& is, std::string& t);
 
+ngl::Vec2 getMousePos();
+
 int randInt(int _low, int _high);
 float randFlt(float _low, float _high);
 
@@ -28,5 +32,7 @@ std::vector<std::string> split(std::string _str, char _delim);
 std::vector<std::string> split(std::string _str, std::string _delims);
 
 void errorExit(const std::string &_msg);
+
+float rad(const float _deg);
 
 #endif

@@ -8,6 +8,8 @@
 #include "markovState.hpp"
 #include "visualiser.hpp"
 
+typedef std::vector< std::string > mKey;
+
 class markovChain
 {
 public:
@@ -19,20 +21,30 @@ public:
 
     float getAverageNumConnections();
 
-    std::vector<std::string> getRandomContext();
+    mKey getRandomContext();
+
+    void hideVisualiser() {m_visualiser.hide();}
 
     void loadSource( const std::string _path );
+
+    void mouseDown(SDL_Event _event) {m_visualiser.mouseDown(_event);}
+    void mouseUp(SDL_Event _event) {m_visualiser.mouseUp(_event);}
+    void mouseWheel(int _dir) {m_visualiser.mouseWheel(_dir);}
 
     void write(size_t _wordCount);
 
     void reload(int _order);
+
+    void showVisualiser() {m_visualiser.show();}
+
     size_t getOrder() {return m_order;}
 
     void constructVisualisation();
+    void visualise();
     void recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::deque<std::string> _context);
 private:
     void addContext(const std::string &_str);
-    std::vector<std::string> getKeyFromContext();
+    mKey getKeyFromContext();
     void resetBuffers() {m_writeBuffer = ""; m_seekBuffer.clear();}
     void load();
 
@@ -42,10 +54,10 @@ private:
     std::string m_writeBuffer;
 
     //Traversing m_states will only return one string per step. This is written into a buffer (FIFO queue) to give context for the next step.
-    std::deque<std::string> m_seekBuffer;
+    mKey m_seekBuffer;
 
     //This is the guts of the chain, the vector of strings (which will be order in length) is the string associates
-    std::map<std::vector<std::string>, markovState> m_states;
+    std::map< mKey, markovState > m_states;
 
     visualiser m_visualiser;
 };

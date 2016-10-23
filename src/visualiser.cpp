@@ -3,13 +3,24 @@
 #include <ngl/NGLInit.h>
 #include <ngl/Mat3.h>
 #include <ngl/Mat4.h>
+#include <ngl/Random.h>
+#include <ngl/ShaderLib.h>
 #include <ngl/VAOPrimitives.h>
 
+#include <time.h>
+
+#include "common.hpp"
 #include "visualiser.hpp"
 #include "util.hpp"
 
 visualiser::visualiser()
 {
+    m_lmb = false;
+    m_mmb = false;
+
+    m_tZoom = 5.0f;
+    m_cZoom = 5.0f;
+
     std::cout << "p1\n";
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
         errorExit("SDL initialisation failed");
@@ -56,11 +67,16 @@ visualiser::visualiser()
         errorExit("Unable to create GL context");
 
     makeCurrent();
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(0);
 
     ngl::NGLInit::instance();
 
-    m_framebuffer.initialise();
+    ngl::Random * rnd = ngl::Random::instance();
+    rnd->setSeed( time(NULL) );
+
+    createShaderProgram( "blinn", "MVPUVNVert", "blinnFrag" );
+
+    /*m_framebuffer.initialise();
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );
 
@@ -76,21 +92,21 @@ visualiser::visualiser()
     if(!m_framebuffer.checkComplete())
         errorExit( "Error! Framebuffer failed!\n" );
 
-    m_framebuffer.unbind();
+    m_framebuffer.unbind();*/
 
     glViewport(0, 0, m_w, m_h);
 
     m_cam = ngl::Camera(
-                ngl::Vec3(0,0,1),
-                ngl::Vec3(0,0,0),
-                ngl::Vec3(0,1,0)
+                ngl::Vec3(0, 0, 1),
+                ngl::Vec3(0, 0, 0),
+                ngl::Vec3(0, 1, 0)
                 );
 
     m_cam.setShape(
-                45.0f,
-                m_w / (float)m_h,
-                0.01f,
-                10000.0f
+                60.0f,
+                (float)m_w / (float)m_h,
+                0.5f,
+                2048.0f
                 );
 
     ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
@@ -109,8 +125,13 @@ visualiser::visualiser()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    clear();
+    swap();
+    hide();
 }
 
 GLuint visualiser::createBuffer1f(std::vector<float> _vec)
@@ -165,6 +186,26 @@ GLuint visualiser::createBuffer4f(std::vector<ngl::Vec4> _vec)
     return buffer;
 }
 
+void visualiser::createShaderProgram(const std::string _name, const std::string _vert, const std::string _frag)
+{
+    ngl::ShaderLib * slib = ngl::ShaderLib::instance();
+
+    slib->createShaderProgram(_name);
+    slib->attachShader(_vert, ngl::ShaderType::VERTEX);
+    slib->attachShader(_frag, ngl::ShaderType::FRAGMENT);
+
+    slib->loadShaderSource(_vert, "shaders/" + _vert + ".glsl");
+    slib->loadShaderSource(_frag, "shaders/" + _frag + ".glsl");
+
+    slib->compileShader(_vert);
+    slib->compileShader(_frag);
+
+    slib->attachShaderToProgram(_name, _vert);
+    slib->attachShaderToProgram(_name, _frag);
+
+    slib->linkProgramObject(_name);
+}
+
 void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts)
 {
     GLuint vao;
@@ -179,11 +220,94 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts
     m_vaos.insert( p );
 }
 
+void visualiser::drawSpheres()
+{
+    ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
+    ngl::ShaderLib * slib = ngl::ShaderLib::instance();
+
+    slib->use( "blinn" );
+
+    /*m_trans.reset();
+    //m_trans.setPosition( ngl::Vec3(0.0f, 0.0f, 0.0f) );
+    loadMatricesToShader();
+
+    prim->draw( "sphere" );*/
+
+    for(auto &i : m_points)
+    {
+        //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
+        //m_trans.reset();
+
+        ngl::Vec3 pos = i + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f);
+
+        m_trans.setPosition( pos );
+        loadMatricesToShader();
+
+        prim->draw( "sphere" );
+    }
+}
+
 void visualiser::loadMatricesToShader()
 {
+    ngl::ShaderLib * slib = ngl::ShaderLib::instance();
+
+    ngl::Mat4 camTrans;
+    camTrans.translate(
+                m_camCLook.m_x,
+                m_camCLook.m_y,
+                m_camCLook.m_z
+                );
+
     ngl::Mat4 VP = m_cam.getVPMatrix();
     ngl::Mat3 normalMat = VP;
     normalMat.inverse();
+    ngl::Mat4 MVP = m_trans.getMatrix() * camTrans * m_rot * VP;
+
+    slib->setRegisteredUniform( "MVP", MVP );
+    slib->setRegisteredUniform( "normalMat", normalMat );
+}
+
+void visualiser::mouseDown(SDL_Event _event)
+{
+    switch(_event.button.button)
+    {
+    case SDL_BUTTON_LEFT:
+        m_mouseOrigin = getMousePos();
+        m_mousePos = m_mouseOrigin;
+        m_lmb = true;
+        break;
+    case SDL_BUTTON_MIDDLE:
+        m_mouseOrigin = getMousePos();
+        m_mousePos = m_mouseOrigin;
+        m_mmb = true;
+        break;
+    default:
+        break;
+    }
+}
+
+void visualiser::mouseUp(SDL_Event _event)
+{
+    switch(_event.button.button)
+    {
+    case SDL_BUTTON_LEFT:
+        m_mouseOrigin = getMousePos();
+        m_mousePos = m_mouseOrigin;
+        m_lmb = false;
+        break;
+    case SDL_BUTTON_MIDDLE:
+        m_mouseOrigin = getMousePos();
+        m_mousePos = m_mouseOrigin;
+        m_mmb = false;
+        break;
+    default:
+        break;
+    }
+}
+
+void visualiser::mouseWheel(int _dir)
+{
+    m_tZoom += -6.0f * _dir;
 }
 
 void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
@@ -193,4 +317,59 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
     glVertexAttribPointer( 0, _size, GL_FLOAT, GL_FALSE, 0, 0 );
 }
 
+void visualiser::update()
+{
+    if( m_lmb )
+    {
+        m_mousePos = getMousePos();
+        m_tMouseRotation += m_mousePos - m_mouseOrigin;
+
+        m_mouseOrigin = m_mousePos;
+    }
+    else if( m_mmb )
+    {
+        std::cout << m_cam.getLook().m_x << ", " << m_cam.getLook().m_y << ", " << m_cam.getLook().m_z << '\n';
+        m_mousePos = getMousePos();
+        ngl::Vec2 diff = m_mousePos - m_mouseOrigin;
+
+        ngl::Mat4 rot = m_rot;
+        rot.inverse();
+        ngl::Vec4 camPos = m_cam.getEye() * rot;
+        ngl::Vec4 right;
+        right.cross( camPos, ngl::Vec4(0.0f, 1.0f, 0.0f, 0.0f) );
+        right.normalize();
+        ngl::Vec4 up;
+        up.cross( camPos, right );
+        up.normalize();
+
+        ngl::Vec4 add = (right * diff.m_x + up * diff.m_y);
+        /*if(add.length() > 0.0f)
+            add.normalize();*/
+
+        m_camTLook += add;
+
+        m_mouseOrigin = m_mousePos;
+    }
+
+    m_cMouseRotation += (m_tMouseRotation - m_cMouseRotation) / 16.0f;
+
+    //std::cout << "Mouse down, " << m_mouseRotation.m_x << ", " << m_mouseRotation.m_y << '\n';
+
+    //Do rotations
+    ngl::Mat4 pitch;
+    ngl::Mat4 yaw;
+
+    pitch.rotateX( m_cMouseRotation.m_y );
+    yaw.rotateY( m_cMouseRotation.m_x );
+
+    m_rot = yaw * pitch;
+
+    m_cZoom += (m_tZoom - m_cZoom) / 16.0f;
+    ngl::Vec4 cpos = m_cam.getEye();
+    cpos.normalize();
+
+    m_cam.setEye( cpos * m_cZoom );
+
+    m_camCLook += (m_camTLook - m_camCLook ) / 16.0f;
+}
 
