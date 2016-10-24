@@ -76,7 +76,7 @@ visualiser::visualiser()
 
     createShaderProgram( "blinn", "MVPUVNVert", "blinnFrag" );
 
-    /*m_framebuffer.initialise();
+    m_framebuffer.initialise();
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );
 
@@ -92,7 +92,7 @@ visualiser::visualiser()
     if(!m_framebuffer.checkComplete())
         errorExit( "Error! Framebuffer failed!\n" );
 
-    m_framebuffer.unbind();*/
+    m_framebuffer.unbind();
 
     glViewport(0, 0, m_w, m_h);
 
@@ -227,12 +227,6 @@ void visualiser::drawSpheres()
 
     slib->use( "blinn" );
 
-    /*m_trans.reset();
-    //m_trans.setPosition( ngl::Vec3(0.0f, 0.0f, 0.0f) );
-    loadMatricesToShader();
-
-    prim->draw( "sphere" );*/
-
     for(auto &i : m_points)
     {
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
@@ -332,21 +326,18 @@ void visualiser::update()
         m_mousePos = getMousePos();
         ngl::Vec2 diff = m_mousePos - m_mouseOrigin;
 
-        ngl::Mat4 rot = m_rot;
-        rot.inverse();
-        ngl::Vec4 camPos = m_cam.getEye() * rot;
-        ngl::Vec4 right;
-        right.cross( camPos, ngl::Vec4(0.0f, 1.0f, 0.0f, 0.0f) );
-        right.normalize();
-        ngl::Vec4 up;
-        up.cross( camPos, right );
-        up.normalize();
+        ngl::Mat4 camTrans;
+        camTrans.translate(
+                    m_camCLook.m_x,
+                    m_camCLook.m_y,
+                    m_camCLook.m_z
+                    );
 
-        ngl::Vec4 add = (right * diff.m_x + up * diff.m_y);
-        /*if(add.length() > 0.0f)
-            add.normalize();*/
+        //Mat4 representing the view matrix
+        ngl::Mat4 completeViewMat = m_cam.getViewMatrix() * m_rot * camTrans;
 
-        m_camTLook += add;
+        m_camTLook += completeViewMat.getRightVector() * diff.m_x;
+        m_camTLook -= completeViewMat.getUpVector() * diff.m_y;
 
         m_mouseOrigin = m_mousePos;
     }

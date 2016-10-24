@@ -5,7 +5,7 @@
 #include <random>
 
 extern std::string g_RESOURCE_LOC;
-extern std::mt19937 g_RANDOM_TWISTER;
+extern std::default_random_engine g_RANDOM_TWISTER;
 
 extern float g_TIME;
 
