@@ -14,5 +14,5 @@ void main()
 {
     gl_Position = MVP * inPosition;
     UV = inUV;
-    normal = normalMat * inNormal;
+    normal = /*normalMat */ inNormal;
 }

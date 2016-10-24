@@ -103,7 +103,7 @@ visualiser::visualiser()
                 );
 
     m_cam.setShape(
-                60.0f,
+                90.0f,
                 (float)m_w / (float)m_h,
                 0.5f,
                 2048.0f
@@ -227,6 +227,8 @@ void visualiser::drawSpheres()
 
     slib->use( "blinn" );
 
+    slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
     for(auto &i : m_points)
     {
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
@@ -239,26 +241,31 @@ void visualiser::drawSpheres()
 
         prim->draw( "sphere" );
     }
+
+    slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_trans.setPosition( m_camCLook );
+    loadMatricesToShader();
+
+    prim->draw( "sphere" );
 }
 
 void visualiser::loadMatricesToShader()
 {
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
-    ngl::Mat4 camTrans;
-    camTrans.translate(
+    m_camTrans.setPosition(
                 m_camCLook.m_x,
                 m_camCLook.m_y,
                 m_camCLook.m_z
                 );
 
-    ngl::Mat4 VP = m_cam.getVPMatrix();
-    ngl::Mat3 normalMat = VP;
-    normalMat.inverse();
-    ngl::Mat4 MVP = m_trans.getMatrix() * camTrans * m_rot * VP;
+    ngl::Mat4 MV = m_camTrans.getMatrix() * m_trans.getMatrix() * m_rot * m_cam.getViewMatrix();
+    //ngl::Mat3 normalMat = MV;
+    //normalMat.inverse();
+    ngl::Mat4 MVP = MV * m_cam.getProjectionMatrix();
 
     slib->setRegisteredUniform( "MVP", MVP );
-    slib->setRegisteredUniform( "normalMat", normalMat );
+    //slib->setRegisteredUniform( "normalMat", normalMat );
 }
 
 void visualiser::mouseDown(SDL_Event _event)
@@ -322,24 +329,25 @@ void visualiser::update()
     }
     else if( m_mmb )
     {
-        std::cout << m_cam.getLook().m_x << ", " << m_cam.getLook().m_y << ", " << m_cam.getLook().m_z << '\n';
         m_mousePos = getMousePos();
         ngl::Vec2 diff = m_mousePos - m_mouseOrigin;
 
-        ngl::Mat4 camTrans;
-        camTrans.translate(
+        m_camTrans.setPosition(
                     m_camCLook.m_x,
                     m_camCLook.m_y,
                     m_camCLook.m_z
                     );
 
         //Mat4 representing the view matrix
-        ngl::Mat4 completeViewMat = m_cam.getViewMatrix() * m_rot * camTrans;
+        ngl::Mat4 completeViewMat = m_camTrans.getMatrix() * m_cam.getViewMatrix() * m_rot;
 
-        m_camTLook += completeViewMat.getRightVector() * diff.m_x;
-        m_camTLook -= completeViewMat.getUpVector() * diff.m_y;
+        //m_camTLook += completeViewMat.getRightVector() * diff.m_x;
+        m_camTLook += completeViewMat.getUpVector() * diff.m_y;
 
         m_mouseOrigin = m_mousePos;
+
+        std::cout << m_camTLook.m_x << ", " << m_camTLook.m_y << ", " << m_camTLook.m_z << '\n';
+        //std::cout << completeViewMat.getUpVector().m_x << ", " << completeViewMat.getUpVector().m_y << ", " << completeViewMat.getUpVector().m_z << '\n';
     }
 
     m_cMouseRotation += (m_tMouseRotation - m_cMouseRotation) / 16.0f;

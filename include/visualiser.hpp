@@ -40,6 +40,7 @@ private:
     void setBufferLocation(GLuint _buffer, int _index, int _size);
 
     ngl::Camera m_cam;
+    ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
     SDL_GLContext m_gl_context;
     int m_h;
