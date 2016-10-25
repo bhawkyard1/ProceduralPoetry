@@ -53,7 +53,7 @@ visualiser::visualiser()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
@@ -132,6 +132,11 @@ visualiser::visualiser()
     clear();
     swap();
     hide();
+}
+
+visualiser::~visualiser()
+{
+    SDL_DestroyWindow( m_window );
 }
 
 GLuint visualiser::createBuffer1f(std::vector<float> _vec)
@@ -332,21 +337,12 @@ void visualiser::update()
         m_mousePos = getMousePos();
         ngl::Vec2 diff = m_mousePos - m_mouseOrigin;
 
-        m_camTrans.setPosition(
-                    m_camCLook.m_x,
-                    m_camCLook.m_y,
-                    m_camCLook.m_z
-                    );
-
-        //Mat4 representing the view matrix
-        ngl::Mat4 completeViewMat = m_camTrans.getMatrix() * m_cam.getViewMatrix() * m_rot;
-
-        //m_camTLook += completeViewMat.getRightVector() * diff.m_x;
-        m_camTLook += completeViewMat.getUpVector() * diff.m_y;
+        m_rot.transpose();
+        m_camTLook += m_rot.getRightVector() * diff.m_x / 8.0f;
+        m_camTLook -= m_rot.getUpVector() * diff.m_y / 8.0f;
 
         m_mouseOrigin = m_mousePos;
 
-        std::cout << m_camTLook.m_x << ", " << m_camTLook.m_y << ", " << m_camTLook.m_z << '\n';
         //std::cout << completeViewMat.getUpVector().m_x << ", " << completeViewMat.getUpVector().m_y << ", " << completeViewMat.getUpVector().m_z << '\n';
     }
 

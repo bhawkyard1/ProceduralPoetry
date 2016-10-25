@@ -26,12 +26,12 @@ int main(int argc, char* argv[])
     {
         pr.message( "Enter a command : ", GREEN );
 
-        std::string input;
+        std::string input = "";
         std::getline( std::cin, input );
 
         //std::cin >> input;
-
-        processInput( input, mark );
+        if(input.length() > 0)
+            processInput( input, mark );
     }
 
     return 0;

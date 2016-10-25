@@ -8,7 +8,7 @@
 #include "markovState.hpp"
 #include "visualiser.hpp"
 
-typedef std::vector< std::string > mKey;
+using mKey = std::vector< std::string >;
 
 class markovChain
 {
@@ -41,7 +41,6 @@ public:
 
     void constructVisualisation();
     void visualise();
-    void recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::deque<std::string> _context);
 private:
     void addContext(const std::string &_str);
     mKey getKeyFromContext();

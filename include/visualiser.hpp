@@ -12,6 +12,7 @@ class visualiser
 {
 public:
     visualiser();
+    ~visualiser();
     void addPoint(const ngl::Vec3 &_vec) {m_points.push_back(_vec);}
     void clearPoints() {m_points.clear();}
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
@@ -54,8 +55,8 @@ private:
     ngl::Vec2 m_tMouseRotation;
     ngl::Vec2 m_cMouseRotation;
 
-    ngl::Vec4 m_camTLook;
-    ngl::Vec4 m_camCLook;
+    ngl::Vec3 m_camTLook;
+    ngl::Vec3 m_camCLook;
 
     std::vector<ngl::Vec3> m_points;
     ngl::Transformation m_trans;

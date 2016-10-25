@@ -136,39 +136,6 @@ void markovChain::constructVisualisation()
                 );
 }
 */
-void markovChain::recursiveNodeData(markovState _state, ngl::Vec3 _origin, std::deque<std::string> _context)
-{
-    //Terminate if leaf node.
-    if(_state.getNumConnections() == 0)
-        return;
-
-    //Gather edges.
-    std::vector<markovEdge> edges = _state.getConnections();
-
-    //Iterate and recur through children via local context.
-    for(auto &edge : edges)
-    {
-        //Copy the input context.
-        std::deque<std::string> localContext = _context;
-        //Add current node to context.
-        localContext.pop_front();
-        localContext.push_back( edge.m_node );
-
-        std::vector<std::string> seek;
-        for(auto &i : localContext) seek.push_back( i );
-
-        /*std::cout << "exploring node\n";
-
-        for(auto &i : localContext)
-            std::cout << i << ' ';
-        std::cout << '\n';*/
-
-        std::cout << "nodes with seek dist " << _state.getNumConnections() << '\n';
-
-        recursiveNodeData( m_states[ seek ], _origin, localContext );
-    }
-}
-
 void markovChain::reload(int _order)
 {
     printer pr;
@@ -226,19 +193,24 @@ void markovChain::diagnoseNode( const std::string &_str )
         return;
     }
 
-    std::cout << "Diagnosing node '";
-    for(auto &i : context) std::cout << ' ' << i;
-    std::cout << "'\n";
+    printer pr;
+    std::string str;
 
-    std::cout << "Connections : " << m_states[ context ].getNumConnections() << "\n     To nodes :\n";
+    str += "Diagnosing node '";
+    for(auto &i : context) str += ' ' + i;
+    str += "'\n";
+
+    pr.message( str, BRIGHTGREEN );
+
+    pr.message( "Connections : " + std::to_string(m_states[ context ].getNumConnections()) + "\n     To nodes :\n", BRIGHTCYAN );
     for(auto &i : m_states[ context ].getConnections())
     {
         std::string node = i.m_node;
         if(node == "\n")
             node = "\\n";
-        std::cout << "      " << node << " P:" << (i.m_probability / m_states[context].getMaxProb()) << "\n";
+        pr.message( "      " + node + " P : " + std::to_string( i.m_probability / m_states[ context ].getMaxProb() ) + "\n" );
     }
-    std::cout << '\n';
+    pr.br();
 }
 
 float markovChain::getAverageNumConnections()
@@ -338,10 +310,20 @@ void markovChain::write(size_t _wordCount)
         //Grab outbound connection
         std::string next = m_states[ curKey ].getRandomConnection().m_node;
 
-        //pr.message( "Next is " + next + '\n' );
-
         if(next == "")
+        {
+            std::string key;
+            for(auto &i : m_seekBuffer)
+            {
+                if(i == "\n")
+                    key += "\\n ";
+                else
+                    key += i + ' ';
+            }
+            pr.message( key + "has zero connecting nodes :(" );
             break;
+        }
+        //pr.message( "Next is " + next + '\n' );
 
         //Write to buffer
         if(next != "\n")

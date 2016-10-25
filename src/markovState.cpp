@@ -51,7 +51,7 @@ markovEdge markovState::getRandomConnection()
 
     //Return a null node if all of this fails. A bit shit, but hey.
     //This should ONLY happen if there are no connections.
-    std::cerr << "Warning! Null node being returned from markovState::getRandomConnection()\n";
+    std::cerr << "Warning! Node has no connections (markovState::getRandomConnection())\n";
     return {"", -1.0f};
 }
 
