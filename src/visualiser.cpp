@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "common.hpp"
+#include "shape.hpp"
 #include "visualiser.hpp"
 #include "util.hpp"
 
@@ -139,6 +140,13 @@ visualiser::~visualiser()
     SDL_DestroyWindow( m_window );
 }
 
+void visualiser::addPoint(const ngl::Vec3 &_vec, const std::string &_name)
+{
+    m_nodes.m_points.push_back(_vec);
+    m_nodes.m_strings.push_back(_name);
+    m_nodes.m_masses.push_back(0.0f);
+}
+
 GLuint visualiser::createBuffer1f(std::vector<float> _vec)
 {
     GLuint buffer;
@@ -234,7 +242,7 @@ void visualiser::drawSpheres()
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-    for(auto &i : m_points)
+    for(auto &i : m_nodes.m_points.m_objects)
     {
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
@@ -248,7 +256,7 @@ void visualiser::drawSpheres()
     }
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    m_trans.setPosition( m_camCLook );
+    m_trans.setPosition( -m_camCLook );
     loadMatricesToShader();
 
     prim->draw( "sphere" );

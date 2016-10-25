@@ -1,5 +1,5 @@
-#ifndef SLOTMAP_HPP
-#define SLOTMAP_HPP
+#ifndef slotmap_HPP
+#define slotmap_HPP
 
 #include <stddef.h>
 #include <vector>
@@ -27,7 +27,7 @@ bool operator !=(const slotID &_lhs, const slotID &_rhs);
 
 template<class t>
 
-class slotMap
+class slotmap
 {
 public:
     //----------------------------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ private:
 };
 
 template<class t>
-void transfer(size_t _i, slotMap<t> &_src, slotMap<t> &_dst)
+void transfer(size_t _i, slotmap<t> &_src, slotmap<t> &_dst)
 {
     _dst.push_back( _src[_i] );
     _src.free( _i );

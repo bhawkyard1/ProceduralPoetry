@@ -4,7 +4,7 @@
 #include <string>
 
 #include "markovEdge.hpp"
-#include "slotMap.hpp"
+#include "slotmap.hpp"
 
 class markovState
 {

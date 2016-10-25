@@ -73,9 +73,14 @@ void markovChain::constructVisualisation()
                 newKeys.push_back( testKey );
             }
 
+            std::string nodeName = "";
+            for(auto &i : key)
+                nodeName += i + ' ';
+            nodeName.pop_back();
+
             //Add point with offset.
             origin += rnd->getRandomNormalizedVec3();
-            m_visualiser.addPoint( origin );
+            m_visualiser.addPoint( origin, nodeName );
 
             visitedKeys.push_back( key );
         }

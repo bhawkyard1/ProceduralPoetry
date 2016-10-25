@@ -5,7 +5,7 @@
 #include <string>
 
 #include "matrices.hpp"
-#include "slotMap.hpp"
+#include "slotmap.hpp"
 
 class markovChain
 {

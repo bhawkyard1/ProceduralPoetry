@@ -1,6 +1,6 @@
 #include <ciso646>
 
-#include "slotMap.hpp"
+#include "slotmap.hpp"
 
 bool operator ==(const slotID &_lhs, const slotID &_rhs)
 {

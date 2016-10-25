@@ -4,17 +4,26 @@
 #include <ngl/Camera.h>
 #include <ngl/Transformation.h>
 
+#include "slotmap.hpp"
+
 #include <SDL2/SDL.h>
 
 #include "framebuffer.hpp"
+
+struct visualiserNodes
+{
+    slotmap< ngl::Vec3 > m_points;
+    slotmap< std::string > m_strings;
+    slotmap< float > m_masses;
+};
 
 class visualiser
 {
 public:
     visualiser();
     ~visualiser();
-    void addPoint(const ngl::Vec3 &_vec) {m_points.push_back(_vec);}
-    void clearPoints() {m_points.clear();}
+    void addPoint(const ngl::Vec3 &_vec, const std::string &_name);
+    void clearPoints() {m_nodes.m_points.clear();}
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
     void drawSpheres();
     void drawVAO(const std::string &_id);
@@ -58,7 +67,8 @@ private:
     ngl::Vec3 m_camTLook;
     ngl::Vec3 m_camCLook;
 
-    std::vector<ngl::Vec3> m_points;
+    visualiserNodes m_nodes;
+
     ngl::Transformation m_trans;
     std::map<std::string, GLuint> m_vaos;
     int m_w;
