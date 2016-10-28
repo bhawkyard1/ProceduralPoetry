@@ -167,4 +167,5 @@ std::string toString(const std::vector<std::string> &_vec)
     for(auto &i : _vec)
         ret += i + ' ';
     ret.pop_back();
+    return ret;
 }

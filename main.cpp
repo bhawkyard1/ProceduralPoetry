@@ -16,9 +16,7 @@ int main(int argc, char* argv[])
 {
     std::cout << "Oh heck!\n";
 
-    std::cout << "p0\n";
     markovChain mark (3);
-    std::cout << "p2\n";
     printer pr;
 
     bool done = false;

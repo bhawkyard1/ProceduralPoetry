@@ -78,6 +78,8 @@ visualiser::visualiser()
     createShaderProgram( "blinn", "MVPUVNVert", "blinnFrag" );
     createShaderProgram( "bufferLight", "screenquadVert", "bufferLightFrag" );
 
+    std::cout << "p1.5\n";
+
     m_framebuffer.initialise();
     m_framebuffer.setWidth( m_w );
     m_framebuffer.setHeight( m_h );

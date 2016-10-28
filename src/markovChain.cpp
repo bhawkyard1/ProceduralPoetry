@@ -28,8 +28,6 @@ void markovChain::constructVisualisation()
     std::cout << "visualising\n";
     unsigned long cnt = 0;
 
-    std::cout << "p2\n";
-
     ngl::Vec3 origin = ngl::Vec3(0.0f, 0.0f, 0.0f);
 
     //A vector of all the keys that we have visited, we use this to keep track of nodes we have visited.
@@ -47,7 +45,6 @@ void markovChain::constructVisualisation()
     //While there are keys to explore... keep exploring.
     while( exploreKeys.size() != 0 )
     {
-        std::cout << "exploring " << exploreKeys.size() << '\n';
         //The keys that, based on the exploration or explorekeys, will be added at the next iteration of the while loop.
         //This is just to avoid adding things straight to explorekeys, which I expect may cause problems, make the vector resize etc.
         std::vector< mKey > newKeys;
@@ -72,7 +69,6 @@ void markovChain::constructVisualisation()
                 //Add testKey to newKeys
                 newKeys.push_back( testKey );
             }
-
             std::string nodeName = toString(key);
 
             //Add point with offset.
