@@ -6,6 +6,7 @@ layout(location = 2) in vec3 inNormal;
 
 out vec2 UV;
 out vec3 normal;
+out vec4 position;
 
 uniform mat4 MVP;
 uniform mat3 normalMat;

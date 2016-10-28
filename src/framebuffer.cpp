@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 
 #include "framebuffer.hpp"
@@ -58,6 +59,19 @@ void framebuffer::addTexture(const std::string &_identifier, int _w, int _h, GLe
 void framebuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+}
+
+void framebuffer::bindTexture(const GLint _shaderID, const std::string &_tex, const char *_uniform, int _target)
+{
+    GLint loc = glGetUniformLocation(_shaderID, _uniform);
+
+    if(loc == -1)
+        std::cerr << "Uh oh! Invalid uniform location in framebuffer::bindTexture!! " << _uniform << '\n';
+
+    glUniform1i(loc, _target);
+
+    glActiveTexture(GL_TEXTURE0 + _target);
+    glBindTexture(GL_TEXTURE_2D, m_textures[_tex]);
 }
 
 bool framebuffer::checkComplete()

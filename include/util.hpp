@@ -35,4 +35,6 @@ void errorExit(const std::string &_msg);
 
 float rad(const float _deg);
 
+std::string toString(const std::vector<std::string> &_vec );
+
 #endif

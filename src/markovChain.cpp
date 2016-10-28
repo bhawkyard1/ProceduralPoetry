@@ -73,10 +73,7 @@ void markovChain::constructVisualisation()
                 newKeys.push_back( testKey );
             }
 
-            std::string nodeName = "";
-            for(auto &i : key)
-                nodeName += i + ' ';
-            nodeName.pop_back();
+            std::string nodeName = toString(key);
 
             //Add point with offset.
             origin += rnd->getRandomNormalizedVec3();
@@ -105,13 +102,26 @@ void markovChain::constructVisualisation()
 
     m_visualiser.show();
 }
+/*
+void markovChain::constructVisualisation()
+{
+    ngl::Random * rnd = ngl::Random::instance();
 
+    for(auto &state : m_states)
+    {
+        ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
+        std::string name = toString(state.first);
+
+        m_visualiser.addPoint( pt, name );
+    }
+
+}
+*/
 void markovChain::visualise()
 {
     m_visualiser.update();
-    m_visualiser.clear();
     m_visualiser.drawSpheres();
-    m_visualiser.swap();
+    m_visualiser.finalise();
 }
 
 /*

@@ -15,6 +15,7 @@ struct visualiserNodes
     slotmap< ngl::Vec3 > m_points;
     slotmap< std::string > m_strings;
     slotmap< float > m_masses;
+    slotmap< std::vector< slotID > > m_connections;
 };
 
 class visualiser
@@ -27,6 +28,7 @@ public:
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
     void drawSpheres();
     void drawVAO(const std::string &_id);
+    void finalise();
     void hide() {SDL_HideWindow( m_window );}
     void makeCurrent() { SDL_GL_MakeCurrent(m_window, m_gl_context); }
     void mouseUp(SDL_Event _event);
@@ -43,7 +45,8 @@ private:
 
     void createShaderProgram(const std::string _name, const std::string _vert, const std::string _frag);
 
-    void createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts);
+    void createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts);
+    void createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts, std::vector<ngl::Vec2> _UVs);
 
     void loadMatricesToShader();
 

@@ -160,3 +160,11 @@ float randFlt(float _low, float _high)
     std::uniform_real_distribution< float > uni( _low, _high );
     return uni( g_RANDOM_TWISTER );
 }
+
+std::string toString(const std::vector<std::string> &_vec)
+{
+    std::string ret = "";
+    for(auto &i : _vec)
+        ret += i + ' ';
+    ret.pop_back();
+}

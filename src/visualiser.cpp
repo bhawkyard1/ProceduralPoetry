@@ -76,6 +76,7 @@ visualiser::visualiser()
     rnd->setSeed( time(NULL) );
 
     createShaderProgram( "blinn", "MVPUVNVert", "blinnFrag" );
+    createShaderProgram( "bufferLight", "screenquadVert", "bufferLightFrag" );
 
     m_framebuffer.initialise();
     m_framebuffer.setWidth( m_w );
@@ -116,10 +117,16 @@ visualiser::visualiser()
     createVAO(
                 "screenquad",
     {
-                    ngl::Vec3(-1.0f, -1.0f, 0.5f),
-                    ngl::Vec3(-1.0f, 1.0f, 0.5f),
-                    ngl::Vec3(1.0f, 1.0f, 0.5f),
-                    ngl::Vec3(1.0f, -1.0f, 0.5f)
+                    ngl::Vec4(-1.0f, -1.0f, 0.0f, 1.0f),
+                    ngl::Vec4(-1.0f, 1.0f, 0.0f, 1.0f),
+                    ngl::Vec4(1.0f, 1.0f, 0.0f, 1.0f),
+                    ngl::Vec4(1.0f, -1.0f, 0.0f, 1.0f)
+                },
+    {
+                    ngl::Vec2(0.0, 0.0),
+                    ngl::Vec2(0.0, 1.0),
+                    ngl::Vec2(1.0, 1.0),
+                    ngl::Vec2(1.0, 0.0)
                 }
                 );
 
@@ -219,15 +226,32 @@ void visualiser::createShaderProgram(const std::string _name, const std::string 
     slib->linkProgramObject(_name);
 }
 
-void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts)
+void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts)
 {
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
     //Generate a VBO
-    GLuint vertBuffer = createBuffer3f( _verts );
+    GLuint vertBuffer = createBuffer4f( _verts );
     setBufferLocation( vertBuffer, 0, 3 );
+
+    std::pair<std::string, GLuint> p (_id, vao );
+    m_vaos.insert( p );
+}
+
+void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts, std::vector<ngl::Vec2> _UVs)
+{
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    //Generate a VBO
+    GLuint vertBuffer = createBuffer4f( _verts );
+    setBufferLocation( vertBuffer, 0, 4 );
+
+    GLuint uvBuffer = createBuffer2f( _UVs );
+    setBufferLocation( uvBuffer, 1, 2 );
 
     std::pair<std::string, GLuint> p (_id, vao );
     m_vaos.insert( p );
@@ -235,6 +259,12 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec3> _verts
 
 void visualiser::drawSpheres()
 {
+    m_framebuffer.bind();
+    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2});
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    clear();
+
     ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
@@ -260,6 +290,34 @@ void visualiser::drawSpheres()
     loadMatricesToShader();
 
     prim->draw( "sphere" );
+}
+
+void visualiser::finalise()
+{
+    m_framebuffer.unbind();
+    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0});
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    clear();
+
+    ngl::ShaderLib * slib = ngl::ShaderLib::instance();
+
+    slib->use("bufferLight");
+
+    glBindVertexArray(m_vaos["screenquad"]);
+
+    GLuint id = slib->getProgramID("bufferLight");
+
+    m_framebuffer.bindTexture(id, "diffuse", "diffuse", 0);
+    m_framebuffer.bindTexture(id, "normal", "normal", 1);
+    m_framebuffer.bindTexture(id, "position", "position", 2);
+
+    glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
+
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+
+    SDL_GL_SwapWindow(m_window);
 }
 
 void visualiser::loadMatricesToShader()
@@ -328,7 +386,7 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
 {
     glEnableVertexAttribArray(_index);
     glBindBuffer(GL_ARRAY_BUFFER, _buffer);
-    glVertexAttribPointer( 0, _size, GL_FLOAT, GL_FALSE, 0, 0 );
+    glVertexAttribPointer( _index, _size, GL_FLOAT, GL_FALSE, 0, 0 );
 }
 
 void visualiser::update()

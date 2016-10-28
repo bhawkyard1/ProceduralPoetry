@@ -16,6 +16,7 @@ public:
     void addDepthAttachment(const std::string &_identifier);
     void addDepthAttachment(const std::string &_identifier, int _w, int _h);
     void bind();
+    void bindTexture(const GLint _shaderID, const std::string &_tex, const char *_uniform, int _target);
     bool checkComplete();
     void setHeight(const int _h) {m_h = _h;}
     void setWidth(const int _w) {m_w = _w;}
