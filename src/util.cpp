@@ -161,6 +161,26 @@ float randFlt(float _low, float _high)
     return uni( g_RANDOM_TWISTER );
 }
 
+std::pair<ngl::Vec3, ngl::Vec3> lim(const std::vector<ngl::Vec3> &_vecs)
+{
+    std::pair<ngl::Vec3, ngl::Vec3> ret;
+    ret.first = ngl::Vec3( F_MAX, F_MAX, F_MAX );
+    ret.second = ngl::Vec3( -F_MAX, -F_MAX, -F_MAX );
+
+    for(auto &_vec : _vecs)
+    {
+        ret.first.m_x = std::min( ret.first.m_x, _vec.m_x );
+        ret.first.m_y = std::min( ret.first.m_y, _vec.m_y );
+        ret.first.m_z = std::min( ret.first.m_z, _vec.m_z );
+
+        ret.second.m_x = std::max( ret.second.m_x, _vec.m_x );
+        ret.second.m_y = std::max( ret.second.m_y, _vec.m_y );
+        ret.second.m_z = std::max( ret.second.m_z, _vec.m_z );
+    }
+
+    return ret;
+}
+
 std::string toString(const std::vector<std::string> &_vec)
 {
     std::string ret = "";
@@ -168,4 +188,11 @@ std::string toString(const std::vector<std::string> &_vec)
         ret += i + ' ';
     ret.pop_back();
     return ret;
+}
+
+void fifoQueue(std::vector<std::string> *_vec, const std::string &_entry, size_t _order)
+{
+    _vec->push_back(_entry);
+    if(_vec->size() > _order)
+        _vec->erase( _vec->begin() );
 }

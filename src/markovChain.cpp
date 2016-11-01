@@ -19,7 +19,7 @@ markovChain::markovChain(size_t _order)
 
     load();
 }
-
+/*
 void markovChain::constructVisualisation()
 {
     m_visualiser.clearPoints();
@@ -98,24 +98,214 @@ void markovChain::constructVisualisation()
 
     m_visualiser.show();
 }
-/*
+*/
+
 void markovChain::constructVisualisation()
 {
+    printer pr;
+
+    pr.message("Generating visualisation...\n");
+
     ngl::Random * rnd = ngl::Random::instance();
 
+    //We need to keep track of connections that a node has.
+    //Indexes match up with the indexes of the nodes being stored in the visualiser.
+    //Each node/index may have multiple connections.
+    std::vector< std::vector<mKey> > connections;
+
+    pr.message("Adding points...\n");
+
+    size_t index = 0;
+
+    //Add points
     for(auto &state : m_states)
     {
+        connections.push_back( {} );
+
+        ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
+        std::string name = toString(state.first);
+
+        m_visualiser.addPoint( pt, name, state.second.getNumConnections() );
+
+        //Add connections
+        //Loop through state edges
+        for(auto &i : state.second.getConnections())
+        {
+            //This initially points to our current state
+            mKey connection = state.first;
+            fifoQueue(&connection, i.m_node, m_order);
+
+            connections[index].push_back(connection);
+        }
+
+        index++;
+    }
+
+    pr.message("Transcribing connections");
+
+    //Do connections.
+    slotmap<sphere> * vnodes = m_visualiser.getNodesPt();
+    for(size_t i = 0; i < connections.size(); ++i)
+    {
+        if(i % (connections.size() / 10) == 0)
+            pr.message(".");
+
+        auto keys = connections[i];
+        //Track down each connection and assign it to the visualiser node.
+        for(auto &key : keys)
+        {
+            for(size_t j = 0; j < vnodes->size(); ++j)
+            {
+                //If key at this index matches the node name, connect nodes[i] to nodes[j]
+                if(vnodes->get( j ).getName() == toString(key))
+                {
+                    slotID ref = vnodes->getID( j );
+                    vnodes->get(i).addConnection(ref);
+                    break;
+                }
+            }
+        }
+    }
+
+    pr.br();
+
+    //Do shitty gravity sim.
+    pr.message("Arranging nodes");
+    for(int it = 0; it < 1; ++it)
+    {
+        if(it % 10 == 0)
+            pr.message(".");
+
+        //For every point...
+        /*for(size_t i = 0; i < vnodes->m_points.size(); ++i)
+        {
+            ngl::Vec3 origin = vnodes->m_points[i];
+            //Loop through connection.
+            for(auto &id : vnodes->m_connections[i])
+            {
+                ngl::Vec3 * target = vnodes->m_points.getByID( id );
+                //Get distance.
+                ngl::Vec3 dir = *target - origin;
+                float dist = dir.length();
+                dir /= dist * dist;
+
+                //Add forces to both current node and connection node (connections are one-way so we must do both here).
+                //vnodes->addVel( i, dir );
+                //vnodes->addVel( vnodes->m_velocities.getIndex( id ), -dir );
+            }
+        }
+
+        vnodes->integrateVelocity();*/
+    }
+
+    m_visualiser.show();
+}
+
+/*void markovChain::constructVisualisation()
+{
+    printer pr;
+
+    pr.message("Generating visualisation...\n");
+
+    ngl::Random * rnd = ngl::Random::instance();
+
+    //We need to keep track of connections that a node has.
+    //Indexes match up with the indexes of the nodes being stored in the visualiser.
+    //Each node/index may have multiple connections.
+    std::vector< std::vector<mKey> > connections;
+
+    pr.message("Adding points...\n");
+
+    size_t index = 0;
+
+    //Add points
+    for(auto &state : m_states)
+    {
+        connections.push_back( {} );
+
         ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
         std::string name = toString(state.first);
 
         m_visualiser.addPoint( pt, name );
+
+        //Add connections
+        //Loop through state edges
+        for(auto &i : state.second.getConnections())
+        {
+            //This initially points to our current state
+            mKey connection = state.first;
+            fifoQueue(&connection, i.m_node, m_order);
+
+            connections[index].push_back(connection);
+        }
+
+        index++;
     }
 
-}
-*/
-void markovChain::visualise()
+    pr.message("Transcribing connections");
+
+    //Do connections.
+    visualiserNodes * vnodes = m_visualiser.getNodesPt();
+    for(size_t i = 0; i < connections.size(); ++i)
+    {
+        if(i % (connections.size() / 10) == 0)
+            pr.message(".");
+
+        auto keys = connections[i];
+        //Track down each connection and assign it to the visualiser node.
+        for(auto &key : keys)
+        {
+            for(size_t j = 0; j < vnodes->m_points.size(); ++j)
+            {
+                //If key at this index matches the node name, connect nodes[i] to nodes[j]
+                if(vnodes->m_strings[j] == toString(key))
+                {
+                    slotID ref = vnodes->m_connections.getID( j );
+                    vnodes->m_connections[i].push_back(ref);
+                    break;
+                }
+            }
+        }
+    }
+
+    pr.br();
+
+    //Do shitty gravity sim.
+    pr.message("Arranging nodes");
+    for(int it = 0; it < 1; ++it)
+    {
+        if(it % 10 == 0)
+            pr.message(".");
+
+        //For every point...
+        for(size_t i = 0; i < vnodes->m_points.size(); ++i)
+        {
+            ngl::Vec3 origin = vnodes->m_points[i];
+            //Loop through connection.
+            for(auto &id : vnodes->m_connections[i])
+            {
+                ngl::Vec3 * target = vnodes->m_points.getByID( id );
+                //Get distance.
+                ngl::Vec3 dir = *target - origin;
+                float dist = dir.length();
+                dir /= dist * dist;
+
+                //Add forces to both current node and connection node (connections are one-way so we must do both here).
+                //vnodes->addVel( i, dir );
+                //vnodes->addVel( vnodes->m_velocities.getIndex( id ), -dir );
+            }
+        }
+
+        vnodes->integrateVelocity();
+    }
+
+    m_visualiser.show();
+}*/
+
+void markovChain::visualise(const float _dt)
 {
-    m_visualiser.update();
+
+    m_visualiser.update(_dt);
     m_visualiser.drawSpheres();
     m_visualiser.finalise();
 }
@@ -179,9 +369,15 @@ void markovChain::addNode(const markovState &_node)
 
 void markovChain::addContext(const std::string &_str)
 {
-    m_seekBuffer.push_back(_str);
+    /*m_seekBuffer.push_back(_str);
     if(m_seekBuffer.size() > m_order)
-        m_seekBuffer.erase( m_seekBuffer.begin() );
+        m_seekBuffer.erase( m_seekBuffer.begin() );*/
+
+    fifoQueue(
+                &m_seekBuffer,
+                _str,
+                m_order
+                );
 }
 
 void markovChain::diagnoseNode( const std::string &_str )

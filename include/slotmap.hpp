@@ -1,6 +1,9 @@
 #ifndef slotmap_HPP
 #define slotmap_HPP
 
+#ifdef _WIN32
+#include <ciso646>
+#endif
 #include <stddef.h>
 #include <vector>
 
@@ -127,9 +130,13 @@ public:
     size_t size() const {return m_objects.size();}
 
     slotID getID(size_t _i) const {return m_ids[_i];}
+    size_t getIndex(slotID _id) const {return m_indirection[ _id.m_id ].m_id;}
 
     t operator [](size_t _i) const {return m_objects[_i];}
     t & operator [](size_t _i) {return m_objects[_i];}
+
+    t get(size_t _i) const {return m_objects[_i];}
+    t & get(size_t _i) {return m_objects[_i];}
 
 private:
     //----------------------------------------------------------------------------------------------------------------------

@@ -102,7 +102,9 @@ void visualise(markovChain &_mark)
                 return;
             case SDL_KEYDOWN:
                 if(event.key.keysym.sym == SDLK_ESCAPE)
-                done = true;
+                    done = true;
+                else if(event.key.keysym.sym == SDLK_q)
+                    _mark.resetPos();
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 _mark.mouseDown( event );
@@ -120,7 +122,7 @@ void visualise(markovChain &_mark)
 
         g_TIME += timer.getDiff();
 
-        _mark.visualise();
+        _mark.visualise( timer.getDiff() * 128.0f );
     }
     _mark.hideVisualiser();
 }

@@ -149,11 +149,61 @@ visualiser::~visualiser()
     SDL_DestroyWindow( m_window );
 }
 
-void visualiser::addPoint(const ngl::Vec3 &_vec, const std::string &_name)
+void visualiser::addPoint(const ngl::Vec3 &_vec, const std::string &_name, const float _mass)
 {
-    m_nodes.m_points.push_back(_vec);
-    m_nodes.m_strings.push_back(_name);
-    m_nodes.m_masses.push_back(0.0f);
+    sphere node(_vec, _mass);
+    node.setName(_name);
+
+    m_nodes.push_back( node );
+}
+
+void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
+{
+    std::vector<sphere *> outNodes;
+    unsigned short count = 0;
+
+    for(auto &i : _nodes)
+    {
+        if(sphereAABBIntersect(_min, _max, i->getPos(), i->getRadius()))
+        {
+            count++;
+            outNodes.push_back( i );
+        }
+    }
+
+    if(count < 16 or _lvl > 8)
+    {
+        m_partitions.push_back( outNodes );
+        /*ngl::BBox b (
+                    _min.m_x,
+                    _max.m_x,
+                    _min.m_y,
+                    _max.m_y,
+                    _min.m_z,
+                    _max.m_z
+                    );
+
+        b.draw();*/
+    }
+    //Subdivide otherwise.
+    else
+    {
+        ngl::Vec3 dim = _max - _min;
+        dim /= 2.0f;
+
+        for(int i = 0; i < 2; ++i)
+            for(int j = 0; j < 2; ++j)
+                for(int k = 0; k < 2; ++k)
+                {
+                    ngl::Vec3 newMin = _min + ngl::Vec3( dim.m_x * i, dim.m_y * j, dim.m_z * k);
+                    broadPhase(
+                                newMin,
+                                newMin + dim,
+                                outNodes,
+                                _lvl + 1
+                                );
+                }
+    }
 }
 
 GLuint visualiser::createBuffer1f(std::vector<float> _vec)
@@ -274,13 +324,14 @@ void visualiser::drawSpheres()
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-    for(auto &i : m_nodes.m_points.m_objects)
+    for(auto &i : m_nodes.m_objects)
     {
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
 
-        ngl::Vec3 pos = i + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f);
+        ngl::Vec3 pos = i.getPos()/* + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f)*/;
 
+        m_trans.setScale( i.getRadius(), i.getRadius(), i.getRadius() );
         m_trans.setPosition( pos );
         loadMatricesToShader();
 
@@ -381,7 +432,7 @@ void visualiser::mouseUp(SDL_Event _event)
 
 void visualiser::mouseWheel(int _dir)
 {
-    m_tZoom += -6.0f * _dir;
+    m_tZoom = clamp( m_tZoom - 6.0f * _dir, 0.0f, F_MAX );
 }
 
 void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
@@ -391,7 +442,59 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
     glVertexAttribPointer( _index, _size, GL_FLOAT, GL_FALSE, 0, 0 );
 }
 
-void visualiser::update()
+void visualiser::narrowPhase()
+{
+    for(size_t i = 0; i < m_partitions.size(); ++i)
+    {
+        for(auto &a : m_partitions[i])
+        {
+            for(auto &b : m_partitions[i])
+            {
+                if(a == b)
+                    continue;
+
+                ngl::Vec3 normal = b->getPos() - a->getPos();
+
+                float ar = a->getRadius();
+                float br = b->getRadius();
+
+                float dist = normal.lengthSquared();
+                if( dist > sqr(ar + br) )
+                    continue;
+
+                dist = sqrt(dist);
+                normal /= dist;
+
+                float penetration = (ar + br) - dist;
+                ngl::Vec3 toMove = normal * penetration;
+                //toMove = ngl::Vec3(0.0f, 100000.0f, 0.0f);
+
+                float aim = a->getInvMass();
+                float bim = b->getInvMass();
+                float sumMass = aim + bim;
+
+                /*a->addPos( -toMove * aim / sumMass );
+                b->addPos( toMove * bim / sumMass );*/
+
+                ngl::Vec3 rv = a->getVel() - b->getVel();
+                float separation = rv.dot( normal );
+
+                if(separation < 0.0f) continue;
+
+                float force = -0.5f * separation;
+                force /= sumMass;
+
+                ngl::Vec3 impulse = force * normal;
+                impulse.m_z = 0.0f;
+
+                a->addVel( aim * impulse );
+                b->addVel( -bim * impulse );
+            }
+        }
+    }
+}
+
+void visualiser::update(const float _dt)
 {
     if( m_lmb )
     {
@@ -434,5 +537,73 @@ void visualiser::update()
     m_cam.setEye( cpos * m_cZoom );
 
     m_camCLook += (m_camTLook - m_camCLook ) / 16.0f;
+
+    //TEST
+    for(auto &i : m_nodes.m_objects)
+    {
+        ngl::Vec3 origin = i.getPos();
+
+        /*if(origin.length() > 512.0f)
+            m_nodes.m_velocities[i] = -m_nodes.m_velocities[i];*/
+
+        //m_nodes.m_velocities[i] *= 0.1f;
+
+        /*if(origin.length() > 256.0f)
+            std::cout << "origin pre " << origin.m_x << ", " << origin.m_y << ", " << origin.m_z << '\n';*/
+        //Loop through connection.
+        for(auto &id : (*i.getConnections()))
+        {
+            sphere * target = m_nodes.getByID( id );
+
+            float sumRad = i.getRadius() + target->getRadius();
+            float sumMass = i.getInvMass() + target->getInvMass();
+
+            //Get distance.
+            ngl::Vec3 dir = target->getPos() - origin;
+            float dist = dir.length();
+
+            /*if(dist < 64.0f)
+                m_nodes.m_velocities[i] *= dist / 64.0f;*/
+
+            if(dist > sumRad * 1.5f)
+            {
+                dir /= dist * dist;
+                //Add forces to both current node and connection node (connections are one-way so we must do both here).
+                i.addVel( dir * (i.getInvMass() / sumMass) );
+            }
+            else
+                i.setVel( i.getVel() * 0.5f );
+
+
+            //target->addVel( -dir * (target->getInvMass()) );
+            //m_nodes.addVel( index, -dir * (m_nodes.m_masses[index] / sumMass) );
+        }
+        //std::cout << "origin post " << origin.m_x << ", " << origin.m_y << ", " << origin.m_z << "\n\n";
+    }
+
+    m_partitions.clear();
+
+    std::vector<sphere *> initNodes;
+    initNodes.reserve( m_nodes.size() );
+
+    std::vector<ngl::Vec3> points;
+    points.reserve( m_nodes.size() );
+
+    for(auto &i : m_nodes.m_objects)
+    {
+        initNodes.push_back( &i );
+        points.push_back( i.getPos() );
+    }
+
+    std::pair<ngl::Vec3, ngl::Vec3> initBox = lim( points );
+
+    broadPhase( initBox.first, initBox.second, initNodes, 0 );
+    narrowPhase();
+
+    for(auto &i : m_nodes.m_objects)
+    {
+        i.setVel( i.getVel() * 0.9f );
+        i.update( _dt );
+    }
 }
 

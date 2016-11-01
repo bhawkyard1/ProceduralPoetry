@@ -40,7 +40,10 @@ public:
     size_t getOrder() {return m_order;}
 
     void constructVisualisation();
-    void visualise();
+    void visualise(const float _dt);
+
+    void resetPos() {m_visualiser.resetPos();}
+
 private:
     void addContext(const std::string &_str);
     mKey getKeyFromContext();

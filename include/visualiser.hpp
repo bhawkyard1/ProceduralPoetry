@@ -1,31 +1,27 @@
 #ifndef VISUALISER_HPP
 #define VISUALISER_HPP
 
-#include <ngl/Camera.h>
-#include <ngl/Transformation.h>
-
-#include "slotmap.hpp"
-
 #include <SDL2/SDL.h>
 
-#include "framebuffer.hpp"
+#include <ngl/Camera.h>
+#include <ngl/Transformation.h>
+#include <ngl/Random.h>
 
-struct visualiserNodes
-{
-    slotmap< ngl::Vec3 > m_points;
-    slotmap< std::string > m_strings;
-    slotmap< float > m_masses;
-    slotmap< std::vector< slotID > > m_connections;
-};
+#include "framebuffer.hpp"
+#include "slotmap.hpp"
+#include "sphere.hpp"
+#include "util.hpp"
 
 class visualiser
 {
 public:
     visualiser();
     ~visualiser();
-    void addPoint(const ngl::Vec3 &_vec, const std::string &_name);
-    void clearPoints() {m_nodes.m_points.clear();}
+    void addPoint(const ngl::Vec3 &_vec, const std::string &_name, const float _mass);
+    void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
+    void clearPoints() {m_nodes.clear();}
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
+    slotmap<sphere> * getNodesPt() {return &m_nodes;}
     void drawSpheres();
     void drawVAO(const std::string &_id);
     void finalise();
@@ -34,9 +30,22 @@ public:
     void mouseUp(SDL_Event _event);
     void mouseDown(SDL_Event _event);
     void mouseWheel(int _dir);
+    void narrowPhase();
     void show() {SDL_ShowWindow( m_window );}
     void swap() {SDL_GL_SwapWindow(m_window);}
-    void update();
+    void update(const float _dt);
+
+    void resetPos()
+    {
+        ngl::Random * rnd = ngl::Random::instance();
+        for(auto &i : m_nodes.m_objects)
+        {
+            i.setPos( rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f) );
+            i.setVel( ngl::Vec3(0.0f, 0.0f, 0.0f) );
+            i.setForces( ngl::Vec3(0.0f, 0.0f, 0.0f) );
+        }
+    }
+
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -70,7 +79,9 @@ private:
     ngl::Vec3 m_camTLook;
     ngl::Vec3 m_camCLook;
 
-    visualiserNodes m_nodes;
+    slotmap<sphere> m_nodes;
+
+    std::vector<std::vector<sphere *>> m_partitions;
 
     ngl::Transformation m_trans;
     std::map<std::string, GLuint> m_vaos;

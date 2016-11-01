@@ -1,0 +1,50 @@
+#ifndef SPHERE_HPP
+#define SPHERE_HPP
+
+#include <string>
+#include <vector>
+
+#include <ngl/Vec3.h>
+
+#include "slotmap.hpp"
+
+class sphere
+{
+public:
+    sphere(ngl::Vec3 _pos, float _radius);
+
+    void addConnection(const slotID &_id) {m_connections.push_back( _id );}
+    void addForce(const ngl::Vec3 &_force) {m_forces += _force;}
+    void addPos(const ngl::Vec3 &_pos) {m_pos += _pos;}
+    void addVel(const ngl::Vec3 &_vel) {m_vel += _vel;}
+
+    void clearConnections() {m_connections.clear();}
+
+    std::vector< slotID > * getConnections() {return &m_connections;}
+    slotID getConnection(const size_t _i) {return m_connections[_i];}
+    ngl::Vec3 getForces() const {return m_forces;}
+    float getInvMass() const {return m_invMass;}
+    std::string getName() const {return m_name;}
+    ngl::Vec3 getPos() const {return m_pos;}
+    float getRadius() const {return m_radius;}
+    ngl::Vec3 getVel() const {return m_vel;}
+
+    void update(const float _dt);
+
+    void setForces(const ngl::Vec3 &_forces) {m_forces = _forces;}
+    void setInvMass(const float _invMass) {m_invMass = _invMass;}
+    void setName(const std::string &_name) {m_name = _name;}
+    void setPos(const ngl::Vec3 &_pos) {m_pos = _pos;}
+    void setRadius(const float _radius) {m_radius = _radius;}
+    void setVel(const ngl::Vec3 &_vel) {m_vel = _vel;}
+private:
+    std::vector< slotID > m_connections;
+    ngl::Vec3 m_forces;
+    float m_invMass;
+    std::string m_name;
+    ngl::Vec3 m_pos;
+    float m_radius;
+    ngl::Vec3 m_vel;
+};
+
+#endif
