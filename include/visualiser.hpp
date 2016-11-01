@@ -83,7 +83,8 @@ private:
 
     std::vector<std::vector<sphere *>> m_partitions;
 
-    ngl::Transformation m_trans;
+    ngl::Mat4 m_scale;
+    ngl::Mat4 m_trans;
     std::map<std::string, GLuint> m_vaos;
     int m_w;
     SDL_Window * m_window;

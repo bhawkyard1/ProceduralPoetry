@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "common.hpp"
+#include "physicsvars.hpp"
 #include "shape.hpp"
 #include "visualiser.hpp"
 #include "util.hpp"
@@ -331,15 +332,15 @@ void visualiser::drawSpheres()
 
         ngl::Vec3 pos = i.getPos()/* + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f)*/;
 
-        m_trans.setScale( i.getRadius(), i.getRadius(), i.getRadius() );
-        m_trans.setPosition( pos );
+        m_scale.scale( i.getRadius(), i.getRadius(), i.getRadius() );
+        m_trans.translate( pos.m_x, pos.m_y, pos.m_z );
         loadMatricesToShader();
 
         prim->draw( "sphere" );
     }
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    m_trans.setPosition( -m_camCLook );
+    m_trans.translate( -m_camCLook.m_x, -m_camCLook.m_y, -m_camCLook.m_z );
     loadMatricesToShader();
 
     prim->draw( "sphere" );
@@ -383,7 +384,7 @@ void visualiser::loadMatricesToShader()
                 m_camCLook.m_z
                 );
 
-    ngl::Mat4 MV = m_camTrans.getMatrix() * m_trans.getMatrix() * m_rot * m_cam.getViewMatrix();
+    ngl::Mat4 MV = m_scale * m_trans * m_camTrans.getMatrix() * m_rot * m_cam.getViewMatrix();
     //ngl::Mat3 normalMat = MV;
     //normalMat.inverse();
     ngl::Mat4 MVP = MV * m_cam.getProjectionMatrix();
@@ -565,14 +566,14 @@ void visualiser::update(const float _dt)
             /*if(dist < 64.0f)
                 m_nodes.m_velocities[i] *= dist / 64.0f;*/
 
-            if(dist > sumRad * 1.5f)
+            if(dist > sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER)
             {
                 dir /= dist * dist;
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
                 i.addVel( dir * (i.getInvMass() / sumMass) );
             }
             else
-                i.setVel( i.getVel() * 0.5f );
+                i.setVel( i.getVel() * (1.0f - g_BALL_STICKINESS) );
 
 
             //target->addVel( -dir * (target->getInvMass()) );
@@ -602,7 +603,7 @@ void visualiser::update(const float _dt)
 
     for(auto &i : m_nodes.m_objects)
     {
-        i.setVel( i.getVel() * 0.9f );
+        i.setVel( i.getVel() * (1.0f - g_AMBIENT_FRICTION) );
         i.update( _dt );
     }
 }

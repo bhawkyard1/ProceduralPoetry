@@ -16,7 +16,8 @@ MOC_DIR = moc
 SOURCES += $$PWD/main.cpp \
                      $$PWD/src/*.cpp \
 
-HEADERS += $$PWD/include/*.hpp
+HEADERS += $$PWD/include/*.hpp \
+    include/physicsvars.hpp
 
 
 OTHER_FILES += readme.md \

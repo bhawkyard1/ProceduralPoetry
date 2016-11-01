@@ -1,0 +1,8 @@
+#ifndef PHYSICSVARS_HPP
+#define PHYSICSVARS_HPP
+
+const float g_AMBIENT_FRICTION = 0.01f;
+const float g_BALL_STICKINESS = 0.5f;
+const float g_BALL_STICKINESS_RADIUS_MULTIPLIER = 1.5f;
+
+#endif // PHYSICSVARS_HPP
