@@ -84,13 +84,15 @@ DIST          =  include\common.hpp \
 		include\markovEdge.hpp \
 		include\markovState.hpp \
 		include\matrices.hpp \
+		include\physicsvars.hpp \
 		include\printer.hpp \
 		include\shape.hpp \
 		include\sim_time.hpp \
 		include\slotmap.hpp \
 		include\sphere.hpp \
 		include\util.hpp \
-		include\visualiser.hpp main.cpp \
+		include\visualiser.hpp \
+		include\physicsvars.hpp main.cpp \
 		src\common.cpp \
 		src\file.cpp \
 		src\framebuffer.cpp \
@@ -13778,6 +13780,7 @@ obj\visualiser.obj: src\visualiser.cpp C:\NGL\include\ngl\NGLInit.h \
 		C:\NGL\include\ngl\ShaderProgram.h \
 		C:\NGL\include\ngl\Util.h \
 		include\common.hpp \
+		include\physicsvars.hpp \
 		include\shape.hpp \
 		include\visualiser.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL.h \

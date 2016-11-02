@@ -115,7 +115,18 @@ visualiser::visualiser()
                 );
 
     ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
-    prim->createSphere( "sphere", 1.0f, 32.0f );
+
+    for(int i = 0; i < 4; ++i)
+    {
+        std::string name ("sphereLOD" + std::to_string( i ));
+        prim->createSphere(
+                    name,
+                    1.0f,
+                    pow(2.0f, i + 2)
+                    );
+        m_meshes.push_back( name );
+    }
+    std::reverse( m_meshes.begin(), m_meshes.end() );
 
     createVAO(
                 "screenquad",
@@ -172,7 +183,7 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
         }
     }
 
-    if(count < 16 or _lvl > 8)
+    if(count <= 4 or _lvl > 3)
     {
         m_partitions.push_back( outNodes );
         /*ngl::BBox b (
@@ -318,6 +329,15 @@ void visualiser::drawSpheres()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     clear();
 
+    m_camTrans.setPosition(
+                m_camCLook.m_x,
+                m_camCLook.m_y,
+                m_camCLook.m_z
+                );
+
+    m_V = m_camTrans.getMatrix() * m_rot * m_cam.getViewMatrix();
+    m_VP = m_V * m_cam.getProjectionMatrix();
+
     ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
@@ -330,20 +350,27 @@ void visualiser::drawSpheres()
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
 
+        //float dist = (i.getPos() * m_V).m_z;
+
         ngl::Vec3 pos = i.getPos()/* + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f)*/;
 
         m_scale.scale( i.getRadius(), i.getRadius(), i.getRadius() );
         m_trans.translate( pos.m_x, pos.m_y, pos.m_z );
         loadMatricesToShader();
 
-        prim->draw( "sphere" );
+        //dist /= 32.0f;
+
+        /*size_t index = static_cast<size_t>(std::floor(dist));
+        index = clamp(index, size_t(0), m_meshes.size() - 1);*/
+        prim->draw( m_meshes[0] );
+        //prim->draw( m_meshes[index] );
     }
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
     m_trans.translate( -m_camCLook.m_x, -m_camCLook.m_y, -m_camCLook.m_z );
     loadMatricesToShader();
 
-    prim->draw( "sphere" );
+    prim->draw( m_meshes[0] );
 }
 
 void visualiser::finalise()
@@ -378,16 +405,9 @@ void visualiser::loadMatricesToShader()
 {
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
-    m_camTrans.setPosition(
-                m_camCLook.m_x,
-                m_camCLook.m_y,
-                m_camCLook.m_z
-                );
-
-    ngl::Mat4 MV = m_scale * m_trans * m_camTrans.getMatrix() * m_rot * m_cam.getViewMatrix();
     //ngl::Mat3 normalMat = MV;
     //normalMat.inverse();
-    ngl::Mat4 MVP = MV * m_cam.getProjectionMatrix();
+    ngl::Mat4 MVP = m_scale * m_trans * m_VP;
 
     slib->setRegisteredUniform( "MVP", MVP );
     //slib->setRegisteredUniform( "normalMat", normalMat );
@@ -474,15 +494,16 @@ void visualiser::narrowPhase()
                 float bim = b->getInvMass();
                 float sumMass = aim + bim;
 
-                /*a->addPos( -toMove * aim / sumMass );
-                b->addPos( toMove * bim / sumMass );*/
+                float addMul = 0.0f;//1.0f - g_BALL_PENETRATION_LENIENCY;
+                a->addPos( addMul * (-toMove * aim / sumMass) );
+                b->addPos( addMul * (toMove * bim / sumMass) );
 
                 ngl::Vec3 rv = a->getVel() - b->getVel();
                 float separation = rv.dot( normal );
 
                 if(separation < 0.0f) continue;
 
-                float force = -0.5f * separation;
+                float force = -g_COLLISION_ENERGY_CONSERVATION * separation;
                 force /= sumMass;
 
                 ngl::Vec3 impulse = force * normal;
@@ -568,7 +589,7 @@ void visualiser::update(const float _dt)
 
             if(dist > sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER)
             {
-                dir /= dist * dist;
+                dir /= pow(dist, g_GRAVITY_ATTENUATION);
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
                 i.addVel( dir * (i.getInvMass() / sumMass) );
             }

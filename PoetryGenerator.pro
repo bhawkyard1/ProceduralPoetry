@@ -16,9 +16,7 @@ MOC_DIR = moc
 SOURCES += $$PWD/main.cpp \
                      $$PWD/src/*.cpp \
 
-HEADERS += $$PWD/include/*.hpp \
-    include/physicsvars.hpp
-
+HEADERS += $$PWD/include/*.hpp
 
 OTHER_FILES += readme.md \
                            ./shaders/*.glsl

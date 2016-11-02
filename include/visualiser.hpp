@@ -85,6 +85,8 @@ private:
 
     ngl::Mat4 m_scale;
     ngl::Mat4 m_trans;
+    ngl::Mat4 m_V;
+    ngl::Mat4 m_VP;
     std::map<std::string, GLuint> m_vaos;
     int m_w;
     SDL_Window * m_window;
@@ -92,6 +94,8 @@ private:
 
     float m_cZoom;
     float m_tZoom;
+
+    std::vector<std::string> m_meshes;
 };
 
 #endif
