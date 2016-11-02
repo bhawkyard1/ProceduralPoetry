@@ -1,7 +1,8 @@
-#version 430 core
+#version 410 core
 
 in vec2 UV;
 in vec3 normal;
+in vec4 position;
 
 uniform vec4 baseColour;
 
@@ -26,5 +27,5 @@ void main()
     */
     outDiffuse = baseColour;
     outNormal = vec4(normal.xyz, 1.0);
-    outPosition = gl_FragCoord;
+    outPosition = position;
 }

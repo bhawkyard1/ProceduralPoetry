@@ -4,8 +4,11 @@
 #include "framebuffer.hpp"
 #include "util.hpp"
 
-void framebuffer::initialise()
+void framebuffer::initialise(int _w, int _h)
 {
+    m_w = _w;
+    m_h = _h;
+
     glGenFramebuffers(1, &m_framebuffer);
     bind();
 
@@ -26,16 +29,11 @@ void framebuffer::activeColourAttachments(const std::vector<GLenum> _bufs)
 
 void framebuffer::addDepthAttachment(const std::string &_identifier)
 {
-    addDepthAttachment( _identifier, m_w, m_h );
-}
-
-void framebuffer::addDepthAttachment(const std::string &_identifier, int _w, int _h)
-{
     GLuint depth;
     glGenRenderbuffers(1, &depth);
     glBindRenderbuffer(GL_RENDERBUFFER, depth);
 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, _w, _h);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_w, m_h);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 
     std::pair<std::string, GLuint> tex ( _identifier, depth );
@@ -44,13 +42,8 @@ void framebuffer::addDepthAttachment(const std::string &_identifier, int _w, int
 
 void framebuffer::addTexture(const std::string &_identifier, GLenum _format, GLenum _iformat , GLenum _attachment)
 {
-    addTexture(_identifier, m_w, m_h, _format, _iformat, _attachment);
-}
-
-void framebuffer::addTexture(const std::string &_identifier, int _w, int _h, GLenum _format, GLenum _iformat,  GLenum _attachment )
-{
     //Create texture.
-    std::pair<std::string, GLuint> tex ( _identifier, genTexture(_w, _h, _format, _iformat) );
+    std::pair<std::string, GLuint> tex ( _identifier, genTexture(m_w, m_h, _format, _iformat) );
     m_textures.insert( tex );
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_2D, m_textures[ _identifier ], 0);

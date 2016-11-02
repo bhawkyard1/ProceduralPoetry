@@ -7,11 +7,11 @@
 
 */
 
-const float g_AMBIENT_FRICTION = 0.25f;
+const float g_AMBIENT_FRICTION = 0.05f;
 const float g_BALL_PENETRATION_LENIENCY = 0.9f;
-const float g_BALL_STICKINESS = 0.2f;
-const float g_BALL_STICKINESS_RADIUS_MULTIPLIER = 0.95f;
-const float g_COLLISION_ENERGY_CONSERVATION = 0.0f;
+const float g_BALL_STICKINESS = 0.5f;
+const float g_BALL_STICKINESS_RADIUS_MULTIPLIER = 1.25f;
+const float g_COLLISION_ENERGY_CONSERVATION = 0.1f;
 float g_GRAVITY_ATTENUATION = 2.0f;
 
 #endif // PHYSICSVARS_HPP

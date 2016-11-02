@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <algorithm>
+
 #include <ngl/NGLInit.h>
 #include <ngl/Mat3.h>
 #include <ngl/Mat4.h>
@@ -81,9 +83,7 @@ visualiser::visualiser()
 
     std::cout << "p1.5\n";
 
-    m_framebuffer.initialise();
-    m_framebuffer.setWidth( m_w );
-    m_framebuffer.setHeight( m_h );
+    m_framebuffer.initialise(m_w, m_h);
 
     m_framebuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT0 );
     m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
@@ -98,6 +98,16 @@ visualiser::visualiser()
         errorExit( "Error! Framebuffer failed!\n" );
 
     m_framebuffer.unbind();
+
+    GLint v = 0;
+    glGetIntegerv( GL_MAX_UNIFORM_BLOCK_SIZE, &v );
+
+    //Create and reserve light buffer.
+    m_lights.reserve(MAX_LIGHTS);
+    glGenBuffers(1, &m_lightbuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_lightbuffer);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(light) * MAX_LIGHTS, &m_lights[0].m_pos.m_x, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glViewport(0, 0, m_w, m_h);
 
@@ -150,7 +160,7 @@ visualiser::visualiser()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     clear();
     swap();
     hide();
@@ -329,6 +339,8 @@ void visualiser::drawSpheres()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     clear();
 
+    m_lights.clear();
+
     m_camTrans.setPosition(
                 m_camCLook.m_x,
                 m_camCLook.m_y,
@@ -343,10 +355,9 @@ void visualiser::drawSpheres()
 
     slib->use( "blinn" );
 
-    slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
     for(auto &i : m_nodes.m_objects)
-    {
+    {  
+        slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() * i.getLuminance() ));
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
 
@@ -364,6 +375,9 @@ void visualiser::drawSpheres()
         index = clamp(index, size_t(0), m_meshes.size() - 1);*/
         prim->draw( m_meshes[0] );
         //prim->draw( m_meshes[index] );
+
+        if(i.getLuminance() > 0.05f)
+            m_lights.push_back( {i.getPos(), i.getColour(), i.getLuminance() * 0.1f} );
     }
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -371,6 +385,12 @@ void visualiser::drawSpheres()
     loadMatricesToShader();
 
     prim->draw( m_meshes[0] );
+
+    glBindBuffer(GL_UNIFORM_BUFFER, m_lightbuffer);
+    GLvoid * dat = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    memcpy(dat, &m_lights[0].m_pos.m_x, sizeof(light) * std::min( m_lights.size(), MAX_LIGHTS ));
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void visualiser::finalise()
@@ -378,7 +398,7 @@ void visualiser::finalise()
     m_framebuffer.unbind();
     m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0});
 
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     clear();
 
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
@@ -392,6 +412,13 @@ void visualiser::finalise()
     m_framebuffer.bindTexture(id, "diffuse", "diffuse", 0);
     m_framebuffer.bindTexture(id, "normal", "normal", 1);
     m_framebuffer.bindTexture(id, "position", "position", 2);
+
+    GLuint lightBlockIndex = glGetUniformBlockIndex( id, "lightBuffer" );
+    GLuint index = 1;
+    glBindBufferBase(GL_UNIFORM_BUFFER, index, m_lightbuffer);
+    glUniformBlockBinding(id, lightBlockIndex, index);
+
+    slib->setRegisteredUniform( "activeLights", static_cast<int>(std::min( m_lights.size(), MAX_LIGHTS )) );
 
     glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
@@ -407,8 +434,11 @@ void visualiser::loadMatricesToShader()
 
     //ngl::Mat3 normalMat = MV;
     //normalMat.inverse();
-    ngl::Mat4 MVP = m_scale * m_trans * m_VP;
 
+    ngl::Mat4 M = m_scale * m_trans;
+    ngl::Mat4 MVP = M * m_VP;
+
+    slib->setRegisteredUniform( "M", M );
     slib->setRegisteredUniform( "MVP", MVP );
     //slib->setRegisteredUniform( "normalMat", normalMat );
 }
@@ -511,6 +541,11 @@ void visualiser::narrowPhase()
 
                 a->addVel( aim * impulse );
                 b->addVel( -bim * impulse );
+
+                force *= 16.0f;
+
+                a->addLuminance(-force);
+                b->addLuminance(-force);
             }
         }
     }
@@ -587,14 +622,15 @@ void visualiser::update(const float _dt)
             /*if(dist < 64.0f)
                 m_nodes.m_velocities[i] *= dist / 64.0f;*/
 
-            if(dist > sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER)
+            float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
+            if(dist > mrad)
             {
                 dir /= pow(dist, g_GRAVITY_ATTENUATION);
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
                 i.addVel( dir * (i.getInvMass() / sumMass) );
             }
             else
-                i.setVel( i.getVel() * (1.0f - g_BALL_STICKINESS) );
+                i.setVel( i.getVel() * (1.0f - g_BALL_STICKINESS) * (dist / mrad) );
 
 
             //target->addVel( -dir * (target->getInvMass()) );

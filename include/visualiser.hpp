@@ -8,9 +8,12 @@
 #include <ngl/Random.h>
 
 #include "framebuffer.hpp"
+#include "light.hpp"
 #include "slotmap.hpp"
 #include "sphere.hpp"
 #include "util.hpp"
+
+constexpr size_t MAX_LIGHTS = 512;
 
 class visualiser
 {
@@ -64,6 +67,8 @@ private:
     ngl::Camera m_cam;
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
+    std::vector<light> m_lights;
+    GLuint m_lightbuffer;
     SDL_GLContext m_gl_context;
     int m_h;
     bool m_lmb;
