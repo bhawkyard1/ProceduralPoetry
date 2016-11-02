@@ -544,8 +544,8 @@ void visualiser::narrowPhase()
 
                 force *= 16.0f;
 
-                a->addLuminance(-force);
-                b->addLuminance(-force);
+                a->addLuminance(-force * aim / sumMass);
+                b->addLuminance(-force * bim / sumMass);
             }
         }
     }
