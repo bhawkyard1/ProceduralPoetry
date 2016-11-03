@@ -13,7 +13,7 @@
 #include "sphere.hpp"
 #include "util.hpp"
 
-constexpr size_t MAX_LIGHTS = 512;
+#define MAX_LIGHTS 512
 
 class visualiser
 {

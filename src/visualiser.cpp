@@ -88,10 +88,12 @@ visualiser::visualiser()
     m_framebuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT0 );
     m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
     m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT2 );
+    m_framebuffer.addTexture( "radius", GL_RED, GL_RED, GL_COLOR_ATTACHMENT3 );
+    std::cout << "ERROR " <<  glGetError() << '\n';
     m_framebuffer.addDepthAttachment("depth");
 
     m_framebuffer.activeColourAttachments(
-    {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2}
+    {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3}
                 );
 
     if(!m_framebuffer.checkComplete())
@@ -334,21 +336,12 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts
 void visualiser::drawSpheres()
 {
     m_framebuffer.bind();
-    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2});
+    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3});
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     clear();
 
     m_lights.clear();
-
-    m_camTrans.setPosition(
-                m_camCLook.m_x,
-                m_camCLook.m_y,
-                m_camCLook.m_z
-                );
-
-    m_V = m_camTrans.getMatrix() * m_rot * m_cam.getViewMatrix();
-    m_VP = m_V * m_cam.getProjectionMatrix();
 
     ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
@@ -356,8 +349,9 @@ void visualiser::drawSpheres()
     slib->use( "blinn" );
 
     for(auto &i : m_nodes.m_objects)
-    {  
+    {
         slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() * i.getLuminance() ));
+        slib->setRegisteredUniform("radius", i.getRadius());
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
 
@@ -382,13 +376,20 @@ void visualiser::drawSpheres()
 
     slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
     m_trans.translate( -m_camCLook.m_x, -m_camCLook.m_y, -m_camCLook.m_z );
+    /*m_lights.push_back(
+    {
+                    -m_camCLook,
+                    ngl::Vec3(1.0f, 1.0f, 1.0f),
+                    4.0f
+                }
+                );*/
     loadMatricesToShader();
 
     prim->draw( m_meshes[0] );
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_lightbuffer);
     GLvoid * dat = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    memcpy(dat, &m_lights[0].m_pos.m_x, sizeof(light) * std::min( m_lights.size(), MAX_LIGHTS ));
+    memcpy(dat, &m_lights[0].m_pos.m_x, sizeof(light) * std::min( m_lights.size(), static_cast<size_t>(MAX_LIGHTS)));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -396,7 +397,7 @@ void visualiser::drawSpheres()
 void visualiser::finalise()
 {
     m_framebuffer.unbind();
-    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0});
+    //m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0});
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     clear();
@@ -412,13 +413,19 @@ void visualiser::finalise()
     m_framebuffer.bindTexture(id, "diffuse", "diffuse", 0);
     m_framebuffer.bindTexture(id, "normal", "normal", 1);
     m_framebuffer.bindTexture(id, "position", "position", 2);
+    m_framebuffer.bindTexture(id, "radius", "radius", 3);
 
     GLuint lightBlockIndex = glGetUniformBlockIndex( id, "lightBuffer" );
     GLuint index = 1;
     glBindBufferBase(GL_UNIFORM_BUFFER, index, m_lightbuffer);
     glUniformBlockBinding(id, lightBlockIndex, index);
 
-    slib->setRegisteredUniform( "activeLights", static_cast<int>(std::min( m_lights.size(), MAX_LIGHTS )) );
+    slib->setRegisteredUniform( "activeLights", static_cast<int>(std::min( m_lights.size(), static_cast<size_t>(MAX_LIGHTS) )) );
+
+    ngl::Vec4 camPos = m_V * m_cam.getEye() - m_camCLook;
+    slib->setRegisteredUniform( "camPos", ngl::Vec3( camPos.m_x, camPos.m_y, camPos.m_z ) );
+
+    //std::cout << "CamPos " << camPos.m_x << ", " << camPos.m_y << ", " << camPos.m_z << '\n';
 
     glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
@@ -588,12 +595,15 @@ void visualiser::update(const float _dt)
     m_rot = yaw * pitch;
 
     m_cZoom += (m_tZoom - m_cZoom) / 16.0f;
-    ngl::Vec4 cpos = m_cam.getEye();
-    cpos.normalize();
 
-    m_cam.setEye( cpos * m_cZoom );
+    m_cam.setEye( ngl::Vec3(0.0, 0.0, 1.0) * m_cZoom );
 
     m_camCLook += (m_camTLook - m_camCLook ) / 16.0f;
+
+    m_camTrans.setPosition(m_camCLook);
+
+    m_V = m_camTrans.getMatrix() * m_rot * m_cam.getViewMatrix();
+    m_VP = m_V * m_cam.getProjectionMatrix();
 
     //TEST
     for(auto &i : m_nodes.m_objects)

@@ -5,12 +5,14 @@ in vec3 normal;
 in vec4 position;
 
 uniform vec4 baseColour;
+uniform float radius;
 
 //layout( location = 0 ) out vec4 fragColour;
 
 layout( location = 0 ) out vec4 outDiffuse;
 layout( location = 1 ) out vec4 outNormal;
 layout( location = 2 ) out vec4 outPosition;
+layout( location = 3 ) out float outRadius;
 
 void main()
 {
@@ -28,4 +30,6 @@ void main()
     outDiffuse = baseColour;
     outNormal = vec4(normal.xyz, 1.0);
     outPosition = position;
+
+    outRadius = radius;
 }
