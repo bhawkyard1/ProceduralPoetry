@@ -96,8 +96,8 @@ void main()
                     );
     }
 
-    lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
-    lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
+    /*lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
+    lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;*/
 
     vec4 diffVec = vec4(0.0, 0.0, 0.0, 1.0);//texture(diffuse, UV);
     diffVec.xyz += lightcol;
