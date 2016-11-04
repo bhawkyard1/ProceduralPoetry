@@ -3,7 +3,7 @@
 
 #include <ngl/Types.h>
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 class framebuffer
@@ -20,9 +20,9 @@ public:
 private:
     GLuint genTexture(int _width, int _height, GLint _format, GLint _internalFormat);
     //Keeps track of textures.
-    std::map< std::string, GLuint > m_textures;
+    std::unordered_map< std::string, GLuint > m_textures;
     //Keeps track of the colour attachments that each texture uses.
-    std::map< std::string, GLenum > m_attachments;
+    std::unordered_map< std::string, GLenum > m_attachments;
     GLuint m_framebuffer;
     int m_h;
     GLenum m_maxColourTarget;

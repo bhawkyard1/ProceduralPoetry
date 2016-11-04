@@ -1,4 +1,5 @@
 #include "sphere.hpp"
+#include "util.hpp"
 
 sphere::sphere(ngl::Vec3 _pos, float _radius)
 {
@@ -11,8 +12,10 @@ sphere::sphere(ngl::Vec3 _pos, float _radius)
     m_luminance = 0.0f;
 }
 
-void sphere::update(const float _dt)
+void sphere::update(float _dt)
 {
+    _dt = clamp(_dt, 0.0f, 1.0f);
+
     m_vel += m_forces * _dt;
     m_forces.null();
 

@@ -40,7 +40,9 @@ public:
     size_t getOrder() {return m_order;}
 
     void constructVisualisation();
-    void visualise(const float _dt);
+
+    void update(const float _dt);
+    void visualise();
 
     void resetPos() {m_visualiser.resetPos();}
 

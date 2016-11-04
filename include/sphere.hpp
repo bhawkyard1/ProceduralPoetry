@@ -33,7 +33,7 @@ public:
     float getRadius() const {return m_radius;}
     ngl::Vec3 getVel() const {return m_vel;}
 
-    void update(const float _dt);
+    void update(float _dt);
 
     void setLuminance(const float _luminance) {m_luminance = _luminance;}
     void setForces(const ngl::Vec3 &_forces) {m_forces = _forces;}

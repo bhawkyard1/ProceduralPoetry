@@ -13,7 +13,8 @@ uniform sampler2D radius;
 
 uniform int activeLights;
 
-layout( location = 0 ) out vec4 fragColour;
+layout( location = 0 ) out vec4 outDiffuse;
+layout( location = 1 ) out vec4 outDepth;
 
 struct light
 {
@@ -53,7 +54,7 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
     //Normal based multiplier.
     float mul = dotLight( diff, snorm );
     //Quadratic attenuation.
-    mul = (llum * mul) / pow(len, 2.0);
+    mul = ( 0.5 * llum * mul) / pow(len, 2.0);
     //Diffuse lit colour
     vec3 litCol = mul * lcol;
 
@@ -67,7 +68,7 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 
     float camPosMul = clamp( dot( snorm, eye ), 0.0, 1.0 );
 
-    float sssMul = llum * camVar * (camPosMul - depth) * 0.01;
+    float sssMul = llum * camVar * (camPosMul - depth) * 0.025;
     litCol += vec3(0.8, 0.05, 0.2) * sssMul;
 
     return litCol;
@@ -79,16 +80,21 @@ dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 1.0
 void main()
 {
     if(texture(radius, UV).r == 0.0)
-        discard;
+    {
+        outDiffuse = vec4( 0.0 );
+        outDepth = vec4( 1.0 / 0.0 );
+        return;
+    }
 
     //Get dot.
     vec3 normVec = texture(normal, UV).xyz;
     vec3 lightcol = texture(diffuse, UV).xyz;
+    vec3 spos = texture(position, UV).xyz;
 
     for(int i = 0; i < activeLights; i++)
     {
         lightcol += computeLighting(
-                    texture(position, UV).xyz,
+                    spos,
                     normVec,
                     lbuf.buf[i].pos.xyz,
                     lbuf.buf[i].col,
@@ -99,10 +105,11 @@ void main()
     lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
     lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
 
-    vec4 diffVec = vec4(0.0, 0.0, 0.0, 1.0);//texture(diffuse, UV);
+    vec4 diffVec = texture(diffuse, UV);
     diffVec.xyz += lightcol;
 
-    fragColour = diffVec;
+    outDiffuse = diffVec;
+    outDepth = vec4((camPos - spos).length());
     /*fragColour = vec4(texture(radius, UV).r);
     fragColour.a = 1.0;*/
 }

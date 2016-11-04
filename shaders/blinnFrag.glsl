@@ -12,7 +12,7 @@ uniform float radius;
 layout( location = 0 ) out vec4 outDiffuse;
 layout( location = 1 ) out vec4 outNormal;
 layout( location = 2 ) out vec4 outPosition;
-layout( location = 3 ) out float outRadius;
+layout( location = 3 ) out vec4 outRadius;
 
 void main()
 {
@@ -31,5 +31,5 @@ void main()
     outNormal = vec4(normal.xyz, 1.0);
     outPosition = position;
 
-    outRadius = radius;
+    outRadius = vec4(radius);
 }

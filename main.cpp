@@ -69,7 +69,7 @@ void processInput(const std::string &_input, markovChain &_mark)
             _mark.reload( std::stoi( cmds[1] ) );
         }
     }
-    else if(levenshtein(cmds[0], "visualise") < LEV_THRESHOLD)
+    else if(levenshtein(cmds[0], "v") < LEV_THRESHOLD)
     {
         _mark.constructVisualisation();
         visualise(_mark);
@@ -92,7 +92,6 @@ void visualise(markovChain &_mark)
     bool done = false;
     while(!done)
     {
-        timer.setCur();
         SDL_Event event;
         while(SDL_PollEvent( &event ))
         {
@@ -122,7 +121,16 @@ void visualise(markovChain &_mark)
 
         g_TIME += timer.getDiff();
 
-        _mark.visualise( timer.getDiff() * 128.0f );
+        timer.setCur();
+
+        //Update the game in small time-steps (dependant on the timers fps).
+        while(timer.getAcc() > timer.getFrame())
+        {
+            _mark.update( timer.getDiff() * 512.0f );
+            timer.incrAcc( -timer.getDiff() );
+        }
+
+        _mark.visualise( );
     }
     _mark.hideVisualiser();
 }

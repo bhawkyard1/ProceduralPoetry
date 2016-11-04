@@ -302,10 +302,13 @@ void markovChain::constructVisualisation()
     m_visualiser.show();
 }*/
 
-void markovChain::visualise(const float _dt)
+void markovChain::update(const float _dt)
 {
-
     m_visualiser.update(_dt);
+}
+
+void markovChain::visualise()
+{
     m_visualiser.drawSpheres();
     m_visualiser.finalise();
 }

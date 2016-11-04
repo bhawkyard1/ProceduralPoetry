@@ -2,6 +2,7 @@
 #define CAMERA_HPP
 
 #include <ngl/Mat4.h>
+#include <ngl/Vec3.h>
 
 class camera
 {

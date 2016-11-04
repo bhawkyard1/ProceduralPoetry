@@ -67,6 +67,7 @@ private:
     ngl::Camera m_cam;
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
+    framebuffer m_DOFbuffer;
     std::vector<light> m_lights;
     GLuint m_lightbuffer;
     SDL_GLContext m_gl_context;
@@ -92,7 +93,7 @@ private:
     ngl::Mat4 m_trans;
     ngl::Mat4 m_V;
     ngl::Mat4 m_VP;
-    std::map<std::string, GLuint> m_vaos;
+    std::unordered_map<std::string, GLuint> m_vaos;
     int m_w;
     SDL_Window * m_window;
     ngl::Mat4 m_rot;
