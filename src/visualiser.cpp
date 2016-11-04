@@ -565,10 +565,13 @@ void visualiser::narrowPhase()
 				a->addVel( aim * impulse );
 				b->addVel( -bim * impulse );
 
-				force *= 16.0f;
+				if(force < -0.1f)
+				{
+					force *= 16.0f;
 
-				a->addLuminance(-force * aim / sumMass);
-				b->addLuminance(-force * bim / sumMass);
+					a->addLuminance(-force * aim / sumMass);
+					b->addLuminance(-force * bim / sumMass);
+				}
 			}
 		}
 	}

@@ -74,7 +74,7 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 }
 
 dirLight mainLight = dirLight( normalize(vec3(0.1, 0.9, 0.0)), vec3(0.1, 0.1, 0.2), 1.0 );
-dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(1.0, 0.0, 0.4), 0.2 );
+dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 1.0, 0.4), 0.2 );
 
 void main()
 {
@@ -96,8 +96,8 @@ void main()
                     );
     }
 
-    /*lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
-    lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;*/
+    lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
+    lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
 
     vec4 diffVec = vec4(0.0, 0.0, 0.0, 1.0);//texture(diffuse, UV);
     diffVec.xyz += lightcol;
