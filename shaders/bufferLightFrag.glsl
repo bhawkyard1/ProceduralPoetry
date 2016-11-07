@@ -48,13 +48,14 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 {
     //Get vector between light surface and its length.
     vec3 diff = lpos - spos;
-    float len = diff.length();
+    float len = distance(lpos, spos);
     diff = normalize(diff);
 
+    len = 0.125 * pow(len, 2.0);
     //Normal based multiplier.
     float mul = dotLight( diff, snorm );
     //Quadratic attenuation.
-    mul = ( 0.5 * llum * mul) / pow(len, 2.0);
+    mul = (llum * mul) / len;
     //Diffuse lit colour
     vec3 litCol = mul * lcol;
 
@@ -68,14 +69,14 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 
     float camPosMul = clamp( dot( snorm, eye ), 0.0, 1.0 );
 
-    float sssMul = llum * camVar * (camPosMul - depth) * 0.025;
-    litCol += vec3(0.8, 0.05, 0.2) * sssMul;
+    float sssMul = llum * camVar * (camPosMul - depth) / len;
+    litCol += vec3(0.8, 0.2, 0.2) * sssMul;
 
     return litCol;
 }
 
 dirLight mainLight = dirLight( normalize(vec3(0.1, 0.9, 0.0)), vec3(0.1, 0.1, 0.2), 1.0 );
-dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 1.0, 0.4), 0.2 );
+dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 1.0, 0.4), 0.05 );
 
 void main()
 {
@@ -86,10 +87,18 @@ void main()
         return;
     }
 
+    vec3 spos = texture(position, UV).xyz;
+    outDepth = vec4(distance(spos, camPos));
+
     //Get dot.
     vec3 normVec = texture(normal, UV).xyz;
     vec3 lightcol = texture(diffuse, UV).xyz;
-    vec3 spos = texture(position, UV).xyz;
+
+    if(lightcol.r > 1 && lightcol.g > 1 && lightcol.b > 1)
+    {
+        outDiffuse = vec4(1.0);
+        return;
+    }
 
     for(int i = 0; i < activeLights; i++)
     {
@@ -109,7 +118,6 @@ void main()
     diffVec.xyz += lightcol;
 
     outDiffuse = diffVec;
-    outDepth = vec4((camPos - spos).length());
     /*fragColour = vec4(texture(radius, UV).r);
     fragColour.a = 1.0;*/
 }

@@ -39,7 +39,6 @@ win32 {
     DEFINES += _USE_MATH_DEFINES
     LIBS += -LC:/NGL/lib/ -lNGL
     DEFINES += NO_DLL
-    QMAKE_CXXFLAGS += "_ITERATOR_DEBUG_LEVEL_0"
 }
 
 unix {

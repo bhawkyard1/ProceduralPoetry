@@ -7,6 +7,7 @@
 #include <ngl/Transformation.h>
 #include <ngl/Random.h>
 
+#include "camera.hpp"
 #include "framebuffer.hpp"
 #include "light.hpp"
 #include "slotmap.hpp"
@@ -64,7 +65,9 @@ private:
 
     void setBufferLocation(GLuint _buffer, int _index, int _size);
 
-    ngl::Camera m_cam;
+		//ngl::Camera m_cam;
+		camera m_cam;
+
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
     framebuffer m_DOFbuffer;

@@ -197,7 +197,6 @@ void markovChain::constructVisualisation()
 
         vnodes->integrateVelocity();*/
     }
-
     m_visualiser.show();
 }
 
