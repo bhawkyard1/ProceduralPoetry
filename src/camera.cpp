@@ -17,7 +17,7 @@ void camera::calculate()
 				m_up
 				);
 
-	for(auto &i = m_transformationStack.rbegin(); i < m_transformationStack.rend(); ++i)
+    for(auto i = m_transformationStack.rbegin(); i < m_transformationStack.rend(); ++i)
 		m_V *= (*i);
 
 	ngl::Mat4 VI = m_V.inverse();

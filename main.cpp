@@ -2,6 +2,7 @@
 #include <time.h>
 #include <random>
 
+#include "cmd.hpp"
 #include "markovChain.hpp"
 #include "printer.hpp"
 #include "sim_time.hpp"
