@@ -37,6 +37,7 @@ float randFlt(float _low, float _high);
 
 int levenshtein(const std::string &_a, const std::string &_b);
 
+std::pair<std::string, std::string> splitFirst(std::string _str, char _delim);
 std::vector<std::string> split(std::string _str, char _delim);
 std::vector<std::string> split(std::string _str, std::string _delims);
 

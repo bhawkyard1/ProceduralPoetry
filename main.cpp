@@ -2,7 +2,6 @@
 #include <time.h>
 #include <random>
 
-#include "cmd.hpp"
 #include "markovChain.hpp"
 #include "printer.hpp"
 #include "sim_time.hpp"
@@ -30,7 +29,7 @@ int main(int argc, char* argv[])
 
         //std::cin >> input;
         if(input.length() > 0)
-            processInput( input, mark );
+            processInput(input, mark);
     }
 
     return 0;

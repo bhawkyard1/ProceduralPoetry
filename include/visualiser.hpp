@@ -77,6 +77,7 @@ private:
     int m_h;
     bool m_lmb;
     bool m_mmb;
+    bool m_rmb;
     //Store where the mouse used to be.
     ngl::Vec2 m_mouseOrigin;
     //Store where the mouse currently is.

@@ -1,0 +1,2 @@
+The Oxford Handbook of Computer Music
+	-Markov Chains for music generation

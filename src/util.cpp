@@ -94,6 +94,25 @@ int levenshtein(const std::string &_a, const std::string &_b)
     return mat[m][n];
 }
 
+std::pair<std::string, std::string> splitFirst(std::string _str, char _delim)
+{
+    std::pair<std::string, std::string> ret;
+    bool section = false;
+
+    for(auto &ch : _str)
+    {
+        if(ch == _delim)
+            section = true;
+
+        if(!section)
+            ret.first += ch;
+        else
+            ret.second += ch;
+    }
+
+    return ret;
+}
+
 std::vector<std::string> split(std::string _str, char _delim)
 {
     std::vector<std::string> ret;

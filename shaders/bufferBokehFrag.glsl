@@ -39,7 +39,7 @@ bool noise = true; //use noise instead of pattern for sample dithering
 float namount = 0.00005; //dither amount
 
 bool depthblur = true; //blur the depth buffer?
-float dbsize = 0.005; //depthblursize
+float dbsize = 0.05; //depthblursize
 
 /*
 next part is experimental
@@ -154,7 +154,7 @@ void main()
 {
     vec2 UV = gl_FragCoord.xy / bgl_dim;
 
-    float depth = texture(bgl_DepthTexture, UV).y;
+    float depth = texture(bgl_DepthTexture, UV).r;
     float blur = 0.0;
 
     if (depthblur)
@@ -162,12 +162,12 @@ void main()
         depth = bdepth(UV);
     }
 
-    blur = clamp((abs(depth - focalDepth) / range) /* 100.0*/, 0.0, maxblur );
+    blur = clamp((abs(depth - focalDepth) / range) /* 100.0*/, -maxblur, maxblur );
 
     if (autofocus)
     {
         float fDepth = texture(bgl_DepthTexture, focus).x;
-        blur = clamp((abs(depth - fDepth) / range) * 100.0, -maxblur, maxblur );
+        blur = clamp((abs(depth - fDepth) / range) * 100.0, 0.0, maxblur );
     }
 
     vec2 noise = rand(UV)*namount*blur;
@@ -202,6 +202,6 @@ void main()
     col /= s;
 
     fragColour.rgb = col;
-    //fragColour = texture(bgl_DepthTexture, UV);
+    //fragColour = vec4(depth / 2048.0);
     fragColour.a = 1.0;
 }
