@@ -36,9 +36,6 @@ void camera::calculate()
     m_pos = ngl::Vec3(VI.m_30, VI.m_31, VI.m_32);
     m_pivot = ngl::Vec3(wti.m_30, wti.m_31, wti.m_32);
 
-    std::cout << "init pos " << m_initPos << '\n';
-    std::cout << "pos " << m_pos << "\n\n";
-
     m_VP = m_V * m_P;
 }
 

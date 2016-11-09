@@ -46,6 +46,8 @@ public:
 
     void resetPos() {m_visualiser.resetPos();}
 
+		void toggleLight() {m_visualiser.toggleLight();}
+
 private:
     void addContext(const std::string &_str);
     mKey getKeyFromContext();

@@ -224,8 +224,7 @@ compiler_clean:
 
 ####### Compile
 
-obj\main.obj: main.cpp include\cmd.hpp \
-		include\markovChain.hpp \
+obj\main.obj: main.cpp include\markovChain.hpp \
 		include\markovState.hpp \
 		include\markovEdge.hpp \
 		include\slotmap.hpp \

@@ -50,6 +50,7 @@ public:
         }
     }
 
+		void toggleLight() {m_light = !m_light;}
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -104,6 +105,8 @@ private:
 
     float m_cZoom;
     float m_tZoom;
+
+		bool m_light;
 
     std::vector<std::string> m_meshes;
 };
