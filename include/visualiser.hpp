@@ -23,6 +23,7 @@ public:
     ~visualiser();
     void addPoint(const ngl::Vec3 &_vec, const std::string &_name, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
+    void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
     slotmap<sphere> * getNodesPt() {return &m_nodes;}
@@ -50,7 +51,7 @@ public:
         }
     }
 
-		void toggleLight() {m_light = !m_light;}
+    void toggleLight() {m_light = !m_light;}
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -66,8 +67,8 @@ private:
 
     void setBufferLocation(GLuint _buffer, int _index, int _size);
 
-		//ngl::Camera m_cam;
-		camera m_cam;
+    //ngl::Camera m_cam;
+    camera m_cam;
 
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
@@ -106,7 +107,7 @@ private:
     float m_cZoom;
     float m_tZoom;
 
-		bool m_light;
+    bool m_light;
 
     std::vector<std::string> m_meshes;
 };

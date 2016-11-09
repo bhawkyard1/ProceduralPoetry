@@ -2,7 +2,7 @@
 #include "shape.hpp"
 #include "util.hpp"
 
-bool rayIntersectSphere(ngl::Vec3 _start, ngl::Vec3 _dir, ngl::Vec3 _sphere, float _radius)
+bool raySphereIntersect(ngl::Vec3 _start, ngl::Vec3 _dir, ngl::Vec3 _sphere, float _radius)
 {
   ngl::Vec3 cp = closest(_start, _dir, _sphere);
   ngl::Vec3 cd = cp - _sphere;

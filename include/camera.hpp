@@ -37,9 +37,10 @@ public:
 
     void clearTransforms() {m_cameraTransformationStack.clear(); m_worldTransformationStack.clear();}
 
+    ngl::Vec3 back() {return m_V.transpose().getBackVector();}
+    ngl::Vec3 forwards() {return m_V.transpose().getForwardVector();}
 	ngl::Vec3 up() {return m_V.getUpVector();}
 	ngl::Vec3 right() {return m_V.transpose().getRightVector();}
-    ngl::Vec3 back() {return m_V.transpose().getBackVector();}
 private:
 	float m_fov;
 	float m_aspect;

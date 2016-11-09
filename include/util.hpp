@@ -11,6 +11,8 @@
 #include <ngl/Vec2.h>
 #include <ngl/Vec3.h>
 
+#include <SDL2/SDL.h>
+
 #include "common.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -31,6 +33,7 @@ tt clamp(tt _v, tt _m, tt _M)
 std::istream& getlineSafe(std::istream& is, std::string& t);
 
 ngl::Vec2 getMousePos();
+ngl::Vec2 getMousePosWindowCorrective( SDL_Window * _window);
 
 int randInt(int _low, int _high);
 float randFlt(float _low, float _high);

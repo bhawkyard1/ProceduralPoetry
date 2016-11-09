@@ -19,7 +19,8 @@ SOURCES += $$PWD/main.cpp \
 HEADERS += $$PWD/include/*.hpp
 
 OTHER_FILES += readme.md \
-                           ./shaders/*.glsl
+                           ./shaders/*.glsl \
+                           ./resources/*.txt
 
 CONFIG += console
 

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <vector>
 #include <SDL2/SDL.h>
+#include <ngl/NGLStream.h>
 
 #include "matrices.hpp"
 #include "util.hpp"
@@ -45,6 +46,25 @@ ngl::Vec2 getMousePos()
     SDL_GetMouseState( &x, &y );
 
     return ngl::Vec2( x, y );
+}
+
+ngl::Vec2 getMousePosWindowCorrective(SDL_Window * _window)
+{
+    ngl::Vec2 mouse = getMousePos();
+    int w = 0, h = 0;
+
+    SDL_GetWindowSize( _window, &w, &h );
+    ngl::Vec2 fakeDimensions ( w, h );
+
+    SDL_GL_GetDrawableSize( _window, &w, &h );
+    ngl::Vec2 realDimensions ( w, h );
+
+    std::cout << "Fake " << fakeDimensions << " Real " << realDimensions << '\n';
+
+    ngl::Vec2 offset = fakeDimensions - realDimensions;
+    mouse -= offset;
+
+    return mouse;
 }
 
 int levenshtein(const std::string &_a, const std::string &_b)
