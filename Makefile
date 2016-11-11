@@ -60,6 +60,7 @@ SOURCES       = main.cpp \
 		src/markovEdge.cpp \
 		src/markovState.cpp \
 		src/matrices.cpp \
+		src/physicsvars.cpp \
 		src/printer.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
@@ -79,6 +80,7 @@ OBJECTS       = obj/main.o \
 		obj/markovEdge.o \
 		obj/markovState.o \
 		obj/matrices.o \
+		obj/physicsvars.o \
 		obj/printer.o \
 		obj/shape.o \
 		obj/sim_time.o \
@@ -118,6 +120,7 @@ DIST          = .qmake.stash \
 		src/markovEdge.cpp \
 		src/markovState.cpp \
 		src/matrices.cpp \
+		src/physicsvars.cpp \
 		src/printer.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
@@ -468,7 +471,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents include/camera.hpp include/cmd.hpp include/common.hpp include/file.hpp include/font.hpp include/framebuffer.hpp include/light.hpp include/markovChain.hpp include/markovChainMatrix.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/physicsvars.hpp include/printer.hpp include/shape.hpp include/sim_time.hpp include/slotmap.hpp include/sphere.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/printer.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/physicsvars.cpp src/printer.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -510,7 +513,8 @@ compiler_clean:
 
 ####### Compile
 
-obj/main.o: main.cpp include/markovChain.hpp \
+obj/main.o: main.cpp include/physicsvars.hpp \
+		include/markovChain.hpp \
 		include/markovState.hpp \
 		include/markovEdge.hpp \
 		include/slotmap.hpp \
@@ -1546,6 +1550,9 @@ obj/matrices.o: src/matrices.cpp include/matrices.hpp \
 		include/common.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/matrices.o src/matrices.cpp
 
+obj/physicsvars.o: src/physicsvars.cpp include/physicsvars.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/physicsvars.o src/physicsvars.cpp
+
 obj/printer.o: src/printer.cpp include/printer.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/printer.o src/printer.cpp
 
@@ -1795,9 +1802,7 @@ obj/sphere.o: src/sphere.cpp include/sphere.hpp \
 		include/common.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/sphere.o src/sphere.cpp
 
-obj/util.o: src/util.cpp include/matrices.hpp \
-		include/util.hpp \
-		/home/i7620560/NGL/include/ngl/Vec2.h \
+obj/util.o: src/util.cpp /home/i7620560/NGL/include/ngl/NGLStream.h \
 		/home/i7620560/NGL/include/ngl/Types.h \
 		/home/i7620560/NGL/include/ngl/glew.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtOpenGL/QGLContext \
@@ -1910,6 +1915,9 @@ obj/util.o: src/util.cpp include/matrices.hpp \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtOpenGL/qtopenglglobal.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/QSurfaceFormat \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/qsurfaceformat.h \
+		include/matrices.hpp \
+		include/util.hpp \
+		/home/i7620560/NGL/include/ngl/Vec2.h \
 		/home/i7620560/NGL/include/ngl/Vec3.h \
 		include/common.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/util.o src/util.cpp
@@ -2041,8 +2049,10 @@ obj/visualiser.o: src/visualiser.cpp /home/i7620560/NGL/include/ngl/NGLInit.h \
 		/home/i7620560/NGL/include/ngl/Shader.h \
 		/home/i7620560/NGL/include/ngl/ShaderProgram.h \
 		/home/i7620560/NGL/include/ngl/Util.h \
+		/home/i7620560/NGL/include/ngl/NGLStream.h \
 		include/common.hpp \
 		include/physicsvars.hpp \
+		include/printer.hpp \
 		include/shape.hpp \
 		include/visualiser.hpp \
 		/home/i7620560/NGL/include/ngl/Camera.h \

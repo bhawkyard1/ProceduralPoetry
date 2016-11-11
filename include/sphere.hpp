@@ -15,6 +15,7 @@ public:
     sphere(ngl::Vec3 _pos, float _radius);
 
     void addLuminance(const float _luminance) {m_luminance += _luminance;}
+    void addInheritedLuminance(const float _luminance) {m_inheritedLuminance += _luminance;}
     void addConnection(const slotID &_id) {m_connections.push_back( _id );}
     void addForce(const ngl::Vec3 &_force) {m_forces += _force;}
     void addPos(const ngl::Vec3 &_pos) {m_pos += _pos;}
@@ -23,6 +24,7 @@ public:
     void clearConnections() {m_connections.clear();}
 
     ngl::Vec3 getColour() const {return m_colour;}
+    float getTotalLuminance() const {return m_luminance + m_inheritedLuminance;}
     float getLuminance() const {return m_luminance;}
     std::vector< slotID > * getConnections() {return &m_connections;}
     slotID getConnection(const size_t _i) {return m_connections[_i];}
@@ -44,6 +46,7 @@ public:
     void setVel(const ngl::Vec3 &_vel) {m_vel = _vel;}
 private:
     float m_luminance;
+    float m_inheritedLuminance;
     std::vector< slotID > m_connections;
     ngl::Vec3 m_forces;
     float m_invMass;

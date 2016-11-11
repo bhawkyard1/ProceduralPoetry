@@ -100,6 +100,15 @@ void markovChain::constructVisualisation()
 }
 */
 
+void markovChain::clear()
+{
+    m_writeBuffer = "";
+    m_seekBuffer.clear();
+    m_states.clear();
+
+    m_visualiser.clearPoints();
+}
+
 void markovChain::constructVisualisation()
 {
     printer pr;

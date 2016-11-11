@@ -17,6 +17,8 @@ public:
 
     void addNode(const markovState &_node);
 
+    void clear();
+
     void diagnoseNode( const std::string &_str );
 
     float getAverageNumConnections();
@@ -46,7 +48,7 @@ public:
 
     void resetPos() {m_visualiser.resetPos();}
 
-		void toggleLight() {m_visualiser.toggleLight();}
+    void toggleLight() {m_visualiser.toggleLight();}
 
 private:
     void addContext(const std::string &_str);

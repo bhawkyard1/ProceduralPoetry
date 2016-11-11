@@ -31,6 +31,7 @@ visualiser::visualiser()
     m_tZoom = 5.0f;
     m_cZoom = 5.0f;
 
+    std::cout << "p1\n";
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
         errorExit("SDL initialisation failed");
 
@@ -347,6 +348,7 @@ void visualiser::castRayGetNode()
         for(auto &con : *cons)
             m_nodes.getByID(con)->addLuminance( 0.5f );
         pr.message( "Node " + pt->getName() + '\n' );
+        pr.message(std::to_string(pt->getTotalLuminance()));
     }
 }
 
@@ -473,7 +475,7 @@ void visualiser::drawSpheres()
 
     for(auto &i : m_nodes.m_objects)
     {
-        slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() * i.getLuminance() ));
+        slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() * i.getTotalLuminance() ));
         slib->setRegisteredUniform("radius", i.getRadius());
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
@@ -494,7 +496,7 @@ void visualiser::drawSpheres()
         //prim->draw( m_meshes[index] );
 
         if(i.getLuminance() > 0.05f)
-            m_lights.push_back( {i.getPos(), i.getColour(), i.getLuminance() * 0.1f} );
+            m_lights.push_back( {i.getPos(), i.getColour(), i.getTotalLuminance() * 0.5f} );
     }
 
     if(m_light)
@@ -706,7 +708,7 @@ void visualiser::narrowPhase()
 
                 if(force < -0.05f)
                 {
-                    force *= 8.0f;
+                    force *= 12.0f;
 
                     a->addLuminance(-force * aim / sumMass);
                     b->addLuminance(-force * bim / sumMass);
@@ -780,6 +782,8 @@ void visualiser::update(const float _dt)
         for(auto &id : (*i.getConnections()))
         {
             sphere * target = m_nodes.getByID( id );
+
+            target->addInheritedLuminance( i.getTotalLuminance() * _dt );
 
             float sumRad = i.getRadius() + target->getRadius();
             float sumMass = i.getInvMass() + target->getInvMass();

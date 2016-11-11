@@ -6,3 +6,10 @@ turns out walking the tree at all was a bad idea (produced an incomplete model)
 this comes back partially to my method of representation (nodes vs sparse matrix)
 solution was to place all nodes in the scene, give them parameters and let them exert attractive forces on one another
 
+this worked okay, nodes ended up pooling inside one another
+
+introduced simple physics to help overall form
+octree for speed
+
+
+
