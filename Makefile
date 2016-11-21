@@ -35,7 +35,7 @@ COMPRESS      = gzip -9f
 DISTNAME      = PoetryGenerator1.0.0
 DISTDIR = /home/i7620560/Documents/year3/Innovations/ProceduralPoetry/obj/PoetryGenerator1.0.0
 LINK          = clang++
-LFLAGS        = -ccc-gcc-name g++ -Wl,-rpath,/home/i7620560/NGL/lib -Wl,-rpath,/opt/Qt5.7.0/5.7/gcc_64/lib
+LFLAGS        = -ccc-gcc-name g++ -Wl,-z,origin -Wl,-rpath,\$$ORIGIN/L/home/i7620560/NGL/lib -Wl,-rpath,/home/i7620560/NGL/lib -Wl,-rpath,/opt/Qt5.7.0/5.7/gcc_64/lib
 LIBS          = $(SUBLIBS) -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -L/home/i7620560/NGL/lib -l NGL -ltiff -L/opt/Qt5.7.0/5.7/gcc_64/lib -lQt5OpenGL -L/usr/lib64 -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
@@ -2038,7 +2038,7 @@ obj/visualiser.o: src/visualiser.cpp /home/i7620560/NGL/include/ngl/NGLInit.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/qsurfaceformat.h \
 		/home/i7620560/NGL/include/ngl/VAOPrimitives.h \
 		/home/i7620560/NGL/include/ngl/Vec3.h \
-		/home/i7620560/NGL/include/ngl/VertexArrayObject.h \
+		/home/i7620560/NGL/include/ngl/AbstractVAO.h \
 		/home/i7620560/NGL/include/ngl/Mat3.h \
 		/home/i7620560/NGL/include/ngl/Mat4.h \
 		/home/i7620560/NGL/include/ngl/Random.h \
@@ -2060,7 +2060,6 @@ obj/visualiser.o: src/visualiser.cpp /home/i7620560/NGL/include/ngl/NGLInit.h \
 		/home/i7620560/NGL/include/ngl/Plane.h \
 		/home/i7620560/NGL/include/ngl/AABB.h \
 		/home/i7620560/NGL/include/ngl/BBox.h \
-		/home/i7620560/NGL/include/ngl/AbstractVAO.h \
 		/home/i7620560/NGL/include/ngl/Transformation.h \
 		/home/i7620560/NGL/include/ngl/NGLassert.h \
 		include/camera.hpp \

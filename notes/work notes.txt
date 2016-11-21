@@ -11,5 +11,7 @@ this worked okay, nodes ended up pooling inside one another
 introduced simple physics to help overall form
 octree for speed
 
-
+started looking at music vis
+had to figure out how to get sdl mixer actually working in the labs
+had to read up of FFT and music vis
 

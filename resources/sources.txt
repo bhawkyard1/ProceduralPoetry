@@ -1,1 +1,4 @@
-bieber/Boyfriend.txt
+bieber/Bigger.txt
+bieber/Common Denominator.txt
+bieber/Down To Earth.txt
+bieber/Favorite Girl.txt

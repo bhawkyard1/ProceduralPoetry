@@ -1,0 +1,4 @@
+http://mathworld.wolfram.com/FourierMatrix.html
+http://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
+http://stackoverflow.com/questions/7674877/how-to-get-frequency-from-fft-result?noredirect=1&lq=1
+http://stackoverflow.com/questions/3148008/music-visualization
