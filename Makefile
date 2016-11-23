@@ -62,6 +62,7 @@ SOURCES       = main.cpp \
 		src/matrices.cpp \
 		src/physicsvars.cpp \
 		src/printer.cpp \
+		src/range.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
 		src/slotmap.cpp \
@@ -82,6 +83,7 @@ OBJECTS       = obj/main.o \
 		obj/matrices.o \
 		obj/physicsvars.o \
 		obj/printer.o \
+		obj/range.o \
 		obj/shape.o \
 		obj/sim_time.o \
 		obj/slotmap.o \
@@ -103,6 +105,7 @@ DIST          = .qmake.stash \
 		include/matrices.hpp \
 		include/physicsvars.hpp \
 		include/printer.hpp \
+		include/range.hpp \
 		include/shape.hpp \
 		include/sim_time.hpp \
 		include/slotmap.hpp \
@@ -122,6 +125,7 @@ DIST          = .qmake.stash \
 		src/matrices.cpp \
 		src/physicsvars.cpp \
 		src/printer.cpp \
+		src/range.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
 		src/slotmap.cpp \
@@ -470,8 +474,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents include/camera.hpp include/cmd.hpp include/common.hpp include/file.hpp include/font.hpp include/framebuffer.hpp include/light.hpp include/markovChain.hpp include/markovChainMatrix.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/physicsvars.hpp include/printer.hpp include/shape.hpp include/sim_time.hpp include/slotmap.hpp include/sphere.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/physicsvars.cpp src/printer.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/camera.hpp include/cmd.hpp include/common.hpp include/file.hpp include/font.hpp include/framebuffer.hpp include/light.hpp include/markovChain.hpp include/markovChainMatrix.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/physicsvars.hpp include/printer.hpp include/range.hpp include/shape.hpp include/sim_time.hpp include/slotmap.hpp include/sphere.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/physicsvars.cpp src/printer.cpp src/range.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1555,6 +1559,9 @@ obj/physicsvars.o: src/physicsvars.cpp include/physicsvars.hpp
 
 obj/printer.o: src/printer.cpp include/printer.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/printer.o src/printer.cpp
+
+obj/range.o: src/range.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/range.o src/range.cpp
 
 obj/shape.o: src/shape.cpp /home/i7620560/NGL/include/ngl/Types.h \
 		/home/i7620560/NGL/include/ngl/glew.h \

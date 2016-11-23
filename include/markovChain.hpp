@@ -6,10 +6,12 @@
 #include <string>
 
 #include "markovState.hpp"
+#include "range.hpp"
 #include "visualiser.hpp"
 
 using mKey = std::vector< std::string >;
 
+//template<class T>
 class markovChain
 {
 public:
