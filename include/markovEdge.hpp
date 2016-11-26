@@ -3,12 +3,17 @@
 
 #include <string>
 
+template<class T>
 struct markovEdge
 {
-    std::string m_node;
+    T m_node;
     float m_probability;
 };
 
-bool operator==(const markovEdge &_lhs, const markovEdge &_rhs);
+template<class T>
+bool operator==(const markovEdge<T> &_lhs, const markovEdge<T> &_rhs)
+{
+    return _lhs.m_node == _rhs.m_node;
+}
 
 #endif

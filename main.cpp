@@ -10,14 +10,17 @@
 
 #define LEV_THRESHOLD 2
 
-void processInput(const std::string &_input, markovChain &_mark);
-void visualise( markovChain &_mark );
+template<class T>
+void processInput(const std::string &_input, markovChain<T> &_mark);
+
+template<class T>
+void visualise( markovChain<T> &_mark );
 
 int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-	markovChain mark (3);
+    markovChain<std::string> mark (3);
 	printer pr;
 
 	bool done = false;
@@ -36,7 +39,8 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void processInput(const std::string &_input, markovChain &_mark)
+template<class T>
+void processInput(const std::string &_input, markovChain<T> &_mark)
 {
 	printer pr;
 	std::vector<std::string> cmds = split( _input, ' ' );
@@ -96,7 +100,8 @@ void processInput(const std::string &_input, markovChain &_mark)
 	std::cin.clear();
 }
 
-void visualise(markovChain &_mark)
+template<class T>
+void visualise(markovChain<T> &_mark)
 {
 	sim_time timer(120.0f);
 	bool done = false;
