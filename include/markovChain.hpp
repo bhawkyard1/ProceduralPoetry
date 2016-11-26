@@ -164,7 +164,7 @@ void markovChain<T>::constructVisualisation()
                 //If key at this index matches the node name, connect nodes[i] to nodes[j]
                 if(vnodes->get( j ).getName() == toString(key))
                 {
-                    slotID ref = vnodes->getID( j );
+                    slot ref = vnodes->getID( j );
                     vnodes->get(i).addConnection(ref);
                     break;
                 }

@@ -344,7 +344,7 @@ void visualiser::castRayGetNode()
         printer pr;
         pt->addLuminance(4.0f);
         pt->addVel( dir );
-        std::vector<slotID> * cons = pt->getConnections();
+        std::vector<slot> * cons = pt->getConnections();
         for(auto &con : *cons)
             m_nodes.getByID(con)->addLuminance( 0.5f );
         pr.message( "Node " + pt->getName() + '\n' );
@@ -800,10 +800,10 @@ void visualiser::update(const float _dt)
             {
                 dir /= pow(dist, g_GRAVITY_ATTENUATION);
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
-                i.addVel( dir * (i.getInvMass() / sumMass) );
+                i.addForce( dir * (i.getInvMass() / sumMass) );
             }
             else
-                i.setVel( i.getVel() * (1.0f - g_BALL_STICKINESS) * (dist / mrad) );
+                i.addForce( -i.getVel() * g_BALL_STICKINESS * (dist / mrad) );
 
 
             //target->addVel( -dir * (target->getInvMass()) );
@@ -833,7 +833,8 @@ void visualiser::update(const float _dt)
 
     for(auto &i : m_nodes.m_objects)
     {
-        i.setVel( i.getVel() * (1.0f - g_AMBIENT_FRICTION) );
+        //i.setVel( i.getVel() * (1.0f - g_AMBIENT_FRICTION) );
+        i.addForce( -i.getVel() * g_AMBIENT_FRICTION * i.getRadius() );
         i.update( _dt );
     }
 }
