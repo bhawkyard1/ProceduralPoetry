@@ -63,10 +63,12 @@ SOURCES       = main.cpp \
 		src/physicsvars.cpp \
 		src/printer.cpp \
 		src/range.cpp \
+		src/sampler.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
 		src/slotmap.cpp \
 		src/sphere.cpp \
+		src/stringSampler.cpp \
 		src/util.cpp \
 		src/visualiser.cpp 
 OBJECTS       = obj/main.o \
@@ -84,10 +86,12 @@ OBJECTS       = obj/main.o \
 		obj/physicsvars.o \
 		obj/printer.o \
 		obj/range.o \
+		obj/sampler.o \
 		obj/shape.o \
 		obj/sim_time.o \
 		obj/slotmap.o \
 		obj/sphere.o \
+		obj/stringSampler.o \
 		obj/util.o \
 		obj/visualiser.o
 DIST          = .qmake.stash \
@@ -106,10 +110,12 @@ DIST          = .qmake.stash \
 		include/physicsvars.hpp \
 		include/printer.hpp \
 		include/range.hpp \
+		include/sampler.hpp \
 		include/shape.hpp \
 		include/sim_time.hpp \
 		include/slotmap.hpp \
 		include/sphere.hpp \
+		include/stringSampler.hpp \
 		include/util.hpp \
 		include/visualiser.hpp main.cpp \
 		src/camera.cpp \
@@ -126,10 +132,12 @@ DIST          = .qmake.stash \
 		src/physicsvars.cpp \
 		src/printer.cpp \
 		src/range.cpp \
+		src/sampler.cpp \
 		src/shape.cpp \
 		src/sim_time.cpp \
 		src/slotmap.cpp \
 		src/sphere.cpp \
+		src/stringSampler.cpp \
 		src/util.cpp \
 		src/visualiser.cpp
 QMAKE_TARGET  = PoetryGenerator
@@ -474,8 +482,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents include/camera.hpp include/cmd.hpp include/common.hpp include/file.hpp include/font.hpp include/framebuffer.hpp include/light.hpp include/markovChain.hpp include/markovChainMatrix.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/physicsvars.hpp include/printer.hpp include/range.hpp include/shape.hpp include/sim_time.hpp include/slotmap.hpp include/sphere.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/physicsvars.cpp src/printer.cpp src/range.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/camera.hpp include/cmd.hpp include/common.hpp include/file.hpp include/font.hpp include/framebuffer.hpp include/light.hpp include/markovChain.hpp include/markovChainMatrix.hpp include/markovEdge.hpp include/markovState.hpp include/matrices.hpp include/physicsvars.hpp include/printer.hpp include/range.hpp include/sampler.hpp include/shape.hpp include/sim_time.hpp include/slotmap.hpp include/sphere.hpp include/stringSampler.hpp include/util.hpp include/visualiser.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp src/camera.cpp src/cmd.cpp src/common.cpp src/file.cpp src/font.cpp src/framebuffer.cpp src/markovChain.cpp src/markovChainMatrix.cpp src/markovEdge.cpp src/markovState.cpp src/matrices.cpp src/physicsvars.cpp src/printer.cpp src/range.cpp src/sampler.cpp src/shape.cpp src/sim_time.cpp src/slotmap.cpp src/sphere.cpp src/stringSampler.cpp src/util.cpp src/visualiser.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1311,6 +1319,9 @@ obj/printer.o: src/printer.cpp include/printer.hpp
 obj/range.o: src/range.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/range.o src/range.cpp
 
+obj/sampler.o: src/sampler.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/sampler.o src/sampler.cpp
+
 obj/shape.o: src/shape.cpp /home/i7620560/NGL/include/ngl/Types.h \
 		/home/i7620560/NGL/include/ngl/glew.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtOpenGL/QGLContext \
@@ -1556,6 +1567,9 @@ obj/sphere.o: src/sphere.cpp include/sphere.hpp \
 		include/util.hpp \
 		include/common.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/sphere.o src/sphere.cpp
+
+obj/stringSampler.o: src/stringSampler.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/stringSampler.o src/stringSampler.cpp
 
 obj/util.o: src/util.cpp /home/i7620560/NGL/include/ngl/NGLStream.h \
 		/home/i7620560/NGL/include/ngl/Types.h \

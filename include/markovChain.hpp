@@ -17,15 +17,17 @@
 #include "file.hpp"
 #include "util.hpp"
 
+#include "sampler.hpp"
+#include "stringSampler.hpp"
+
 #ifdef _WIN32
 #include <ciso646>
 #endif
 
-using mKey = std::vector< std::string >;
-
 template<class T>
 class markovChain
 {
+    friend class stringSampler;
 public:
     markovChain(size_t _order);
 
@@ -37,7 +39,7 @@ public:
 
     float getAverageNumConnections();
 
-    mKey getRandomContext();
+    std::vector<T> getRandomContext();
 
     void hideVisualiser() {m_visualiser.hide();}
 
@@ -66,7 +68,7 @@ public:
 
 private:
     void addContext(const std::string &_str);
-    mKey getKeyFromContext();
+    std::vector<T> getKeyFromContext();
     void resetBuffers() {m_writeBuffer = ""; m_seekBuffer.clear();}
     void load();
 
@@ -76,10 +78,10 @@ private:
     std::string m_writeBuffer;
 
     //Traversing m_states will only return one string per step. This is written into a buffer (FIFO queue) to give context for the next step.
-    mKey m_seekBuffer;
+    std::vector<T> m_seekBuffer;
 
     //This is the guts of the chain, the vector of strings (which will be order in length) is the string associates
-    std::map< mKey, markovState<T> > m_states;
+    std::map< std::vector<T>, markovState<T> > m_states;
 
     visualiser m_visualiser;
 };
@@ -116,7 +118,7 @@ void markovChain<T>::constructVisualisation()
     //We need to keep track of connections that a node has.
     //Indexes match up with the indexes of the nodes being stored in the visualiser.
     //Each node/index may have multiple connections.
-    std::vector< std::vector<mKey> > connections;
+    std::vector< std::vector<std::vector<T>> > connections;
 
     pr.message("Adding points...\n");
 
@@ -137,7 +139,7 @@ void markovChain<T>::constructVisualisation()
         for(auto &i : state.second.getConnections())
         {
             //This initially points to our current state
-            mKey connection = state.first;
+            std::vector<T> connection = state.first;
             fifoQueue(&connection, i.m_node, m_order);
 
             connections[index].push_back(connection);
@@ -298,7 +300,7 @@ float markovChain<T>::getAverageNumConnections()
 }
 
 template<class T>
-mKey markovChain<T>::getKeyFromContext()
+std::vector<T> markovChain<T>::getKeyFromContext()
 {
     std::vector<std::string> ret;
 
@@ -309,7 +311,7 @@ mKey markovChain<T>::getKeyFromContext()
 }
 
 template<class T>
-mKey markovChain<T>::getRandomContext()
+std::vector<T> markovChain<T>::getRandomContext()
 {
     //Grab a random key from m_states
     auto it = m_states.begin();
