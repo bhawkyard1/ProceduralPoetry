@@ -328,7 +328,7 @@ std::vector<T> markovChain<T>::getRandomContext()
 
     return key;
 }
-/*
+
 template<class T>
 void markovChain<T>::loadSource(const std::string _path)
 {
@@ -365,8 +365,8 @@ void markovChain<T>::loadSource(const std::string _path)
         }
     }
 }
-*/
-template<class T>
+
+/*template<class T>
 void markovChain<T>::loadSource(const std::string _path)
 {
 		resetBuffers();
@@ -379,8 +379,10 @@ void markovChain<T>::loadSource(const std::string _path)
 		bool done = false;
 		while(!done)
 		{
-			timer.
+			std::vector<float> data = smpl.sampleAudio( time, 16384 );
+			time += 1.0f / 60.0f;
 		}
+		std::cout << "Done!\n";
 
 		/*for(size_t i = 0; i < inputs.size(); ++i)
 		{
@@ -409,8 +411,8 @@ void markovChain<T>::loadSource(const std::string _path)
 								m_states[ key ].addConnection( inputs[i + 1] );
 						}
 				}
-		}*/
-}
+		}
+}*/
 
 template<class T>
 void markovChain<T>::write(size_t _wordCount)
