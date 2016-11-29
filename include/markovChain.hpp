@@ -5,6 +5,8 @@
 #include <iostream>
 #include <ngl/Random.h>
 
+#include <SDL2/SDL_mixer.h>
+
 #include <map>
 #include <queue>
 #include <string>
@@ -17,8 +19,8 @@
 #include "file.hpp"
 #include "util.hpp"
 
+#include "sim_time.hpp"
 #include "sampler.hpp"
-#include "stringSampler.hpp"
 
 #ifdef _WIN32
 #include <ciso646>
@@ -326,7 +328,7 @@ std::vector<T> markovChain<T>::getRandomContext()
 
     return key;
 }
-
+/*
 template<class T>
 void markovChain<T>::loadSource(const std::string _path)
 {
@@ -362,6 +364,52 @@ void markovChain<T>::loadSource(const std::string _path)
             }
         }
     }
+}
+*/
+template<class T>
+void markovChain<T>::loadSource(const std::string _path)
+{
+		resetBuffers();
+		std::cout << "Reading from " << _path << '\n';
+
+		sampler smpl( "get_lucky.wav" );
+
+		float time = 0.0f;
+
+		bool done = false;
+		while(!done)
+		{
+			timer.
+		}
+
+		/*for(size_t i = 0; i < inputs.size(); ++i)
+		{
+				//Add our input to the queue
+				addContext(inputs[i]);
+
+				//If we have accumulated enough of a context
+				if(m_seekBuffer.size() == m_order)
+				{
+						std::vector<std::string> key = getKeyFromContext();
+
+						//If a node defined by this context does not exist, add.
+						if(m_states.count( key ) == 0)
+						{
+								//std::cout << "Adding node " << inputs[i] << '\n';
+								std::pair<std::vector<std::string>, markovState<T>> entry (key, markovState<T>());
+								m_states.insert(
+														entry
+														);
+						}
+
+						//If accessing the NEXT string will not be out of bounds...
+						if( i + 1 < inputs.size() )
+						{
+								//Connect the current context
+								m_states[ key ].addConnection( inputs[i + 1] );
+						}
+				}
+		}*/
 }
 
 template<class T>
