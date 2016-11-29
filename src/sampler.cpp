@@ -5,7 +5,6 @@
 #include "sampler.hpp"
 
 #include "fft.hpp"
-#include "kiss/kiss_fft.h"
 
 #include "util.hpp"
 
@@ -62,6 +61,8 @@ std::vector<float> sampler::sampleAudio(const float _start, const int _width)
 	startIndex = std::max(startIndex, 0);
 	//Get end sample using width.
 	int endIndex = startIndex + _width / sizeof(int16_t);
+	//Clamp the endIndex so we don't crash.
+	endIndex = std::min( endIndex, (int)m_buf.size() - 1 );
 	//Get the difference between these (in current implementation this should be equal to _width).
 	int len = endIndex - startIndex;
 

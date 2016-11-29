@@ -1,6 +1,1 @@
-bieber/Bigger.txt
-bieber/Common Denominator.txt
-bieber/Down To Earth.txt
-bieber/Favorite Girl.txt
-bieber/First Dance.txt
-bieber/Love Me.txt
+je_viens_de_la.wav

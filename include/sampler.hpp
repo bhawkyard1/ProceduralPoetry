@@ -16,6 +16,8 @@ public:
     ~sampler();
     Mix_Chunk * get() {return m_snd;}
     float getLenSecs() const {return m_len;}
+		float bytesToSecs(const int _i) {return _i / (float)(s_sampleRate * s_channels);}
+		int secsToBytes(const float _i) {return _i * s_sampleRate * s_channels * sizeof(int16_t);}
     std::vector<float> sampleAudio(const float _start, const int _width);
 private:
     Mix_Chunk * m_snd;
