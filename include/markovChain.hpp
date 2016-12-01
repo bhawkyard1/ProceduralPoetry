@@ -387,10 +387,10 @@ void markovChain<T>::loadSource(const std::string _path)
 		std::vector<float> data = smpl.sampleAudio( time, 16384 );
 		done = 8192 + smpl.secsToBytes(time) > smpl.get()->alen;
 		time += 1.0f / 60.0f;
-		std::cout << "TIME " << time << " DONE " << (8192 + smpl.secsToBytes(time)) << " vs " << smpl.get()->alen << '\n';
+        /*std::cout << "TIME " << time << " DONE " << (8192 + smpl.secsToBytes(time)) << " vs " << smpl.get()->alen << '\n';
 
 		for(auto &i : data)
-			std::cout << i << '\n';
+            std::cout << i << '\n';*/
 
 		//Average values
 		std::vector<float> averaged;
