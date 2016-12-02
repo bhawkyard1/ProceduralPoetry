@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-	markovChain<float> mark (1);
+    markovChain<std::vector<float>> mark (1);
 	printer pr;
 
 	bool done = false;

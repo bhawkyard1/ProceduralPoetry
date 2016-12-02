@@ -25,26 +25,31 @@ void sampler::initialiseAudio(const int _rate, const int _channels)
 
 sampler::sampler(const std::string _path)
 {
-	m_snd = Mix_LoadWAV(_path.c_str());
-	if(!m_snd)
-	{
-		std::cerr << "Could not load wav file! " << Mix_GetError() << '\n';
-		exit(EXIT_FAILURE);
-	}
+    load(_path);
+}
 
-	//Buffer length in bytes / bytes in  an i16 = number of i16s to represent the buffer
-	size_t s = m_snd->alen / sizeof(int16_t);
-	m_buf.reserve( s );
-	for(size_t i = 0; i < m_snd->alen; i += sizeof(int16_t))
-		m_buf.push_back( *((uint16_t *)&m_snd->abuf[i]) );
+void sampler::load(const std::string _path)
+{
+    m_snd = Mix_LoadWAV(_path.c_str());
+    if(!m_snd)
+    {
+        std::cerr << "Could not load wav file! " << Mix_GetError() << '\n';
+        exit(EXIT_FAILURE);
+    }
 
-	m_len = m_snd->alen / (float)(s_sampleRate * s_channels * sizeof(int16_t));
+    //Buffer length in bytes / bytes in  an i16 = number of i16s to represent the buffer
+    size_t s = m_snd->alen / sizeof(int16_t);
+    m_buf.reserve( s );
+    for(size_t i = 0; i < m_snd->alen; i += sizeof(int16_t))
+        m_buf.push_back( *((uint16_t *)&m_snd->abuf[i]) );
 
-	std::cout << "Audio file has len " << m_snd->alen << " bytes.\nWith "
-						<< s_channels << " channels, a sample rate of "
-						<< s_sampleRate << " and a format of length "
-						<< sizeof(int16_t) <<
-							 " this means that it is " << m_len << " seconds long.\n";
+    m_len = m_snd->alen / (float)(s_sampleRate * s_channels * sizeof(int16_t));
+
+    std::cout << "Audio file has len " << m_snd->alen << " bytes.\nWith "
+                        << s_channels << " channels, a sample rate of "
+                        << s_sampleRate << " and a format of length "
+                        << sizeof(int16_t) <<
+                             " this means that it is " << m_len << " seconds long.\n";
 }
 
 sampler::~sampler()

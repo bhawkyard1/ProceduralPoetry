@@ -218,10 +218,10 @@ visualiser::~visualiser()
     SDL_DestroyWindow( m_window );
 }
 
-void visualiser::addPoint(const ngl::Vec3 &_vec, const std::string &_name, const float _mass)
+void visualiser::addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<float>> &_state, const float _mass)
 {
     sphere node(_vec, _mass);
-    node.setName(_name);
+    node.setName(_state);
 
     m_nodes.push_back( node );
 }
@@ -347,7 +347,7 @@ void visualiser::castRayGetNode()
         std::vector<slot> * cons = pt->getConnections();
         for(auto &con : *cons)
             m_nodes.getByID(con)->addLuminance( 0.5f );
-        pr.message( "Node " + pt->getName() + '\n' );
+        pr.message( "Node\n" );
         pr.message(std::to_string(pt->getTotalLuminance()));
     }
 }
@@ -839,3 +839,8 @@ void visualiser::update(const float _dt)
     }
 }
 
+void visualiser::sound()
+{
+    m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
+    Mix_PlayChannel(-1, m_sampler.get(), 0);
+}

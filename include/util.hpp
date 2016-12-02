@@ -50,7 +50,13 @@ float rad(const float _deg);
 
 std::string toString(const std::vector<std::string> &_vec );
 
-void fifoQueue(std::vector<std::string> * _vec, const std::string &_entry, size_t _order);
+template<class T>
+void fifoQueue(std::vector<T> *_vec, const T &_entry, size_t _order)
+{
+    _vec->push_back(_entry);
+    if(_vec->size() > _order)
+        _vec->erase( _vec->begin() );
+}
 
 std::pair<ngl::Vec3, ngl::Vec3> lim(const std::vector<ngl::Vec3> &_vecs);
 

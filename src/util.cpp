@@ -228,10 +228,3 @@ std::string toString(const std::vector<std::string> &_vec)
     ret.pop_back();
     return ret;
 }
-
-void fifoQueue(std::vector<std::string> *_vec, const std::string &_entry, size_t _order)
-{
-    _vec->push_back(_entry);
-    if(_vec->size() > _order)
-        _vec->erase( _vec->begin() );
-}

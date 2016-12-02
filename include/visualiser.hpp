@@ -10,6 +10,7 @@
 #include "camera.hpp"
 #include "framebuffer.hpp"
 #include "light.hpp"
+#include "sampler.hpp"
 #include "slotmap.hpp"
 #include "sphere.hpp"
 #include "util.hpp"
@@ -21,7 +22,7 @@ class visualiser
 public:
     visualiser();
     ~visualiser();
-    void addPoint(const ngl::Vec3 &_vec, const std::string &_name, const float _mass);
+    void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<float> > &_state, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
@@ -39,6 +40,8 @@ public:
     void show() {SDL_ShowWindow( m_window );}
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
+
+    void sound();
 
     void resetPos()
     {
@@ -110,6 +113,8 @@ private:
     bool m_light;
 
     std::vector<std::string> m_meshes;
+
+    sampler m_sampler;
 };
 
 #endif

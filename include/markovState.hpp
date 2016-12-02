@@ -20,7 +20,7 @@ class markovState
 public:
     markovState();
 
-    void addConnection(const std::string &_id);
+    void addConnection(const T &_id);
 
     markovEdge<T> getConnection(const size_t _i) const {return m_connections[_i];}
     std::vector<markovEdge<T>> getConnections() const {return m_connections;}
@@ -40,7 +40,7 @@ markovState<T>::markovState()
 }
 
 template<class T>
-void markovState<T>::addConnection(const std::string &_id)
+void markovState<T>::addConnection(const T &_id)
 {
     //Increase max probability by 1,0f, indicating new entry
     m_maxProbability += 1.0f;
