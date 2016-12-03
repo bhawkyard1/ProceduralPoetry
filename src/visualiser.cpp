@@ -841,6 +841,6 @@ void visualiser::update(const float _dt)
 
 void visualiser::sound()
 {
-    m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
+		m_sampler.load( g_RESOURCE_LOC + "poems/genesis.wav" );
 		//Mix_PlayChannel(-1, m_sampler.get(), 0);
 }

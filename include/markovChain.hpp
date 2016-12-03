@@ -391,6 +391,7 @@ void markovChain<T>::loadSource(const std::string _path)
 		std::cout << "TIME : " << time;
 		//Get raw fft
 		std::vector<float> data = smpl.sampleAudio( time, sampleWidth );
+
 		done = sampleWidth + smpl.secsToBytes(time) >= smpl.get()->alen;
 		time += 1.0f / 60.0f;
 		/*std::cout << "TIME " << time << " DONE " << (8192 + smpl.secsToBytes(time)) << " vs " << smpl.get()->alen << '\n';
@@ -398,11 +399,23 @@ void markovChain<T>::loadSource(const std::string _path)
 				for(auto &i : data)
 						std::cout << i << '\n';*/
 
+		int accWidth = sampleWidth / averagedWidth;
+
 		//Average values
 		std::vector<float> averaged;
 		averaged.assign( averagedWidth, 0.0f );
+		std::cout << "Aba\n";
+		std::cout << "	Max index access " << (averaged.size() - 1) * accWidth + accWidth << '\n';
+		std::cout << "		" << averaged.size() * accWidth + accWidth << '\n';
 		for(size_t i = 0; i < averaged.size(); ++i)
-			averaged[i] = std::accumulate(data.begin() + i * sampleWidth / averagedWidth, data.begin() + i * sampleWidth / averagedWidth + sampleWidth / averagedWidth, 0);
+		{
+			//Fucking stupid std functions.
+			for(int j = i * accWidth; j < i * accWidth + accWidth; ++j)
+			{
+				averaged[i] += data[j];
+			}
+			//averaged[i] = std::accumulate(data.begin() + i * accWidth, data.begin() + i * accWidth + accWidth - 1, 0);
+		}
 		for(auto &i : averaged)
 		{
 			i /= sampleWidth / averagedWidth;
@@ -412,6 +425,7 @@ void markovChain<T>::loadSource(const std::string _path)
 						if( i > 0.01f ) std::cout << "		" << i << '\n';*/
 
 		std::vector<float> state;
+		state.reserve( averagedWidth );
 		//Create nodes based on averages.
 		for(size_t i = 0; i < averaged.size(); ++i)
 		{
@@ -462,7 +476,7 @@ void markovChain<T>::loadSource(const std::string _path)
 							);
 			}
 
-			//If accessing the NEXT string will not be out of bounds...
+			//If accessing the NEXT state will not be out of bounds...
 			if( i + 1 < states.size() )
 			{
 				//Connect the current context
