@@ -17,7 +17,7 @@ CXXFLAGS      = -nologo -Zm200 -Zc:wchar_t -FS -O2 -MD -Zc:strictStrings -GR -W3
 INCPATH       = -I"." -I"include" -I"C:\SDL2\i686-w64-mingw32\include\SDL2" -I"C:\SDL2\i686-w64-mingw32\include" -I"-I" -I"C:\boost" -I"C:\NGL\include" -I"D:\Qt\5.4\msvc2013_64_opengl\include" -I"D:\Qt\5.4\msvc2013_64_opengl\include\QtOpenGL" -I"D:\Qt\5.4\msvc2013_64_opengl\include\QtWidgets" -I"D:\Qt\5.4\msvc2013_64_opengl\include\QtGui" -I"D:\Qt\5.4\msvc2013_64_opengl\include\QtCore" -I"moc" -I"D:\Qt\5.4\msvc2013_64_opengl\mkspecs\win32-msvc2013" 
 LINKER        = link
 LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /SUBSYSTEM:CONSOLE "/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'"
-LIBS          = glu32.lib opengl32.lib gdi32.lib user32.lib /LIBPATH:C:\SDL2\lib\x64\ C:\SDL2\lib\x64\\SDL2.lib C:\SDL2\lib\x64\\SDL2main.lib C:\SDL2\lib\x64\\SDL2_image.lib C:\SDL2\lib\x64\\SDL2_ttf.lib C:\SDL2\lib\x64\\SDL2_mixer.lib /LIBPATH:C:\NGL\lib\NGL.lib NGL.lib /LIBPATH:C:\NGL\lib\ C:\NGL\lib\\NGL.lib /LIBPATH:D:\Qt\5.4\msvc2013_64_opengl\lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5OpenGL.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Widgets.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Gui.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Core.lib 
+LIBS          = glu32.lib opengl32.lib gdi32.lib user32.lib /LIBPATH:C:\SDL2\lib\x64\ C:\SDL2\lib\x64\\SDL2.lib C:\SDL2\lib\x64\\SDL2main.lib C:\SDL2\lib\x64\\SDL2_image.lib C:\SDL2\lib\x64\\SDL2_mixer.lib /LIBPATH:C:\NGL\lib\NGL.lib NGL.lib /LIBPATH:C:\NGL\lib\ C:\NGL\lib\\NGL.lib /LIBPATH:D:\Qt\5.4\msvc2013_64_opengl\lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5OpenGL.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Widgets.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Gui.lib D:\Qt\5.4\msvc2013_64_opengl\lib\Qt5Core.lib 
 QMAKE         = D:\Qt\5.4\msvc2013_64_opengl\bin\qmake.exe
 IDC           = idc
 IDL           = midl
@@ -1694,11 +1694,11 @@ obj\main.obj: main.cpp include\physicsvars.hpp \
 		include\camera.hpp \
 		include\framebuffer.hpp \
 		include\light.hpp \
+		include\sampler.hpp \
 		include\sphere.hpp \
 		include\printer.hpp \
 		include\file.hpp \
-		include\sim_time.hpp \
-		include\sampler.hpp
+		include\sim_time.hpp
 
 obj\camera.obj: src\camera.cpp C:\NGL\include\ngl\Util.h \
 		C:\NGL\include\ngl\Types.h \
@@ -4472,11 +4472,11 @@ obj\cmd.obj: src\cmd.cpp include\cmd.hpp \
 		include\camera.hpp \
 		include\framebuffer.hpp \
 		include\light.hpp \
+		include\sampler.hpp \
 		include\sphere.hpp \
 		include\printer.hpp \
 		include\file.hpp \
-		include\sim_time.hpp \
-		include\sampler.hpp
+		include\sim_time.hpp
 
 obj\common.obj: src\common.cpp include\common.hpp
 
@@ -15471,6 +15471,8 @@ obj\visualiser.obj: src\visualiser.cpp C:\NGL\include\ngl\NGLInit.h \
 		include\camera.hpp \
 		include\framebuffer.hpp \
 		include\light.hpp \
+		include\sampler.hpp \
+		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_mixer.h \
 		include\slotmap.hpp \
 		include\sphere.hpp \
 		include\util.hpp

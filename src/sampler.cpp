@@ -71,7 +71,9 @@ std::vector<float> sampler::sampleAudio(const float _start, const int _width)
 	//Get the difference between these (in current implementation this should be equal to _width).
 	int len = endIndex - startIndex;
 
-	if(len == 0)
+	std::cout << ' ' << startIndex << " to " << endIndex << " of " << m_buf.size() << '\n';
+
+	if(len <= 0)
 		return {};
 
 	//Create our complex buffer.

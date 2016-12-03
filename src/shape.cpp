@@ -19,6 +19,23 @@ ngl::Vec3 closest(ngl::Vec3 p1, ngl::Vec3 d1, ngl::Vec3 p2)
     return p1 + d1 * d1.dot( p2 - p1 );
 }
 
+bool sphereAABBRoughIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center, float _radius)
+{
+		if(_min.m_x > _center.m_x + _radius)
+			return false;
+		else if(_min.m_y > _center.m_y + _radius)
+			return false;
+		else if(_min.m_z > _center.m_z + _radius)
+			return false;
+		else if(_max.m_x < _center.m_x - _radius)
+			return false;
+		else if(_max.m_y < _center.m_y - _radius)
+			return false;
+		else if(_max.m_z < _center.m_z - _radius)
+			return false;
+		return true;
+}
+
 bool sphereAABBIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center, float _radius)
 {
     ngl::Vec3 closest = ngl::Vec3(

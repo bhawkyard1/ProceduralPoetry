@@ -233,7 +233,7 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 
     for(auto &i : _nodes)
     {
-        if(sphereAABBIntersect(_min, _max, i->getPos(), i->getRadius()))
+				if(sphereAABBIntersect(_min, _max, i->getPos(), i->getRadius()))
         {
             count++;
             outNodes.push_back( i );
@@ -512,7 +512,7 @@ void visualiser::drawSpheres()
                     );
         loadMatricesToShader();
 
-        prim->draw( m_meshes[0] );
+				prim->draw( m_meshes[3] );
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_lightbuffer);
@@ -842,5 +842,5 @@ void visualiser::update(const float _dt)
 void visualiser::sound()
 {
     m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
-    Mix_PlayChannel(-1, m_sampler.get(), 0);
+		//Mix_PlayChannel(-1, m_sampler.get(), 0);
 }

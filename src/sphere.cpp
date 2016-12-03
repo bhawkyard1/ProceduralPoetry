@@ -27,4 +27,5 @@ void sphere::update(float _dt)
     m_luminance *= mul;
     m_inheritedLuminance = clamp(m_inheritedLuminance, 0.0f, 1.0f);
     m_inheritedLuminance *= mul;
+		m_inheritedLuminance = 0.0f;
 }
