@@ -7,9 +7,10 @@
 #include <ngl/Vec3.h>
 #include <ngl/Vec4.h>
 
+#include "notes.hpp"
 #include "slotmap.hpp"
 
-typedef std::vector<std::vector<float>> state;
+typedef std::vector<std::vector<note>> state;
 
 class sphere
 {

@@ -228,3 +228,10 @@ std::string toString(const std::vector<std::string> &_vec)
     ret.pop_back();
     return ret;
 }
+
+//http://stackoverflow.com/questions/1082917/mod-of-negative-number-is-melting-my-brain
+int mod(int x, int m)
+{
+		int r = x%m;
+		return r<0 ? r+m : r;
+}

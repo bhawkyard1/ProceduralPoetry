@@ -12,8 +12,9 @@
 #include <string>
 
 #include "markovState.hpp"
-#include "range.hpp"
 #include "visualiser.hpp"
+
+#include "notes.hpp"
 
 #include "printer.hpp"
 #include "file.hpp"
@@ -120,7 +121,9 @@ void markovChain<T>::constructVisualisation()
 	//We need to keep track of connections that a node has.
 	//Indexes match up with the indexes of the nodes being stored in the visualiser.
 	//Each node/index may have multiple connections.
-	std::vector< std::vector<std::vector<T>> > connections;
+	//Remember, note is a note, std::vector note is a state.
+	//For each state->store a bunch of->states representing connections.
+	std::vector< std::vector< std::vector< T > > > connections;
 
 	pr.message("Adding points...\n");
 
@@ -129,12 +132,16 @@ void markovChain<T>::constructVisualisation()
 	//Add points
 	for(auto &state : m_states)
 	{
+		//Add a (currently empty) list of connections from THIS state.
 		connections.push_back( {} );
 
+		//Compute node constructor variables
 		ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
 		std::vector<T> name = state.first;
+		float mass = state.second.getNumConnections();
+		//mass = clamp(mass, 0.0f, 1.0f);
 
-		m_visualiser.addPoint( pt, name, state.second.getNumConnections() );
+		m_visualiser.addPoint( pt, name, mass );
 
 		//Add connections
 		//Loop through state edges
@@ -146,7 +153,6 @@ void markovChain<T>::constructVisualisation()
 
 			connections[index].push_back(connection);
 		}
-
 		index++;
 	}
 
@@ -156,18 +162,21 @@ void markovChain<T>::constructVisualisation()
 	slotmap<sphere> * vnodes = m_visualiser.getNodesPt();
 	for(size_t i = 0; i < connections.size(); ++i)
 	{
-		if(i % (connections.size() / 10) == 0)
-			pr.message(".");
+		/*if(i % (connections.size() / 10) == 0)
+			pr.message(".");*/
 
-		auto keys = connections[i];
+		//A list of STATES.
+		std::vector<std::vector<T>> keys = connections[i];
 		//Track down each connection and assign it to the visualiser node.
 		for(auto &key : keys)
 		{
+			std::cout << "key available\n";
 			for(size_t j = 0; j < vnodes->size(); ++j)
 			{
 				//If key at this index matches the node name, connect nodes[i] to nodes[j]
 				if(vnodes->get( j ).getName() == key)
 				{
+					std::cout << "snap snap\n";
 					slot ref = vnodes->getID( j );
 					vnodes->get(i).addConnection(ref);
 					break;
@@ -307,11 +316,16 @@ float markovChain<T>::getAverageNumConnections()
 template<class T>
 std::vector<T> markovChain<T>::getKeyFromContext()
 {
+	std::cout << "A\n";
 	std::vector<T> ret;
 
+	std::cout << "B " << m_seekBuffer.size() << '\n';
 	for(auto &state : m_seekBuffer)
+	{
+		std::cout << "		loop\n";
 		ret.push_back(state);
-
+		std::cout << "		post push\n";
+	}
 	return ret;
 }
 
@@ -323,10 +337,14 @@ std::vector<T> markovChain<T>::getRandomContext()
 	int advance = randInt(0, m_states.size());
 	std::advance( it, advance );
 
-	std::vector<std::string> key = it->first;
+	std::vector<T> key = it->first;
 	std::cout << "Context is ";
 	for(auto &i : key)
-		std::cout << " " << i;
+	{
+		for(auto &note : i)
+			std::cout << " " << sNotes[note.m_type] + std::to_string(note.m_position);
+		std::cout << '\n';
+	}
 	std::cout << '\n';
 
 	return key;
@@ -424,7 +442,7 @@ void markovChain<T>::loadSource(const std::string _path)
 		/*for(auto &i : averaged)
 						if( i > 0.01f ) std::cout << "		" << i << '\n';*/
 
-		std::vector<float> state;
+		std::vector<note> state;
 		state.reserve( averagedWidth );
 		//Create nodes based on averages.
 		for(size_t i = 0; i < averaged.size(); ++i)
@@ -451,7 +469,12 @@ void markovChain<T>::loadSource(const std::string _path)
 			if(averaged[i] > averagedAverage)
 			{
 				float freq = i * sampler::getSampleRate() / averaged.size();
-				state.push_back( i );
+				note closest = closestNote(freq);
+				if(std::find(state.begin(), state.end(), closest) == state.end())
+				{
+					//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+					state.push_back( closest );
+				}
 			}
 		}
 		states.push_back(state);
@@ -460,85 +483,95 @@ void markovChain<T>::loadSource(const std::string _path)
 
 	for(size_t i = 0; i < states.size(); ++i)
 	{
+		std::cout << i << " of " << states.size() << '\n';
 		addContext(states[i]);
+		std::cout << "post\n";
+
 		//If we have accumulated enough of a context
 		if(m_seekBuffer.size() == m_order)
 		{
-			std::vector<T> key = getKeyFromContext();
-
+			std::cout << "Ready to connect\n";
 			//If a node defined by this context does not exist, add.
-			if(m_states.count( key ) == 0)
+			if( m_states.find( m_seekBuffer ) == m_states.end() )
 			{
-				//std::cout << "Adding node " << inputs[i] << '\n';
-				std::pair<std::vector<T>, markovState<T>> entry (key, markovState<T>());
+				std::cout << "Adding node " << i << '\n';
+				std::pair<std::vector<T>, markovState<T>> entry (m_seekBuffer, markovState<T>());
 				m_states.insert(
 							entry
 							);
 			}
 
-			//If accessing the NEXT state will not be out of bounds...
-			if( i + 1 < states.size() )
+			size_t j;
+			//Find the next non duplicate state, and link.
+			for(j = i + 1; j < states.size(); ++j)
 			{
-				//Connect the current context
-				m_states[ key ].addConnection( states[i + 1] );
+				if( states[i] != states[j] )
+				{
+					std::cout << "Connecting state!\n";
+					//Connect the current context. This needs an ID, not a note.
+					m_states[ m_seekBuffer ].addConnection( states[j] );
+					i = j - 1;
+					break;
+				}
 			}
 		}
+	}
+
+	for(auto &state : m_states)
+	{
+		std::cout << "state " << &state << " has : " << state.second.getNumConnections() << '\n';
 	}
 }
 
 template<class T>
 void markovChain<T>::write(size_t _wordCount)
 {
-	return;
-	/*printer pr;
-		resetBuffers();
-		pr.message("Writing...", RED);
+	printer pr;
+	resetBuffers();
+	pr.message("Writing...", RED);
 
-		//Word counting variables
-		size_t curWord = 0;
+	//Word counting variables
+	size_t curWord = 0;
 
-		std::vector<std::string> curKey = getRandomContext();
+	std::vector<T> curKey = getRandomContext();
 
-		//Add each string in the initial key to the context
-		for(auto &str : curKey)
-				addContext(str);
+	//Add each string in the initial key to the context
+	for(auto &state : curKey)
+		addContext(state);
 
-		//Terminate when we have exceeded the word count and the current word is a line break.
-		while(curWord < _wordCount or m_seekBuffer[0] != "\n")
+	//Terminate when we have exceeded the word count and the current word is a line break.
+	while(curWord < _wordCount)
+	{
+		//Grab outbound connection
+		std::vector<note> next = m_states[ curKey ].getRandomConnection().m_node;
+
+		if(next.size() == 0)
 		{
-				//Grab outbound connection
-				std::string next = m_states[ curKey ].getRandomConnection().m_node;
-
-				if(next == "")
-				{
-						std::string key;
-						for(auto &i : m_seekBuffer)
-						{
-								if(i == "\n")
-										key += "\\n ";
-								else
-										key += i + ' ';
-						}
-						pr.message( key + "has zero connecting nodes :(" );
-						break;
-				}
-				//pr.message( "Next is " + next + '\n' );
-
-				//Write to buffer
-				if(next != "\n")
-						m_writeBuffer += next + ' ';
-				else
-						m_writeBuffer += next;
-
-				//Add to context
-				addContext( next );
-
-				//Set cur key to reflect new context
-				curKey = getKeyFromContext();
-
-				curWord++;
+			std::string key;
+			for(auto &i : m_seekBuffer)
+			{
+				for(auto &note : i)
+					key += sNotes[note.m_type] + " " + std::to_string(note.m_position) + "		";
+				key += '\n';
+			}
+			pr.message( key + "has zero connecting nodes :(" );
+			break;
 		}
-		pr.message( "\n\n" + m_writeBuffer + "\n\n", BRIGHTWHITE );*/
+		//pr.message( "Next is " + next + '\n' );
+
+		for(auto &note : next)
+			m_writeBuffer += sNotes[note.m_type] + " " + std::to_string(note.m_position) + ", ";
+		m_writeBuffer += '\n';
+
+		//Add to context
+		addContext( next );
+
+		//Set cur key to reflect new context
+		curKey = getKeyFromContext();
+
+		curWord++;
+	}
+	pr.message( "\n\n" + m_writeBuffer + "\n\n", BRIGHTWHITE );
 }
 
 #endif

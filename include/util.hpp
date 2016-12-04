@@ -66,4 +66,6 @@ T sqr(T _arg)
     return _arg * _arg;
 }
 
+int mod(int _x, int _m);
+
 #endif

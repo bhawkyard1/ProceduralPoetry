@@ -4,6 +4,7 @@
 
 #include "physicsvars.hpp"
 #include "markovChain.hpp"
+#include "notes.hpp"
 #include "printer.hpp"
 #include "sim_time.hpp"
 #include "util.hpp"
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-    markovChain<std::vector<float>> mark (1);
+	markovChain<std::vector<note>> mark (1);
 	printer pr;
 
 	bool done = false;
@@ -84,10 +85,10 @@ void processInput(const std::string &_input, markovChain<T> &_mark)
 		if(cmds.size() > 1)
 			_mark.loadSource( cmds[1] );
 	}
-    else if(levenshtein(cmds[0], "clearsources") < LEV_THRESHOLD)
-    {
-        _mark.clear();
-    }
+	else if(levenshtein(cmds[0], "clearsources") < LEV_THRESHOLD)
+	{
+		_mark.clear();
+	}
 	else if(levenshtein(cmds[0], "quit") < LEV_THRESHOLD)
 	{
 		exit( EXIT_SUCCESS );
@@ -123,16 +124,16 @@ void visualise(markovChain<T> &_mark)
 				{
 					_mark.toggleLight();
 				}
-                else if(event.key.keysym.sym == SDLK_EQUALS)
-                {
-                    std::cout << "Timescale : " << g_TIME_SCALE << '\n';
-                    g_TIME_SCALE += 0.1f;
-                }
-                else if(event.key.keysym.sym == SDLK_MINUS)
-                {
-                    std::cout << "Timescale : " << g_TIME_SCALE << '\n';
-                    g_TIME_SCALE = clamp( g_TIME_SCALE - 0.1f, 0.0f, F_MAX );
-                }
+				else if(event.key.keysym.sym == SDLK_EQUALS)
+				{
+					std::cout << "Timescale : " << g_TIME_SCALE << '\n';
+					g_TIME_SCALE += 0.1f;
+				}
+				else if(event.key.keysym.sym == SDLK_MINUS)
+				{
+					std::cout << "Timescale : " << g_TIME_SCALE << '\n';
+					g_TIME_SCALE = clamp( g_TIME_SCALE - 0.1f, 0.0f, F_MAX );
+				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				_mark.mouseDown( event );
@@ -148,14 +149,14 @@ void visualise(markovChain<T> &_mark)
 			}
 		}
 
-        g_TIME += timer.getDiff() * g_TIME_SCALE;
+		g_TIME += timer.getDiff() * g_TIME_SCALE;
 
 		timer.setCur();
 
 		//Update the game in small time-steps (dependant on the timers fps).
 		while(timer.getAcc() > timer.getFrame())
 		{
-            _mark.update( timer.getDiff() * 16.0f * g_TIME_SCALE );
+			_mark.update( timer.getDiff() * 16.0f * g_TIME_SCALE );
 			timer.incrAcc( -timer.getDiff() );
 		}
 
