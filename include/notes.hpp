@@ -5,6 +5,10 @@
 #include <vector>
 #include <string>
 
+#ifdef _WIN32
+#include <ciso646>
+#endif
+
 const double twelthRoot = pow(2.0, 1.0 / 12.0);
 const double logTwelthRoot = log(twelthRoot);
 const double A4 = 440.0;
@@ -24,10 +28,12 @@ struct note
 		m_type = _type;
 		m_position = _position;
 	}
+
+	bool operator<(const note &_rhs) const { return m_position < _rhs.m_position or static_cast<int>(m_type) < static_cast<int>(_rhs.m_type); }
 };
 
 bool operator==(const note &_lhs, const note &_rhs);
-bool operator<(const note &_lhs, const note &_rhs);
+//bool operator<(const note &_lhs, const note &_rhs);
 bool operator>(const note &_lhs, const note &_rhs);
 
 note closestNote(float _freq);

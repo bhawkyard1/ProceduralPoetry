@@ -17,10 +17,10 @@ bool operator==(const note &_lhs, const note &_rhs)
 	return _lhs.m_position == _rhs.m_position and _lhs.m_type == _rhs.m_type;
 }
 
-bool operator<(const note &_lhs, const note &_rhs)
+/*bool operator<(const note &_lhs, const note &_rhs)
 {
 	return _lhs.m_position < _rhs.m_position or static_cast<int>(_lhs.m_type) < static_cast<int>(_rhs.m_type);
-}
+}*/
 
 bool operator>(const note &_lhs, const note &_rhs)
 {

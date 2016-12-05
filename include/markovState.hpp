@@ -48,11 +48,13 @@ void markovState<T>::addConnection(const T &_id)
 	//If entry is a duplicate, increase probability on this connection, rather than adding a new one.
 	//This has the same effect that adding a new connection would, but it uses less memory.
 	for(auto &i : m_connections)
+	{
 		if(i.m_node == _id)
 		{
 			i.m_probability += 1.0f;
 			return;
 		}
+	}
 
 	//If we make it through the loop (ie the connection is not a duplicate) create a new connection and return.
 	m_connections.push_back({_id, 1.0f});

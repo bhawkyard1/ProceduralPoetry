@@ -83,7 +83,7 @@ private:
 	//Traversing m_states will only return one string per step. This is written into a buffer (FIFO queue) to give context for the next step.
 	std::vector<T> m_seekBuffer;
 
-	//This is the guts of the chain, the vector of strings (which will be order in length) is the string associates
+	//This is the guts of the chain, the vector of T (which will be order in length) is the key, and a markov state takes the value.
 	std::map< std::vector<T>, markovState<T> > m_states;
 
 	visualiser m_visualiser;
@@ -139,7 +139,7 @@ void markovChain<T>::constructVisualisation()
 		ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
 		std::vector<T> name = state.first;
 		float mass = state.second.getNumConnections();
-		//mass = clamp(mass, 0.0f, 1.0f);
+		mass = clamp(mass, 0.0f, 10.0f);
 
 		m_visualiser.addPoint( pt, name, mass );
 
@@ -412,19 +412,15 @@ void markovChain<T>::loadSource(const std::string _path)
 
 		done = sampleWidth + smpl.secsToBytes(time) >= smpl.get()->alen;
 		time += 1.0f / 60.0f;
-		/*std::cout << "TIME " << time << " DONE " << (8192 + smpl.secsToBytes(time)) << " vs " << smpl.get()->alen << '\n';
-
-				for(auto &i : data)
-						std::cout << i << '\n';*/
 
 		int accWidth = sampleWidth / averagedWidth;
 
-		//Average values
+		//Average values, condense into smaller array.
 		std::vector<float> averaged;
 		averaged.assign( averagedWidth, 0.0f );
-		std::cout << "Aba\n";
+		/*std::cout << "Aba\n";
 		std::cout << "	Max index access " << (averaged.size() - 1) * accWidth + accWidth << '\n';
-		std::cout << "		" << averaged.size() * accWidth + accWidth << '\n';
+		std::cout << "		" << averaged.size() * accWidth + accWidth << '\n';*/
 		for(size_t i = 0; i < averaged.size(); ++i)
 		{
 			//Fucking stupid std functions.
@@ -439,9 +435,7 @@ void markovChain<T>::loadSource(const std::string _path)
 			i /= sampleWidth / averagedWidth;
 		}
 
-		/*for(auto &i : averaged)
-						if( i > 0.01f ) std::cout << "		" << i << '\n';*/
-
+		//Create the state, notes being played.
 		std::vector<note> state;
 		state.reserve( averagedWidth );
 		//Create nodes based on averages.
@@ -465,7 +459,7 @@ void markovChain<T>::loadSource(const std::string _path)
 			}
 			averagedAverage /= maxdex - mindex;
 
-			//If this is a peak, add a node.
+			//If this is a non-duplicate peak, add a note to the state.
 			if(averaged[i] > averagedAverage)
 			{
 				float freq = i * sampler::getSampleRate() / averaged.size();
@@ -481,41 +475,30 @@ void markovChain<T>::loadSource(const std::string _path)
 	}
 	std::cout << "Done accumulating states! There are " << states.size() << " of them!\n";
 
+	m_states.clear();
+	m_seekBuffer.clear();
 	for(size_t i = 0; i < states.size(); ++i)
 	{
 		std::cout << i << " of " << states.size() << '\n';
 		addContext(states[i]);
-		std::cout << "post\n";
 
 		//If we have accumulated enough of a context
 		if(m_seekBuffer.size() == m_order)
 		{
-			std::cout << "Ready to connect\n";
-			//If a node defined by this context does not exist, add.
-			if( m_states.find( m_seekBuffer ) == m_states.end() )
-			{
-				std::cout << "Adding node " << i << '\n';
-				std::pair<std::vector<T>, markovState<T>> entry (m_seekBuffer, markovState<T>());
-				m_states.insert(
-							entry
-							);
-			}
+			/*std::cout << "Pre insert " << m_states.size() << '\n';
+			m_states.insert(
+						std::pair<std::vector<T>, markovState<T>> (m_seekBuffer, markovState<T>())
+						);
+			std::cout << "Post insert " << m_states.size() << '\n';*/
 
-			size_t j;
-			//Find the next non duplicate state, and link.
-			for(j = i + 1; j < states.size(); ++j)
+			if(i + 1 < states.size()/* and m_seekBuffer.back() != states[i + 1]*/)
 			{
-				if( states[i] != states[j] )
-				{
-					std::cout << "Connecting state!\n";
-					//Connect the current context. This needs an ID, not a note.
-					m_states[ m_seekBuffer ].addConnection( states[j] );
-					i = j - 1;
-					break;
-				}
+				//std::cout << "Connecting node!\n";
+				m_states[ m_seekBuffer ].addConnection( states[i + 1] );
 			}
 		}
 	}
+	std::cout << "m_states size is " << m_states.size() << '\n';
 
 	for(auto &state : m_states)
 	{
