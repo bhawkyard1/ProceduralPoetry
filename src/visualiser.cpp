@@ -240,19 +240,19 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 		}
 	}
 
-	if(count <= 2 or _lvl > 7)
+	if(count <= 2 or _lvl > 4)
 	{
 		m_partitions.push_back( outNodes );
 		/*ngl::BBox b (
-																																																																																_min.m_x,
-																																																																																_max.m_x,
-																																																																																_min.m_y,
-																																																																																_max.m_y,
-																																																																																_min.m_z,
-																																																																																_max.m_z
-																																																																																);
+					_min.m_x,
+					_max.m_x,
+					_min.m_y,
+					_max.m_y,
+					_min.m_z,
+					_max.m_z
+					);
 
-																																b.draw();*/
+		b.draw();*/
 	}
 	//Subdivide otherwise.
 	else
@@ -681,16 +681,17 @@ void visualiser::narrowPhase()
 				normal /= dist;
 
 				float penetration = (ar + br) - dist;
+				penetration -= (ar + br) * g_BALL_PENETRATION_LENIENCY;
+				penetration = std::max(0.0f, penetration);
+
 				ngl::Vec3 toMove = normal * penetration;
-				//toMove = ngl::Vec3(0.0f, 100000.0f, 0.0f);
 
 				float aim = a->getInvMass();
 				float bim = b->getInvMass();
 				float sumMass = aim + bim;
 
-				float addMul = 1.0f - g_BALL_PENETRATION_LENIENCY;
-				a->addPos( -addMul * (toMove * aim / sumMass) );
-				b->addPos( addMul * (toMove * bim / sumMass) );
+				/*a->addPos( toMove * aim / sumMass );
+				b->addPos( -toMove * bim / sumMass );*/
 
 				ngl::Vec3 rv = a->getVel() - b->getVel();
 				float separation = rv.dot( normal );

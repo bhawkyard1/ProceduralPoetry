@@ -136,10 +136,10 @@ void markovChain<T>::constructVisualisation()
 		connections.push_back( {} );
 
 		//Compute node constructor variables
-		ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
+		ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 1024.0f);
 		std::vector<T> name = state.first;
 		float mass = state.second.getNumConnections();
-		mass = clamp(mass, 0.0f, 10.0f);
+		mass = clamp(sqrt(mass), 0.0f, 1.0f);
 
 		m_visualiser.addPoint( pt, name, mass );
 
@@ -162,21 +162,19 @@ void markovChain<T>::constructVisualisation()
 	slotmap<sphere> * vnodes = m_visualiser.getNodesPt();
 	for(size_t i = 0; i < connections.size(); ++i)
 	{
-		/*if(i % (connections.size() / 10) == 0)
-			pr.message(".");*/
+		if(i % (connections.size() / 10) == 0)
+			pr.message(".");
 
 		//A list of STATES.
 		std::vector<std::vector<T>> keys = connections[i];
 		//Track down each connection and assign it to the visualiser node.
 		for(auto &key : keys)
 		{
-			std::cout << "key available\n";
 			for(size_t j = 0; j < vnodes->size(); ++j)
 			{
 				//If key at this index matches the node name, connect nodes[i] to nodes[j]
 				if(vnodes->get( j ).getName() == key)
 				{
-					std::cout << "snap snap\n";
 					slot ref = vnodes->getID( j );
 					vnodes->get(i).addConnection(ref);
 					break;
