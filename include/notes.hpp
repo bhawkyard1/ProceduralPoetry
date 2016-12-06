@@ -42,4 +42,6 @@ int halfSteps(note _a, note _b);
 
 const std::vector<std::string> sNotes = {"A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab" };
 
+typedef std::vector<note> notes;
+
 #endif

@@ -24,8 +24,10 @@ void sphere::update(float _dt)
 
     float mul = clamp(1.0f - _dt, 0.0f, 1.0f);
 
-    m_luminance *= mul;
+    m_luminance = std::max(m_luminance - _dt, 0.0f);
+    m_inheritedLuminance = std::max(m_luminance - _dt, 0.0f);
+    /*m_luminance *= mul;
     m_inheritedLuminance = clamp(m_inheritedLuminance, 0.0f, 1.0f);
     m_inheritedLuminance *= mul;
-		m_inheritedLuminance = 0.0f;
+        m_inheritedLuminance = 0.0f;*/
 }

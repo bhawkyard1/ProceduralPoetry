@@ -659,64 +659,66 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
 
 void visualiser::narrowPhase()
 {
-	for(size_t i = 0; i < m_partitions.size(); ++i)
-	{
-		for(auto &a : m_partitions[i])
-		{
-			for(auto &b : m_partitions[i])
-			{
-				if(a == b)
-					continue;
+    for(size_t i = 0; i < m_partitions.size(); ++i)
+    {
+        for(auto &a : m_partitions[i])
+        {
+            for(auto &b : m_partitions[i])
+            {
+                if(a == b)
+                    continue;
 
-				ngl::Vec3 normal = b->getPos() - a->getPos();
+                ngl::Vec3 normal = b->getPos() - a->getPos();
 
-				float ar = a->getRadius();
-				float br = b->getRadius();
+                float ar = a->getRadius();
+                float br = b->getRadius();
 
-				float dist = normal.lengthSquared();
-				if( dist > sqr(ar + br) )
-					continue;
+                float dist = normal.lengthSquared();
+                if( dist > sqr(ar + br) )
+                    continue;
 
-				dist = sqrt(dist);
-				normal /= dist;
+                dist = sqrt(dist);
+                normal /= dist;
 
-				float penetration = (ar + br) - dist;
-				penetration -= (ar + br) * g_BALL_PENETRATION_LENIENCY;
-				penetration = std::max(0.0f, penetration);
+                float penetration = (ar + br) - dist;
+                penetration -= (ar + br) * g_BALL_PENETRATION_LENIENCY;
+                penetration = std::max(0.0f, penetration);
 
-				ngl::Vec3 toMove = normal * penetration;
+                ngl::Vec3 toMove = normal * penetration;
 
-				float aim = a->getInvMass();
-				float bim = b->getInvMass();
-				float sumMass = aim + bim;
+                float aim = a->getInvMass();
+                float bim = b->getInvMass();
+                float sumMass = aim + bim;
 
-				/*a->addPos( toMove * aim / sumMass );
-				b->addPos( -toMove * bim / sumMass );*/
+                //a->addPos( toMove * aim / sumMass );
+                //b->addPos( -toMove * bim / sumMass );
 
-				ngl::Vec3 rv = a->getVel() - b->getVel();
-				float separation = rv.dot( normal );
+                ngl::Vec3 rv = a->getVel() - b->getVel();
+                float separation = rv.dot( normal );
 
-				if(separation < 0.0f) continue;
+                if(separation < 0.0f) continue;
 
-				float force = -g_COLLISION_ENERGY_CONSERVATION * separation;
-				force /= sumMass;
+                float force = -g_COLLISION_ENERGY_CONSERVATION * separation;
+                force /= sumMass;
 
-				ngl::Vec3 impulse = force * normal;
-				impulse.m_z = 0.0f;
+                ngl::Vec3 impulse = force * normal;
+                impulse.m_z = 0.0f;
 
-				a->addVel( aim * impulse );
-				b->addVel( -bim * impulse );
+                a->addVel( aim * impulse );
+                b->addVel( -bim * impulse );
 
-				if(force < -0.05f)
-				{
-					force *= 12.0f;
+                a->addLuminance(-force * aim / sumMass);
+                b->addLuminance(-force * bim / sumMass);
+                /*if(force < -0.05f)
+                {
+                    force *= 12.0f;
 
-					a->addLuminance(-force * aim / sumMass);
-					b->addLuminance(-force * bim / sumMass);
-				}
-			}
-		}
-	}
+                    a->addLuminance(-force * aim / sumMass);
+                    b->addLuminance(-force * bim / sumMass);
+                }*/
+            }
+        }
+    }
 }
 
 void visualiser::update(const float _dt)
@@ -779,12 +781,12 @@ void visualiser::update(const float _dt)
 
 		/*if(origin.length() > 256.0f)std::cout << "origin pre " << origin.m_x << ", " << origin.m_y << ", " << origin.m_z << '\n';*/
 
-		//Loop through connection.
+        //Loop through connections.
 		for(auto &id : (*i.getConnections()))
 		{
 			sphere * target = m_nodes.getByID( id );
 
-			target->addInheritedLuminance( i.getTotalLuminance() * _dt );
+            target->addInheritedLuminance( i.getTotalLuminance() * _dt );
 
 			float sumRad = i.getRadius() + target->getRadius();
 			float sumMass = i.getInvMass() + target->getInvMass();
@@ -795,7 +797,6 @@ void visualiser::update(const float _dt)
 
 			/*if(dist < 64.0f)
 																																																																m_nodes.m_velocities[i] *= dist / 64.0f;*/
-
 			float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
 			if(dist > mrad)
 			{

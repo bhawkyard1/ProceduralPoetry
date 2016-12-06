@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-	markovChain<std::vector<note>> mark (1);
+    markovChain<notes> mark (1);
 	printer pr;
 
 	bool done = false;
