@@ -22,6 +22,7 @@
 
 visualiser::visualiser()
 {
+    std::cout << "p0\n";
 	m_lmb = false;
 	m_mmb = false;
 	m_rmb = false;
@@ -50,6 +51,7 @@ visualiser::visualiser()
 	m_w = best.w;
 	m_h = best.h;
 
+    std::cout << "Screen dimensions " << m_w << ", " << m_h << " : " << SDL_GetNumVideoDisplays() << '\n';
 
 	m_window = SDL_CreateWindow("mGen",
 															0, 0,
@@ -79,7 +81,9 @@ visualiser::visualiser()
 	makeCurrent();
 	SDL_GL_SetSwapInterval(0);
 
+    std::cout << "Pre init\n";
 	ngl::NGLInit::instance();
+    std::cout << "Post init\n";
 
 	ngl::Random * rnd = ngl::Random::instance();
 	rnd->setSeed( time(NULL) );
@@ -240,7 +244,7 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 		}
 	}
 
-	if(count <= 8 or _lvl > 3)
+    if(count <= 8 or _lvl > 4)
 		m_partitions.push_back( outNodes );
 	else
 	{
@@ -516,6 +520,7 @@ void visualiser::finalise()
 	m_DOFbuffer.bind();
 	m_DOFbuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	clear();
 
 	ngl::ShaderLib * slib = ngl::ShaderLib::instance();
@@ -694,7 +699,7 @@ void visualiser::narrowPhase()
 				ngl::Vec3 rv = b->getVel() - a->getVel();
 				float separation = rv.dot( normal );
 
-				if(separation > 0.0f) continue;
+                if(separation >= 0.0f) continue;
 
 				float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
 				force /= sumMass;
@@ -782,17 +787,19 @@ void visualiser::update(const float _dt)
 
 			//Get distance.
 			ngl::Vec3 dir = target->getPos() - origin;
-			float dist = dir.length();
+            float dist = dir.lengthSquared();
+            dist = std::max(dist, 0.0f);
 
-			float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
-			if(dist > mrad)
+            float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
+            if(dist > mrad * mrad)
 			{
+                dist = sqrt(dist);
 				dir /= pow(dist, g_GRAVITY_ATTENUATION);
 				//Add forces to both current node and connection node (connections are one-way so we must do both here).
-				i.addForce( dir * (i.getInvMass() / sumMass) );
+                i.addForce( dir * (i.getInvMass() / sumMass) );
 			}
-			else
-				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
+            else
+               i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
 
 			//std::cout << i.getVel() << '\n';
 		}
@@ -829,5 +836,5 @@ void visualiser::update(const float _dt)
 void visualiser::sound()
 {
 	m_sampler.load( g_RESOURCE_LOC + "poems/genesis.wav" );
-	//Mix_PlayChannel(-1, m_sampler.get(), 0);
+    //Mix_PlayChannel(-1, m_sampler.get(), 0);
 }

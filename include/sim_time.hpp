@@ -1,6 +1,7 @@
 #ifndef SIM_TIME_HPP
 #define SIM_TIME_HPP
 
+#include <algorithm>
 #include <chrono>
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -61,6 +62,8 @@ public:
     /// \param _incr Increment value
     //----------------------------------------------------------------------------------------------------------------------
     void incrAcc(float _incr) {m_sim_accumulator += _incr;}
+
+    void clampAcc(const float _max) {m_sim_accumulator = std::min(m_sim_accumulator, _max);}
 
 private:
     //----------------------------------------------------------------------------------------------------------------------

@@ -92,6 +92,7 @@ private:
 template<class T>
 markovChain<T>::markovChain(size_t _order)
 {
+    std::cout << "Markov chain ctor!\n";
     m_order = _order;
 
     resetBuffers();
@@ -135,10 +136,10 @@ void markovChain<T>::constructVisualisation()
         connections.push_back( {} );
 
         //Compute node constructor variables
-				ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 2048.0f);
+        ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 4096.0f);
         std::vector< notes > name = state.first;
         float mass = state.second.getNumConnections();
-				mass = clamp((mass), 0.0f, 10.0f);
+        //mass = clamp((mass), 0.0f, 10.0f);
 
         m_visualiser.addPoint( pt, name, mass );
 
@@ -395,7 +396,7 @@ void markovChain<T>::loadSource(const std::string _path)
     std::vector<T> states;
     while(!done)
     {
-        std::cout << "TIME : " << time;
+        //std::cout << "TIME : " << time;
         //Get raw fft
         std::vector<float> data = smpl.sampleAudio( time, sampleWidth );
 
@@ -466,7 +467,7 @@ void markovChain<T>::loadSource(const std::string _path)
     m_seekBuffer.clear();
     for(size_t i = 0; i < states.size(); ++i)
     {
-        std::cout << i << " of " << states.size() << '\n';
+        //std::cout << i << " of " << states.size() << '\n';
         addContext(states[i]);
 
         //If we have accumulated enough of a context
@@ -480,11 +481,11 @@ void markovChain<T>::loadSource(const std::string _path)
     }
     std::cout << "m_states size is " << m_states.size() << '\n';
 
-    for(auto &state : m_states)
+   /* for(auto &state : m_states)
     {
         std::cout << "state " << &state << " has : " << state.second.getNumConnections() << '\n';
     }
-    std::cout << "Loaded, m_states.size() = " << m_states.size() << '\n';
+    std::cout << "Loaded, m_states.size() = " << m_states.size() << '\n';*/
 }
 
 template<class T>
