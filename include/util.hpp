@@ -82,4 +82,14 @@ void averageVector(const std::vector<T> &_in, std::vector<T> &_out, size_t _widt
 	}
 }
 
+template<class T>
+T averageValue(const std::vector<T> _in)
+{
+	T ret = 0;
+	for(auto &v : _in)
+		ret += v;
+	ret /= _in.size();
+	return ret;
+}
+
 #endif

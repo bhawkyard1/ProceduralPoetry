@@ -717,8 +717,8 @@ void visualiser::narrowPhase()
 
 				if(force > 0.05f)
 				{
-					a->addLuminance(force * aim / sumMass * 0.001f);
-					b->addLuminance(force * bim / sumMass * 0.001f);
+					a->addLuminance(force * aim / sumMass * 0.01f);
+					b->addLuminance(force * bim / sumMass * 0.01f);
 				}
 			}
 		}
@@ -900,7 +900,7 @@ void visualiser::update(const float _dt)
 		if(node.getName().back() == state)
 		{
 			ngl::Random * rand = ngl::Random::instance();
-			node.addForce( rand->getRandomNormalizedVec3() * randFlt(128.0f, 256.0f) );
+			node.addForce( rand->getRandomNormalizedVec3() * randFlt(512.0f, 1024.0f) * node.getInvMass() );
 			node.addLuminance(1.0f);
 		}
 	}
@@ -908,7 +908,7 @@ void visualiser::update(const float _dt)
 
 void visualiser::sound()
 {
-	m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
+	m_sampler.load( g_RESOURCE_LOC + "poems/lavendar.wav" );
 	Mix_PlayChannel(-1, m_sampler.get(), 0);
 	SDL_Delay(0);
 	m_timer.setStart();
