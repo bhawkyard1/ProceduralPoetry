@@ -22,10 +22,10 @@ void sphere::update(float _dt)
 
     m_pos += m_vel * _dt;
 
-    float mul = clamp(1.0f - _dt, 0.0f, 1.0f);
+		float mul = powf(0.9f, _dt + 1.0f);
 
-    m_luminance = std::max(m_luminance - _dt, 0.0f);
-    m_inheritedLuminance = std::max(m_luminance - _dt, 0.0f);
+		m_luminance = m_luminance * mul;
+		m_inheritedLuminance = m_luminance * mul;
     /*m_luminance *= mul;
     m_inheritedLuminance = clamp(m_inheritedLuminance, 0.0f, 1.0f);
     m_inheritedLuminance *= mul;

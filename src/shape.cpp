@@ -44,5 +44,5 @@ bool sphereAABBIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center, floa
                 clamp(_center.m_z, _min.m_z, _max.m_z)
                 );
 
-    return ( (closest - _center).lengthSquared() < sqr(_radius) );
+		return ( (closest - _center).lengthSquared() < sqr(_radius) );
 }

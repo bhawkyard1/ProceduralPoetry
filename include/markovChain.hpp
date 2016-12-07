@@ -135,10 +135,10 @@ void markovChain<T>::constructVisualisation()
         connections.push_back( {} );
 
         //Compute node constructor variables
-        ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 1024.0f);
+				ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 2048.0f);
         std::vector< notes > name = state.first;
         float mass = state.second.getNumConnections();
-        mass = clamp(static_cast<float>(sqrt(mass)), 0.0f, 1.0f);
+				mass = clamp((mass), 0.0f, 10.0f);
 
         m_visualiser.addPoint( pt, name, mass );
 

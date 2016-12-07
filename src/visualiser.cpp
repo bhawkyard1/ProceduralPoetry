@@ -240,21 +240,8 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 		}
 	}
 
-	if(count <= 2 or _lvl > 4)
-	{
+	if(count <= 8 or _lvl > 3)
 		m_partitions.push_back( outNodes );
-		/*ngl::BBox b (
-					_min.m_x,
-					_max.m_x,
-					_min.m_y,
-					_max.m_y,
-					_min.m_z,
-					_max.m_z
-					);
-
-		b.draw();*/
-	}
-	//Subdivide otherwise.
 	else
 	{
 		ngl::Vec3 dim = _max - _min;
@@ -659,66 +646,75 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
 
 void visualiser::narrowPhase()
 {
-    for(size_t i = 0; i < m_partitions.size(); ++i)
-    {
-        for(auto &a : m_partitions[i])
-        {
-            for(auto &b : m_partitions[i])
-            {
-                if(a == b)
-                    continue;
+	std::cout << "Narrow phase start!\n";
+	for(size_t i = 0; i < m_partitions.size(); ++i)
+	{
+		//std::cout << "Partition " << i << " of " << m_partitions.size() << ". Size : " << m_partitions[i].size() << '\n';
+		for(size_t j = 0; j < m_partitions[i].size(); ++j)
+		{
+			auto a = m_partitions[i][j];
+			for(size_t k = j; k < m_partitions[i].size(); ++k)
+			{
+				auto b = m_partitions[i][k];
+				if(a == b)
+					continue;
 
-                ngl::Vec3 normal = b->getPos() - a->getPos();
+				ngl::Vec3 normal = b->getPos() - a->getPos();
 
-                float ar = a->getRadius();
-                float br = b->getRadius();
+				float ar = a->getRadius();
+				float br = b->getRadius();
 
-                float dist = normal.lengthSquared();
-                if( dist > sqr(ar + br) )
-                    continue;
+				float dist = normal.lengthSquared();
+				if( dist > sqr(ar + br) )
+					continue;
 
-                dist = sqrt(dist);
-                normal /= dist;
+				dist = sqrt(dist);
+				normal /= dist;
 
-                float penetration = (ar + br) - dist;
-                penetration -= (ar + br) * g_BALL_PENETRATION_LENIENCY;
-                penetration = std::max(0.0f, penetration);
+				float aim = a->getInvMass();
+				float bim = b->getInvMass();
+				float sumMass = aim + bim;
 
-                ngl::Vec3 toMove = normal * penetration;
+				float penetration = (ar + br) - dist;
+				penetration = std::max(penetration - (ar + br) * g_BALL_PENETRATION_LENIENCY, 0.0f);
+				penetration /= sumMass;
+				penetration *= 0.2f;
 
-                float aim = a->getInvMass();
-                float bim = b->getInvMass();
-                float sumMass = aim + bim;
+				if(dist == 0.0f)
+				{
+					penetration = ar;
+					normal = ngl::Vec3(0.0f, 1.0f, 0.0f);
+				}
 
-                //a->addPos( toMove * aim / sumMass );
-                //b->addPos( -toMove * bim / sumMass );
+				ngl::Vec3 toMove = normal * penetration;
 
-                ngl::Vec3 rv = a->getVel() - b->getVel();
-                float separation = rv.dot( normal );
+				a->addPos( -toMove * aim / sumMass );
+				b->addPos( toMove * bim / sumMass );
 
-                if(separation < 0.0f) continue;
+				ngl::Vec3 rv = b->getVel() - a->getVel();
+				float separation = rv.dot( normal );
 
-                float force = -g_COLLISION_ENERGY_CONSERVATION * separation;
-                force /= sumMass;
+				if(separation > 0.0f) continue;
 
-                ngl::Vec3 impulse = force * normal;
-                impulse.m_z = 0.0f;
+				float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
+				force /= sumMass;
 
-                a->addVel( aim * impulse );
-                b->addVel( -bim * impulse );
+				ngl::Vec3 impulse = force * normal;
 
-                a->addLuminance(-force * aim / sumMass);
-                b->addLuminance(-force * bim / sumMass);
-                /*if(force < -0.05f)
-                {
-                    force *= 12.0f;
+				/*a->setVel(ngl::Vec3(0,0,0));
+				b->setVel(ngl::Vec3(0,0,0));*/
+				a->addVel( -aim * impulse );
+				b->addVel( bim * impulse );
 
-                    a->addLuminance(-force * aim / sumMass);
-                    b->addLuminance(-force * bim / sumMass);
-                }*/
-            }
-        }
-    }
+				if(force > 0.05f)
+				{
+					a->addLuminance(force * aim / sumMass);
+					b->addLuminance(force * bim / sumMass);
+				}
+			}
+		}
+	}
+	std::cout << "Narrow phase end!\n";
 }
 
 void visualiser::update(const float _dt)
@@ -774,19 +770,12 @@ void visualiser::update(const float _dt)
 	{
 		ngl::Vec3 origin = i.getPos();
 
-		/*if(origin.length() > 512.0f)
-																																																m_nodes.m_velocities[i] = -m_nodes.m_velocities[i];*/
-
-		//m_nodes.m_velocities[i] *= 0.1f;
-
-		/*if(origin.length() > 256.0f)std::cout << "origin pre " << origin.m_x << ", " << origin.m_y << ", " << origin.m_z << '\n';*/
-
-        //Loop through connections.
+		//Loop through connections.
 		for(auto &id : (*i.getConnections()))
 		{
 			sphere * target = m_nodes.getByID( id );
 
-            target->addInheritedLuminance( i.getTotalLuminance() * _dt );
+			target->addInheritedLuminance( i.getTotalLuminance() * _dt * 0.25f );
 
 			float sumRad = i.getRadius() + target->getRadius();
 			float sumMass = i.getInvMass() + target->getInvMass();
@@ -795,8 +784,6 @@ void visualiser::update(const float _dt)
 			ngl::Vec3 dir = target->getPos() - origin;
 			float dist = dir.length();
 
-			/*if(dist < 64.0f)
-																																																																m_nodes.m_velocities[i] *= dist / 64.0f;*/
 			float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
 			if(dist > mrad)
 			{
@@ -805,11 +792,9 @@ void visualiser::update(const float _dt)
 				i.addForce( dir * (i.getInvMass() / sumMass) );
 			}
 			else
-				i.addForce( -i.getVel() * g_BALL_STICKINESS * (dist / mrad) );
+				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
 
-
-			//target->addVel( -dir * (target->getInvMass()) );
-			//m_nodes.addVel( index, -dir * (m_nodes.m_masses[index] / sumMass) );
+			//std::cout << i.getVel() << '\n';
 		}
 		//std::cout << "origin post " << origin.m_x << ", " << origin.m_y << ", " << origin.m_z << "\n\n";
 	}
