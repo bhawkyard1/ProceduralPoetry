@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#include <ciso646>
+#endif
+
 #include <ngl/Types.h>
 #include "shape.hpp"
 #include "util.hpp"
@@ -21,7 +25,7 @@ ngl::Vec3 closest(ngl::Vec3 p1, ngl::Vec3 d1, ngl::Vec3 p2)
 
 bool sphereAABBRoughIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center, float _radius)
 {
-		if(_min.m_x > _center.m_x + _radius)
+		/*if(_min.m_x > _center.m_x + _radius)
 			return false;
 		else if(_min.m_y > _center.m_y + _radius)
 			return false;
@@ -33,7 +37,15 @@ bool sphereAABBRoughIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center,
 			return false;
 		else if(_max.m_z < _center.m_z - _radius)
 			return false;
-		return true;
+		return true;*/
+
+		return
+				_center.m_x + _radius > _min.m_x and
+				_center.m_x - _radius < _max.m_x and
+				_center.m_y + _radius > _min.m_y and
+				_center.m_y - _radius < _max.m_y and
+				_center.m_z + _radius > _min.m_z and
+				_center.m_z - _radius < _max.m_z;
 }
 
 bool sphereAABBIntersect(ngl::Vec3 _min, ngl::Vec3 _max, ngl::Vec3 _center, float _radius)

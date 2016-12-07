@@ -17,7 +17,7 @@ void sim_time::setStart()
     m_start = hr_clock::now().time_since_epoch().count();
     m_diff = (m_cur - m_start) / m_tickRate;
 
-    m_time_since_creation += m_diff;
+		m_time_since_creation = 0.0;
 }
 
 void sim_time::setCur()

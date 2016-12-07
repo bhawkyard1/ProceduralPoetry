@@ -20,9 +20,11 @@
 #include "visualiser.hpp"
 #include "util.hpp"
 
-visualiser::visualiser()
+visualiser::visualiser() :
+	m_timer(0.0f),
+	m_lockedCamera(false)
 {
-    std::cout << "p0\n";
+	std::cout << "p0\n";
 	m_lmb = false;
 	m_mmb = false;
 	m_rmb = false;
@@ -31,6 +33,8 @@ visualiser::visualiser()
 
 	m_tZoom = 5.0f;
 	m_cZoom = 5.0f;
+
+	m_cameraShake = 0.0f;
 
 	std::cout << "p1\n";
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -51,7 +55,7 @@ visualiser::visualiser()
 	m_w = best.w;
 	m_h = best.h;
 
-    std::cout << "Screen dimensions " << m_w << ", " << m_h << " : " << SDL_GetNumVideoDisplays() << '\n';
+	std::cout << "Screen dimensions " << m_w << ", " << m_h << " : " << SDL_GetNumVideoDisplays() << '\n';
 
 	m_window = SDL_CreateWindow("mGen",
 															0, 0,
@@ -81,9 +85,9 @@ visualiser::visualiser()
 	makeCurrent();
 	SDL_GL_SetSwapInterval(0);
 
-    std::cout << "Pre init\n";
+	std::cout << "Pre init\n";
 	ngl::NGLInit::instance();
-    std::cout << "Post init\n";
+	std::cout << "Post init\n";
 
 	ngl::Random * rnd = ngl::Random::instance();
 	rnd->setSeed( time(NULL) );
@@ -237,14 +241,14 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 
 	for(auto &i : _nodes)
 	{
-		if(sphereAABBIntersect(_min, _max, i->getPos(), i->getRadius()))
+		if(sphereAABBRoughIntersect(_min, _max, i->getPos(), i->getRadius()))
 		{
 			count++;
 			outNodes.push_back( i );
 		}
 	}
 
-    if(count <= 8 or _lvl > 4)
+	if(count <= 4 or _lvl > 5)
 		m_partitions.push_back( outNodes );
 	else
 	{
@@ -503,7 +507,7 @@ void visualiser::drawSpheres()
 					);
 		loadMatricesToShader();
 
-		prim->draw( m_meshes[3] );
+		prim->draw( m_meshes[0] );
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, m_lightbuffer);
@@ -519,8 +523,8 @@ void visualiser::finalise()
 
 	m_DOFbuffer.bind();
 	m_DOFbuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.008f, 0.01f, 0.02f, 1.0f);
+	//glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	clear();
 
 	ngl::ShaderLib * slib = ngl::ShaderLib::instance();
@@ -699,7 +703,7 @@ void visualiser::narrowPhase()
 				ngl::Vec3 rv = b->getVel() - a->getVel();
 				float separation = rv.dot( normal );
 
-                if(separation >= 0.0f) continue;
+				if(separation >= 0.0f) continue;
 
 				float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
 				force /= sumMass;
@@ -713,8 +717,8 @@ void visualiser::narrowPhase()
 
 				if(force > 0.05f)
 				{
-					a->addLuminance(force * aim / sumMass);
-					b->addLuminance(force * bim / sumMass);
+					a->addLuminance(force * aim / sumMass * 0.001f);
+					b->addLuminance(force * bim / sumMass * 0.001f);
 				}
 			}
 		}
@@ -765,8 +769,23 @@ void visualiser::update(const float _dt)
 
 	m_camCLook += (m_camTLook - m_camCLook ) / 16.0f;
 
-	m_cam.moveWorld( m_camCLook );
-	m_cam.rotateCamera( m_cMouseRotation.m_y, m_cMouseRotation.m_x, 0.0f );
+
+	if(!m_lockedCamera)
+	{
+		m_cam.moveWorld( m_camCLook );
+		m_cam.rotateCamera( m_cMouseRotation.m_y, m_cMouseRotation.m_x, 0.0f );
+	}
+	else
+	{
+		ngl::Vec3 averagePos;
+		for(auto &i : m_nodes.m_objects)
+			averagePos += i.getPos();
+		averagePos /= m_nodes.size();
+
+		m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 100.0) );
+		m_cam.moveWorld( averagePos );
+		m_cam.rotateCamera( 0.0f, -5.0f * m_timer.getTime(), 0.0f );
+	}
 
 	m_cam.calculate();
 
@@ -787,19 +806,19 @@ void visualiser::update(const float _dt)
 
 			//Get distance.
 			ngl::Vec3 dir = target->getPos() - origin;
-            float dist = dir.lengthSquared();
-            dist = std::max(dist, 0.0f);
+			float dist = dir.lengthSquared();
+			dist = std::max(dist, 0.0f);
 
-            float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
-            if(dist > mrad * mrad)
+			float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
+			if(dist > mrad * mrad)
 			{
-                dist = sqrt(dist);
+				dist = sqrt(dist);
 				dir /= pow(dist, g_GRAVITY_ATTENUATION);
 				//Add forces to both current node and connection node (connections are one-way so we must do both here).
-                i.addForce( dir * (i.getInvMass() / sumMass) );
+				i.addForce( dir * (i.getInvMass() / sumMass) );
 			}
-            else
-               i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
+			else
+				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
 
 			//std::cout << i.getVel() << '\n';
 		}
@@ -831,10 +850,66 @@ void visualiser::update(const float _dt)
 		i.addForce( -i.getVel() * g_AMBIENT_FRICTION * i.getRadius() );
 		i.update( _dt );
 	}
+
+	m_timer.setCur();
+	std::cout << "TIME : " << m_timer.getTime() << '\n';
+	std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), 8192 );
+	std::vector<float> averaged;
+	averageVector( data, averaged, 2 );
+
+	std::vector<note> state;
+	state.reserve( 4096 );
+	//Create nodes based on averages.
+	for(size_t i = 0; i < averaged.size(); ++i)
+	{
+		const int peakWidth = 128;
+		//Min and max indexes to search for peak.
+		int mindex = i - peakWidth / 2;
+		int maxdex = i + peakWidth / 2;
+		if(mindex < 0)
+			maxdex += -mindex;
+		if(maxdex > averaged.size())
+			mindex += averaged.size() - maxdex;
+		mindex = std::max(0, mindex);
+		maxdex = std::min((int)averaged.size() , maxdex);
+
+		//Get average around current index. Average of an average, I know. This probably isn't very nice to read.
+		float averagedAverage = 0.0f;
+		for(size_t j = mindex; j < maxdex; ++j)
+		{
+			averagedAverage += averaged[j];
+		}
+		averagedAverage /= maxdex - mindex;
+
+		//If this is a non-duplicate peak, add a note to the state.
+		if(averaged[i] > averagedAverage)
+		{
+			float freq = i * sampler::getSampleRate() / averaged.size();
+			note closest = closestNote(freq);
+			closest.m_position = 0;
+			if(std::find(state.begin(), state.end(), closest) == state.end())
+			{
+				//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+				state.push_back( closest );
+			}
+		}
+	}
+
+	for(auto &node : m_nodes.m_objects)
+	{
+		if(node.getName().back() == state)
+		{
+			ngl::Random * rand = ngl::Random::instance();
+			node.addForce( rand->getRandomNormalizedVec3() * randFlt(128.0f, 256.0f) );
+			node.addLuminance(1.0f);
+		}
+	}
 }
 
 void visualiser::sound()
 {
-	m_sampler.load( g_RESOURCE_LOC + "poems/genesis.wav" );
-    //Mix_PlayChannel(-1, m_sampler.get(), 0);
+	m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
+	Mix_PlayChannel(-1, m_sampler.get(), 0);
+	SDL_Delay(0);
+	m_timer.setStart();
 }

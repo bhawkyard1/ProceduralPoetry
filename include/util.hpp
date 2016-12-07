@@ -68,4 +68,18 @@ T sqr(T _arg)
 
 int mod(int _x, int _m);
 
+template<class T>
+void averageVector(const std::vector<T> &_in, std::vector<T> &_out, size_t _width)
+{
+	_out.reserve( _in.size() / _width );
+	for(size_t i = 0; i < _in.size(); i += _width)
+	{
+		T insert = 0;
+		for(size_t j = i; j < i + _width; ++j)
+			insert += _in[j];
+		insert /= _width;
+		_out.push_back( insert );
+	}
+}
+
 #endif
