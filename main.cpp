@@ -134,8 +134,8 @@ void visualise(markovChain<T> &_mark)
                     std::cout << "Timescale : " << g_TIME_SCALE << '\n';
                     g_TIME_SCALE = clamp( g_TIME_SCALE - 0.1f, 0.0f, F_MAX );
                 }
-								else if(event.key.keysym.sym == SDLK_c)
-									_mark.toggleCameraLock();
+                else if(event.key.keysym.sym == SDLK_c)
+                    _mark.toggleCameraLock();
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 _mark.mouseDown( event );
@@ -160,9 +160,9 @@ void visualise(markovChain<T> &_mark)
         //Update the game in small time-steps (dependant on the timers fps).
         while(timer.getAcc() > timer.getFrame())
         {
-						float frame = timer.getFrame() /* 16.0f*/ * g_TIME_SCALE;
-						_mark.update( frame );
-						timer.incrAcc( -frame );
+            float frame = timer.getFrame() * g_TIME_SCALE;
+            _mark.update( frame );
+            timer.incrAcc( -frame );
         }
 
         _mark.visualise( );

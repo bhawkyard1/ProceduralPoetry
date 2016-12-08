@@ -35,7 +35,7 @@ public:
     float getInvMass() const {return m_invMass;}
     state getName() const {return m_name;}
     ngl::Vec3 getPos() const {return m_pos;}
-    float getRadius() const {return m_radius;}
+    float getRadius() const {return m_radius + m_luminance / 8.0f;}
     ngl::Vec3 getVel() const {return m_vel;}
 
     void update(float _dt);

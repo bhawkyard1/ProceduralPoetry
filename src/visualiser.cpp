@@ -785,9 +785,9 @@ void visualiser::update(const float _dt)
 			averagePos += i.getPos();
 		averagePos /= m_nodes.size();
 
-		m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 100.0) );
-		m_cam.moveWorld( averagePos );
-		m_cam.moveWorld( m_camCLook );
+        m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 100 + 4.0f * sinf(m_timer.getTime()) + m_cameraShake) );
+        m_cam.moveWorld( -averagePos );
+        m_cam.moveWorld( m_camCLook );
 		m_cam.rotateCamera( 0.0f, -5.0f * m_timer.getTime(), 0.0f );
 	}
 
@@ -861,7 +861,8 @@ void visualiser::update(const float _dt)
 	std::vector<float> averaged;
 	averageVector( data, averaged, 2 );
 
-	std::vector<note> state;
+    std::vector<note> state;
+    float noteMuls;
 	state.reserve( 4096 );
 	//Create nodes based on averages.
 	for(size_t i = 0; i < averaged.size(); ++i)
@@ -894,20 +895,21 @@ void visualiser::update(const float _dt)
 			if(std::find(state.begin(), state.end(), closest) == state.end())
 			{
 				//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-				state.push_back( closest );
+                state.push_back( closest);
+                noteMuls += averaged[i] - averagedAverage;
 			}
 		}
 	}
 
 	for(auto &node : m_nodes.m_objects)
 	{
-		if(node.getName().back() == state)
+        if(node.getName().back() == state)
 		{
 			ngl::Random * rand = ngl::Random::instance();
-			float force = randFlt(512.0f, 1024.0f) * node.getInvMass() / 16384.0f;
-			node.addForce( rand->getRandomNormalizedVec3() );
-			node.addLuminance(1.0f);
-			m_cameraShake += force;
+            float force = (4096 + randFlt(0.0f, 512.0f)) * node.getInvMass() * noteMuls;
+            node.addForce( rand->getRandomNormalizedVec3() * force );
+            node.addLuminance(force / 16.0f);
+            m_cameraShake += force / 4096.0f;
 		}
 	}
 
@@ -917,7 +919,7 @@ void visualiser::update(const float _dt)
 
 void visualiser::sound()
 {
-	m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
+    m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
 	Mix_PlayChannel(-1, m_sampler.get(), 0);
 	SDL_Delay(100);
 	m_timer.setStart();
