@@ -161,7 +161,7 @@ void visualise(markovChain<T> &_mark)
         while(timer.getAcc() > timer.getFrame())
         {
             float frame = timer.getFrame() * g_TIME_SCALE;
-            _mark.update( frame );
+						_mark.update( frame );
             timer.incrAcc( -frame );
         }
 

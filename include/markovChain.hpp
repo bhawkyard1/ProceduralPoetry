@@ -187,7 +187,7 @@ void markovChain<T>::constructVisualisation()
             pr.message(".");
     }
     m_visualiser.show();
-    m_visualiser.sound();
+		m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
 }
 
 

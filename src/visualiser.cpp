@@ -655,7 +655,7 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
 
 void visualiser::narrowPhase()
 {
-	std::cout << "Narrow phase start!\n";
+	//std::cout << "Narrow phase start!\n";
 	for(size_t i = 0; i < m_partitions.size(); ++i)
 	{
 		//std::cout << "Partition " << i << " of " << m_partitions.size() << ". Size : " << m_partitions[i].size() << '\n';
@@ -723,7 +723,7 @@ void visualiser::narrowPhase()
 			}
 		}
 	}
-	std::cout << "Narrow phase end!\n";
+	//std::cout << "Narrow phase end!\n";
 }
 
 void visualiser::update(const float _dt)
@@ -856,7 +856,7 @@ void visualiser::update(const float _dt)
 	}
 
 	m_timer.setCur();
-	std::cout << "TIME : " << m_timer.getTime() << '\n';
+	//std::cout << "TIME : " << m_timer.getTime() << '\n';
 	std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), 8192 );
 	std::vector<float> averaged;
 	averageVector( data, averaged, 2 );
@@ -917,10 +917,12 @@ void visualiser::update(const float _dt)
 	m_cameraShake *= 0.9f;
 }
 
-void visualiser::sound()
+void visualiser::sound(const std::string _path)
 {
-    m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
-	Mix_PlayChannel(-1, m_sampler.get(), 0);
-	SDL_Delay(100);
+	m_sampler.load( _path );
 	m_timer.setStart();
+	Mix_PlayChannel(-1, m_sampler.get(), 0);
+	m_timer.setCur();
+	std::cout << "Post play time " << m_timer.getTime() << '\n';
+	//SDL_Delay(100);
 }

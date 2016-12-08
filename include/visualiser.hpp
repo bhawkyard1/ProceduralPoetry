@@ -43,7 +43,7 @@ public:
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
 
-    void sound();
+		void sound(const std::string _path);
 
     void resetPos()
     {
