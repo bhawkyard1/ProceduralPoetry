@@ -730,6 +730,9 @@ void visualiser::update(const float _dt)
 {
 	m_cam.clearTransforms();
 
+	ngl::Random * rand = ngl::Random::instance();
+	m_camTLook += rand->getRandomNormalizedVec3() * m_cameraShake;
+
 	if( m_lmb )
 	{
 		m_mousePos = getMousePos();
@@ -784,6 +787,7 @@ void visualiser::update(const float _dt)
 
 		m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 100.0) );
 		m_cam.moveWorld( averagePos );
+		m_cam.moveWorld( m_camCLook );
 		m_cam.rotateCamera( 0.0f, -5.0f * m_timer.getTime(), 0.0f );
 	}
 
@@ -900,16 +904,21 @@ void visualiser::update(const float _dt)
 		if(node.getName().back() == state)
 		{
 			ngl::Random * rand = ngl::Random::instance();
-			node.addForce( rand->getRandomNormalizedVec3() * randFlt(512.0f, 1024.0f) * node.getInvMass() );
+			float force = randFlt(512.0f, 1024.0f) * node.getInvMass() / 16384.0f;
+			node.addForce( rand->getRandomNormalizedVec3() );
 			node.addLuminance(1.0f);
+			m_cameraShake += force;
 		}
 	}
+
+	m_cameraShake = std::min(m_cameraShake, 10.0f);
+	m_cameraShake *= 0.9f;
 }
 
 void visualiser::sound()
 {
-	m_sampler.load( g_RESOURCE_LOC + "poems/lavendar.wav" );
+	m_sampler.load( g_RESOURCE_LOC + "poems/je_viens_de_la.wav" );
 	Mix_PlayChannel(-1, m_sampler.get(), 0);
-	SDL_Delay(0);
+	SDL_Delay(100);
 	m_timer.setStart();
 }
