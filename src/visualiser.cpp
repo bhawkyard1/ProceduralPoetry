@@ -20,10 +20,11 @@
 #include "visualiser.hpp"
 #include "util.hpp"
 
-visualiser::visualiser() :
+visualiser::visualiser(size_t _order) :
 	m_timer(0.0f),
 	m_lockedCamera(false)
 {
+    m_order = _order;
 	std::cout << "p0\n";
 	m_lmb = false;
 	m_mmb = false;
