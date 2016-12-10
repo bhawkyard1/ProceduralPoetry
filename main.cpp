@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     std::cout << "Oh heck!\n";
 
-    markovChain<notes> mark (1);
+    markovChain<notes> mark (2);
     printer pr;
 
     bool done = false;
@@ -123,6 +123,14 @@ void visualise(markovChain<T> &_mark)
                 else if(event.key.keysym.sym == SDLK_l)
                 {
                     _mark.toggleLight();
+                }
+                else if(event.key.keysym.sym == SDLK_o)
+                {
+                    _mark.getVis()->addFOV( 1.0f );
+                }
+                else if(event.key.keysym.sym == SDLK_p)
+                {
+                    _mark.getVis()->addFOV( -1.0f );
                 }
                 else if(event.key.keysym.sym == SDLK_EQUALS)
                 {

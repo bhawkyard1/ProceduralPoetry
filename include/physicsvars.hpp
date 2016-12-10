@@ -2,7 +2,7 @@
 #define PHYSICSVARS_HPP
 
 extern float g_TIME_SCALE;
-const float g_AMBIENT_FRICTION = 0.55f;
+const float g_AMBIENT_FRICTION = 0.15f;
 const float g_BALL_PENETRATION_LENIENCY = 0.05f;
 const float g_BALL_STICKINESS = 0.9f;
 const float g_BALL_STICKINESS_RADIUS_MULTIPLIER = 0.9f;

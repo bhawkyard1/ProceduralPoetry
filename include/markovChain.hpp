@@ -42,6 +42,8 @@ public:
 
     float getAverageNumConnections();
 
+    visualiser * getVis() {return &m_visualiser;}
+
     std::vector<T> getRandomContext();
 
     void hideVisualiser() {m_visualiser.hide();}
@@ -91,7 +93,8 @@ private:
 };
 
 template<class T>
-markovChain<T>::markovChain(size_t _order)
+markovChain<T>::markovChain(size_t _order) :
+    m_visualiser(_order)
 {
     std::cout << "Markov chain ctor!\n";
     m_order = _order;

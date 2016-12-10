@@ -22,9 +22,10 @@
 class visualiser
 {
 public:
-    visualiser();
+    visualiser(size_t _order);
     ~visualiser();
-		void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<note> > &_state, const float _mass);
+    void addFOV(const float _fov) {m_tfov += _fov;}
+    void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<note> > &_state, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
@@ -43,7 +44,7 @@ public:
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
 
-		void sound(const std::string _path);
+    void sound(const std::string _path);
 
     void resetPos()
     {
@@ -57,7 +58,7 @@ public:
     }
 
     void toggleLight() {m_light = !m_light;}
-		void toggleCameraLock() {m_lockedCamera = !m_lockedCamera;}
+    void toggleCameraLock() {m_lockedCamera = !m_lockedCamera;}
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -79,6 +80,7 @@ private:
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
     framebuffer m_DOFbuffer;
+    framebuffer m_flareBuffer;
     std::vector<light> m_lights;
     GLuint m_lightbuffer;
     SDL_GLContext m_gl_context;
@@ -86,7 +88,9 @@ private:
     bool m_lmb;
     bool m_mmb;
     bool m_rmb;
-		bool m_lockedCamera;
+    bool m_lockedCamera;
+    float m_fov;
+    float m_tfov;
     //Store where the mouse used to be.
     ngl::Vec2 m_mouseOrigin;
     //Store where the mouse currently is.
@@ -119,8 +123,10 @@ private:
     std::vector<std::string> m_meshes;
 
     sampler m_sampler;
-		sim_time m_timer;
-		float m_cameraShake;
+    sim_time m_timer;
+    float m_cameraShake;
+    size_t m_order;
+    std::vector<notes> m_stateBuffer;
 };
 
 #endif
