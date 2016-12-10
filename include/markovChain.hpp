@@ -42,6 +42,8 @@ public:
 
     float getAverageNumConnections();
 
+    visualiser * getVis() {return &m_visualiser;}
+
     std::vector<T> getRandomContext();
 
     void hideVisualiser() {m_visualiser.hide();}

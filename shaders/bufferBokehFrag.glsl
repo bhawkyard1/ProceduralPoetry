@@ -30,7 +30,7 @@ float range = 128.0 * focalDepth; //focal range
 float maxblur = 2.0; //clamp value of max blur
 
 float threshold = 0.9; //highlight threshold;
-float gain = 8.0; //highlight gain;
+float gain = 32.0; //highlight gain;
 
 float bias = 0.25; //bokeh edge bias
 float fringe = 0.5; //bokeh chromatic aberration/fringing

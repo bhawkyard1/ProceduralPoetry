@@ -24,6 +24,7 @@ class visualiser
 public:
     visualiser(size_t _order);
     ~visualiser();
+    void addFOV(const float _fov) {m_tfov += _fov;}
     void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<note> > &_state, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
@@ -79,6 +80,7 @@ private:
     ngl::Transformation m_camTrans;
     framebuffer m_framebuffer;
     framebuffer m_DOFbuffer;
+    framebuffer m_flareBuffer;
     std::vector<light> m_lights;
     GLuint m_lightbuffer;
     SDL_GLContext m_gl_context;
@@ -87,6 +89,8 @@ private:
     bool m_mmb;
     bool m_rmb;
     bool m_lockedCamera;
+    float m_fov;
+    float m_tfov;
     //Store where the mouse used to be.
     ngl::Vec2 m_mouseOrigin;
     //Store where the mouse currently is.
@@ -122,6 +126,7 @@ private:
     sim_time m_timer;
     float m_cameraShake;
     size_t m_order;
+    std::vector<notes> m_stateBuffer;
 };
 
 #endif
