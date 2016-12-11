@@ -510,7 +510,11 @@ void visualiser::drawSpheres()
         //prim->draw( m_meshes[index] );
 
         if(i.getLuminance() > 0.05f)
-            m_lights.push_back( {i.getPos(), i.getColour(), i.getTotalLuminance() * 0.5f} );
+        {
+            ngl::Vec4 pos = i.getPos();
+            pos.m_a = 1.0f;
+            m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance() * 0.5f} );
+        }
     }
 
     if(m_light)
@@ -601,6 +605,7 @@ void visualiser::finalise()
     clear();
 
     slib->use("bufferFlare");
+    slib->setRegisteredUniform("VP", m_cam.getV() * m_cam.getP());
     slib->setRegisteredUniform( "activeLights", static_cast<int>(std::min( m_lights.size(), static_cast<size_t>(MAX_LIGHTS) )) );
 
     id = slib->getProgramID("bufferFlare");

@@ -6,7 +6,7 @@ in vec2 UV;
 
 uniform sampler2D diffuse;
 uniform sampler2D noiseTex;
-uniform mat4 MVP;
+uniform mat4 VP;
 
 uniform int activeLights;
 
@@ -50,7 +50,7 @@ float glare(vec2 uv, vec2 pos, float size)
 {
     vec2 main = uv-pos;
 
-    float ang = atan(main.y, main.x);
+    float ang = atan(main.y, main.x) / 8.0;
     float dist=length(main); dist = pow(dist,.1);
 
     float f0 = 1.0/(length(uv-pos)*(1.0/size*16.0)+1.0);
@@ -106,18 +106,18 @@ vec3 ring(vec2 uv, vec2 pos, float dist)
     return vec3(r,g,b);
 }
 
-vec3 lensflare(vec2 uv,vec2 pos, float brightness, float size)
+vec3 lensflare(vec2 uv, vec2 pos, float brightness, float size)
 {
-    vec3 c = vec3(glare(uv,pos,size));
-    c += flare(uv,pos,-3.,3.*size);
-    c += flare(uv,pos, -1.,size)*3.;
-    c += flare(uv,pos, .5,.8*size);
-    c += flare(uv,pos,-.4,.8*size);
+    vec3 c = vec3(glare(uv, pos, size));
+    c += flare(uv,pos,-3.0,3.0*size);
+    c += flare(uv,pos, -1.0,size)*3.0;
+    //c += flare(uv,pos, 0.5,0.8*size);
+    //c += flare(uv,pos,-0.4,0.8*size);
 
-    c += orb(uv,pos, 0., .5*size);
+    c += orb(uv,pos, 0.0, 0.5*size);
 
-    c += ring(uv,pos,-1.)*.5*size;
-    c += ring(uv,pos, 1.)*.5*size;
+    c += ring(uv,pos,-1.0)*0.5*size;
+    //c += ring(uv,pos, 1.0)*0.5*size;
 
     return c*brightness;
 }
@@ -131,14 +131,21 @@ vec3 cc(vec3 color, float factor,float factor2) // color modifier
 void main()
 {
     fragColour = texture(diffuse, UV);
-    //color = cc(color,.5,.1);
+
+    vec3 colour = vec3(0.0);
+
+    vec2 aspectUV = UV;
+    aspectUV.x *= resolution.x / resolution.y;
+
     for(int i = 0; i < activeLights; i++)
     {
-        vec4 lightScreenCoord = (MVP * vec4(lbuf.buf[i].pos.xyz, 1.0));
-       /* lightScreenCoord.xy += vec2(0.5);
-        lightScreenCoord.x *= resolution.x / resolution.y;*/
-        vec3 colour = lensflare( UV, lightScreenCoord.xy, 1.0, 1.0);
-        fragColour += vec4(colour.xyz, 0.0);
+        vec4 lp = (VP * vec4(lbuf.buf[i].pos.xyz, 1.0));
+        lp = lp / lp.w;
+        lp.xy /= 2.0;
+        lp.xy += vec2(0.5);
+        lp.x *= resolution.x / resolution.y;
+
+        colour += lensflare( aspectUV, lp.xy, lbuf.buf[i].lum * 0.02, 1.0);
     }
-    //fragColour = texture(diffuse, UV);
+    fragColour.xyz += pow(colour, vec3(1.2));
 }
