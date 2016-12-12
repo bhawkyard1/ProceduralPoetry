@@ -59,6 +59,7 @@ public:
 
     void toggleLight() {m_light = !m_light;}
     void toggleCameraLock() {m_lockedCamera = !m_lockedCamera;}
+		void toggleSteadicam() {m_steadicam = !m_steadicam;}
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -127,6 +128,7 @@ private:
     float m_cameraShake;
     size_t m_order;
     std::vector<notes> m_stateBuffer;
+		bool m_steadicam;
 };
 
 #endif

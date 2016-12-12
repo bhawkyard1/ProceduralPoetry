@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     std::cout << "Oh heck!\n";
 
-    markovChain<notes> mark (2);
+		markovChain<notes> mark (1);
     printer pr;
 
     bool done = false;
@@ -144,6 +144,8 @@ void visualise(markovChain<T> &_mark)
                 }
                 else if(event.key.keysym.sym == SDLK_c)
                     _mark.toggleCameraLock();
+								else if(event.key.keysym.sym == SDLK_s)
+										_mark.getVis()->toggleSteadicam();
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 _mark.mouseDown( event );
@@ -163,7 +165,7 @@ void visualise(markovChain<T> &_mark)
 
         timer.setCur();
 
-        timer.clampAcc(0.2);
+				timer.clampAcc(0.1);
 
         //Update the game in small time-steps (dependant on the timers fps).
         while(timer.getAcc() > timer.getFrame())

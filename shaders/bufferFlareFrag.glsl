@@ -48,29 +48,29 @@ vec2 GetDistOffset(vec2 uv, vec2 pxoffset)
 
 float glare(vec2 uv, vec2 pos, float size)
 {
-    vec2 main = uv-pos;
+    vec2 main = uv - pos;
 
-    float ang = atan(main.y, main.x) / 8.0;
-    float dist=length(main); dist = pow(dist,.1);
+    float dist = length(main);
+    float powdist = pow(dist,0.1);
 
-    float f0 = 1.0/(length(uv-pos)*(1.0/size*16.0)+1.0);
+    float f0 = 1.0 /(dist * ( 1.0 / size * 16.0 )+ 1.0 );
 
-    return f0+f0*(sin((ang)*8.0)*.2+dist*.1+.9);
+    return f0 + f0 * (1.1 + dist * 0.1 );
 }
 
 vec3 flare(vec2 uv, vec2 pos, float dist, float size)
 {
     pos = GetDistOffset(uv, pos);
 
-    float r = max(0.01-pow(length(uv+(dist-.05)*pos),2.4)*(1./(size*2.)),.0)*6.0;
-    float g = max(0.01-pow(length(uv+ dist     *pos),2.4)*(1./(size*2.)),.0)*6.0;
-    float b = max(0.01-pow(length(uv+(dist+.05)*pos),2.4)*(1./(size*2.)),.0)*6.0;
+    float r = max(0.01-pow(length(uv +(dist - 0.05) * pos),2.4)*(1./(size*2.)),0.0)*6.0;
+    float g = max(0.01-pow(length(uv + dist         * pos),2.4)*(1./(size*2.)),0.0)*6.0;
+    float b = max(0.01-pow(length(uv +(dist + 0.05) * pos),2.4)*(1./(size*2.)),0.0)*6.0;
 
-    return vec3(r,g,b);
+    return vec3(r, g, b);
 }
 vec3 flare(vec2 uv, vec2 pos, float dist, float size, vec3 color)
 {
-    return flare(uv, pos, dist, size)*color;
+    return flare(uv, pos, dist, size)*color*4.0;
 }
 
 vec3 orb(vec2 uv, vec2 pos, float dist, float size)
@@ -88,7 +88,7 @@ vec3 orb(vec2 uv, vec2 pos, float dist, float size)
 
     c += flare(uv,pos,dist+.5, 4.0*size, vec3(1.0))*4.0;
 
-    return c/4.0;
+    return c / 4.0;
 }
 vec3 orb(vec2 uv, vec2 pos, float dist, float size, vec3 color)
 {
@@ -109,15 +109,16 @@ vec3 ring(vec2 uv, vec2 pos, float dist)
 vec3 lensflare(vec2 uv, vec2 pos, float brightness, float size)
 {
     vec3 c = vec3(glare(uv, pos, size));
-    c += flare(uv,pos,-3.0,3.0*size);
-    c += flare(uv,pos, -1.0,size)*3.0;
-    //c += flare(uv,pos, 0.5,0.8*size);
-    //c += flare(uv,pos,-0.4,0.8*size);
+
+    c += flare(uv,pos,-3.0,3.0*size) * 2.0;
+    c += flare(uv,pos, -1.0,size) * 6.0;
+    c += flare(uv,pos, 0.5,0.8*size) * 2.0;
+    c += flare(uv,pos,-0.4,0.8*size) * 2.0;
 
     c += orb(uv,pos, 0.0, 0.5*size);
 
     c += ring(uv,pos,-1.0)*0.5*size;
-    //c += ring(uv,pos, 1.0)*0.5*size;
+    c += ring(uv,pos, 1.0)*0.5*size;
 
     return c*brightness;
 }
@@ -134,7 +135,7 @@ void main()
 
     vec3 colour = vec3(0.0);
 
-    vec2 aspectUV = UV;
+    vec2 aspectUV = UV - 0.5;
     aspectUV.x *= resolution.x / resolution.y;
 
     for(int i = 0; i < activeLights; i++)
@@ -142,10 +143,10 @@ void main()
         vec4 lp = (VP * vec4(lbuf.buf[i].pos.xyz, 1.0));
         lp = lp / lp.w;
         lp.xy /= 2.0;
-        lp.xy += vec2(0.5);
+        //lp.xy += vec2(0.5);
         lp.x *= resolution.x / resolution.y;
 
-        colour += lensflare( aspectUV, lp.xy, lbuf.buf[i].lum * 0.02, 1.0);
+        colour += lensflare( aspectUV, lp.xy, lbuf.buf[i].lum * 0.01, 1.0);
     }
     fragColour.xyz += pow(colour, vec3(1.2));
 }

@@ -22,7 +22,8 @@
 
 visualiser::visualiser(size_t _order) :
     m_timer(0.0f),
-    m_lockedCamera(false)
+		m_lockedCamera(true),
+		m_steadicam(false)
 {
     m_order = _order;
     std::cout << "p0\n";
@@ -36,7 +37,7 @@ visualiser::visualiser(size_t _order) :
     m_tfov = 35.0f;
 
     m_tZoom = 5.0f;
-    m_cZoom = 5.0f;
+		m_cZoom = 0.0f;
 
     m_cameraShake = 0.0f;
 
@@ -256,6 +257,7 @@ void visualiser::addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<n
 void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
 {
     std::vector<sphere *> outNodes;
+		outNodes.reserve( _nodes.size() );
     unsigned short count = 0;
 
     for(auto &i : _nodes)
@@ -512,14 +514,14 @@ void visualiser::drawSpheres()
         if(i.getLuminance() > 0.05f)
         {
             ngl::Vec4 pos = i.getPos();
-            pos.m_a = 1.0f;
+						pos.m_w = 1.0f;
             m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance() * 0.5f} );
         }
     }
 
     if(m_light)
     {
-        slib->setRegisteredUniform("baseColour", ngl::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				slib->setRegisteredUniform("baseColour", ngl::Vec4(0.5f, 0.5f, 1.0f, 1.0f));
         m_trans.translate( -m_camCLook.m_x, -m_camCLook.m_y, -m_camCLook.m_z );
         m_lights.push_back(
         {
@@ -774,7 +776,11 @@ void visualiser::update(const float _dt)
 {
     m_cam.clearTransforms();
 
-    m_fov += (m_tfov - m_fov) * 0.1f;
+		float interpDiv = 8.0f;
+		if(m_steadicam)
+			 interpDiv = 64.0f;
+
+		m_fov += (m_tfov - m_fov) / interpDiv;
     m_cam.setFOV(m_fov);
     m_cam.calculateP();
 
@@ -797,8 +803,8 @@ void visualiser::update(const float _dt)
                                 m_camTLook += m_rot.getRightVector() * diff.m_x / 8.0f;
                                 m_camTLook -= m_rot.getUpVector() * diff.m_y / 8.0f;*/
 
-        m_camTLook += m_cam.right() * diff.m_x / 8.0f;
-        m_camTLook -= m_cam.up() * diff.m_y / 8.0f;
+				m_camTLook += m_cam.right() * diff.m_x / interpDiv;
+				m_camTLook -= m_cam.up() * diff.m_y / interpDiv;
 
         m_mouseOrigin = m_mousePos;
     }
@@ -807,18 +813,18 @@ void visualiser::update(const float _dt)
         m_mousePos = getMousePos();
         ngl::Vec2 diff = m_mousePos - m_mouseOrigin;
 
-        m_camTLook += m_cam.back() * diff.m_y / 8.0f;
+				m_camTLook += m_cam.back() * diff.m_y / interpDiv;
 
         m_mouseOrigin = m_mousePos;
     }
 
-    m_cMouseRotation += (m_tMouseRotation - m_cMouseRotation) / 16.0f;
+		m_cMouseRotation += (m_tMouseRotation - m_cMouseRotation) / (interpDiv * 2.0f);
 
-    m_cZoom += (m_tZoom - m_cZoom) / 16.0f;
+		m_cZoom += (m_tZoom - m_cZoom) / (interpDiv * 2.0f);
 
     m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 1.0) * m_cZoom );
 
-    m_camCLook += (m_camTLook - m_camCLook ) / 16.0f;
+		m_camCLook += (m_camTLook - m_camCLook ) / (interpDiv * 2.0f);
 
 
     if(!m_lockedCamera)
@@ -833,7 +839,7 @@ void visualiser::update(const float _dt)
             averagePos += i.getPos();
         averagePos /= m_nodes.size();
 
-        m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 100 + 4.0f * sinf(m_timer.getTime()) + m_cameraShake + m_cZoom) );
+				m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 256 + 4.0f * sinf(m_timer.getTime()) + m_cameraShake + m_cZoom) );
         m_cam.moveWorld( -averagePos );
         m_cam.moveWorld( m_camCLook );
         m_cam.rotateCamera( 0.0f, -5.0f * m_timer.getTime(), 0.0f );

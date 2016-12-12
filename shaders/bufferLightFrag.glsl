@@ -13,6 +13,8 @@ uniform sampler2D radius;
 
 uniform int activeLights;
 
+vec3 sssCol = vec3(0.8, 0.1, 0.2);
+
 layout( location = 0 ) out vec4 outDiffuse;
 layout( location = 1 ) out vec4 outDepth;
 
@@ -70,13 +72,14 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
     float camPosMul = clamp( dot( snorm, eye ), 0.0, 1.0 );
 
     float sssMul = llum * camVar * (camPosMul - depth) / len;
-    litCol += vec3(0.8, 0.2, 0.2) * sssMul;
+    litCol += sssCol * sssMul;
 
     return litCol;
 }
 
-dirLight mainLight = dirLight( normalize(vec3(0.3, 0.2, 0.0)), vec3(0.1, 0.1, 0.2), 1.0 );
-dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 0.5, 0.3), 0.05 );
+dirLight mainLight = dirLight( normalize(vec3(0.3, 0.2, 0.0)), vec3(0.15, 0.19, 0.2), 0.4 );
+dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 0.4, 0.3), 0.2 );
+dirLight fillLight = dirLight( normalize(vec3(0.2, 0.2, -0.3)), vec3(0.3, 0.3, 0.3), 0.2 );
 
 void main()
 {
@@ -113,6 +116,7 @@ void main()
 
     lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
     lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
+    lightcol += dotLight( fillLight.dir, normVec ) * fillLight.col * fillLight.lum;
 
     vec4 diffVec = texture(diffuse, UV);
     diffVec.xyz += lightcol;
