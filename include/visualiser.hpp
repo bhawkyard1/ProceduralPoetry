@@ -34,13 +34,13 @@ public:
     void drawSpheres();
     void drawVAO(const std::string &_id);
     void finalise();
-    void hide() {SDL_HideWindow( m_window );}
+    void hide() {SDL_SetWindowFullscreen( m_window, 0); SDL_HideWindow( m_window );}
     void makeCurrent() { SDL_GL_MakeCurrent(m_window, m_gl_context); }
     void mouseUp(SDL_Event _event);
     void mouseDown(SDL_Event _event);
     void mouseWheel(int _dir);
     void narrowPhase();
-    void show() {SDL_ShowWindow( m_window );}
+    void show() {/*SDL_SetWindowFullscreen( m_window, SDL_WINDOW_FULLSCREEN);*/ SDL_ShowWindow( m_window );}
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
 

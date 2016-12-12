@@ -69,7 +69,7 @@ public:
 
     void resetPos() {m_visualiser.resetPos();}
 
-		void toggleCameraLock() {m_visualiser.toggleCameraLock();}
+    void toggleCameraLock() {m_visualiser.toggleCameraLock();}
     void toggleLight() {m_visualiser.toggleLight();}
 
 private:
@@ -140,10 +140,10 @@ void markovChain<T>::constructVisualisation()
         connections.push_back( {} );
 
         //Compute node constructor variables
-				ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
+        ngl::Vec3 pt = rnd->getRandomNormalizedVec3() * randFlt(0.0f, 256.0f);
         std::vector< notes > name = state.first;
         float mass = state.second.getNumConnections();
-				mass = sqrtf(mass);
+        mass = sqrtf(mass);
         //mass = clamp((mass), 0.0f, 10.0f);
 
         m_visualiser.addPoint( pt, name, mass );
@@ -175,10 +175,10 @@ void markovChain<T>::constructVisualisation()
         }
     }
 
-		/*for(auto &i : vnodes->m_objects)
+    /*for(auto &i : vnodes->m_objects)
     {
         std::cout << "nocon " << i.getConnections()->size() << ", " << vnodes->size() << ", " << connections.size() << ", " << m_states.size() << ", " << index << '\n';
-		}*/
+        }*/
 
     pr.br();
 
@@ -190,7 +190,7 @@ void markovChain<T>::constructVisualisation()
             pr.message(".");
     }
     m_visualiser.show();
-		m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
+    m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
 }
 
 
@@ -412,8 +412,8 @@ void markovChain<T>::loadSource(const std::string _path)
 
         //Average values, condense into smaller array.
         std::vector<float> averaged;
-				averageVector(data, averaged, accWidth);
-				/*averaged.assign( averagedWidth, 0.0f );
+        averageVector(data, averaged, accWidth);
+        /*averaged.assign( averagedWidth, 0.0f );
 
         for(size_t i = 0; i < averaged.size(); ++i)
         {
@@ -427,7 +427,7 @@ void markovChain<T>::loadSource(const std::string _path)
         for(auto &i : averaged)
         {
             i /= sampleWidth / averagedWidth;
-				}*/
+                }*/
 
         //Create the state, notes being played.
         std::vector<note> state;
@@ -458,7 +458,7 @@ void markovChain<T>::loadSource(const std::string _path)
             {
                 float freq = i * sampler::getSampleRate() / averaged.size();
                 note closest = closestNote(freq);
-								closest.m_position = 0;
+                closest.m_position = 0;
                 if(std::find(state.begin(), state.end(), closest) == state.end())
                 {
                     //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
@@ -488,7 +488,7 @@ void markovChain<T>::loadSource(const std::string _path)
     }
     std::cout << "m_states size is " << m_states.size() << '\n';
 
-   /* for(auto &state : m_states)
+    /* for(auto &state : m_states)
     {
         std::cout << "state " << &state << " has : " << state.second.getNumConnections() << '\n';
     }

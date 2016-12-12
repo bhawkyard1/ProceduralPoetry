@@ -62,9 +62,11 @@ vec3 flare(vec2 uv, vec2 pos, float dist, float size)
 {
     pos = GetDistOffset(uv, pos);
 
-    float r = max(0.01-pow(length(uv +(dist - 0.05) * pos),2.4)*(1./(size*2.)),0.0)*6.0;
-    float g = max(0.01-pow(length(uv + dist         * pos),2.4)*(1./(size*2.)),0.0)*6.0;
-    float b = max(0.01-pow(length(uv +(dist + 0.05) * pos),2.4)*(1./(size*2.)),0.0)*6.0;
+    float t = 1.0 / (size * 2.0);
+
+    float r = max(0.01-pow(length(uv +(dist - 0.05) * pos),2.4) * t,0.0)*6.0;
+    float g = max(0.01-pow(length(uv + dist         * pos),2.4) * t,0.0)*6.0;
+    float b = max(0.01-pow(length(uv +(dist + 0.05) * pos),2.4) * t,0.0)*6.0;
 
     return vec3(r, g, b);
 }
@@ -110,10 +112,10 @@ vec3 lensflare(vec2 uv, vec2 pos, float brightness, float size)
 {
     vec3 c = vec3(glare(uv, pos, size));
 
-    c += flare(uv,pos,-3.0,3.0*size) * 2.0;
-    c += flare(uv,pos, -1.0,size) * 6.0;
-    c += flare(uv,pos, 0.5,0.8*size) * 2.0;
-    c += flare(uv,pos,-0.4,0.8*size) * 2.0;
+    c += flare(uv,pos,-3.0,3.0*size) * 4.0;
+    c += flare(uv,pos, -1.0,size) * 12.0;
+    c += flare(uv,pos, 0.5,0.8*size) * 4.0;
+    c += flare(uv,pos,-0.4,0.8*size) * 4.0;
 
     c += orb(uv,pos, 0.0, 0.5*size);
 

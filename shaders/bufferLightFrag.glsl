@@ -14,6 +14,8 @@ uniform sampler2D radius;
 uniform int activeLights;
 
 vec3 sssCol = vec3(0.8, 0.1, 0.2);
+vec3 fogCol = vec3(0.0, 0.0, 0.0);
+float fogDist = 512.0;
 
 layout( location = 0 ) out vec4 outDiffuse;
 layout( location = 1 ) out vec4 outDepth;
@@ -95,13 +97,7 @@ void main()
 
     //Get dot.
     vec3 normVec = texture(normal, UV).xyz;
-    vec3 lightcol = texture(diffuse, UV).xyz;
-
-    if(lightcol.r > 1 && lightcol.g > 1 && lightcol.b > 1)
-    {
-        outDiffuse = vec4(1.0);
-        return;
-    }
+    vec3 lightcol = vec3(0.0);
 
     for(int i = 0; i < activeLights; i++)
     {
@@ -118,10 +114,15 @@ void main()
     lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
     lightcol += dotLight( fillLight.dir, normVec ) * fillLight.col * fillLight.lum;
 
-    vec4 diffVec = texture(diffuse, UV);
-    diffVec.xyz += lightcol;
+    float t = clamp(outDepth.r / fogDist, 0.0, 1.0);
 
-    outDiffuse = diffVec;
+    //Luminance of the pixel (values greater than one, emissive light).
+    vec3 luminance = max( texture(diffuse, UV).xyz - vec3(1.0), vec3(0.0) );
+
+    //The base colour, ie values clamped to below one.
+    vec3 base = min( texture(diffuse, UV).xyz, vec3(1.0) );
+
+    outDiffuse = /*vec4(base.xyz, 1.0) * vec4(lightcol.xyz, 1.0) +*/ vec4(luminance.xyz, 1.0);
     /*fragColour = vec4(texture(radius, UV).r);
     fragColour.a = 1.0;*/
 }
