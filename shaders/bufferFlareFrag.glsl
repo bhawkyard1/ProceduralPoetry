@@ -148,7 +148,9 @@ void main()
         //lp.xy += vec2(0.5);
         lp.x *= resolution.x / resolution.y;
 
-        colour += lensflare( aspectUV, lp.xy, lbuf.buf[i].lum * 0.01, 1.0);
+        colour += lensflare( aspectUV, lp.xy, lbuf.buf[i].lum * 0.001, 1.0);
     }
     fragColour.xyz += pow(colour, vec3(1.2));
+    //fragColour = texture(diffuse, UV);
+    fragColour.a = 1.0;
 }

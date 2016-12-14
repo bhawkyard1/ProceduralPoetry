@@ -203,5 +203,6 @@ void main()
 
     fragColour.rgb = col;
     //fragColour = vec4(depth / 2048.0);
+    //fragColour = texture(bgl_RenderedTexture, UV);
     fragColour.a = 1.0;
 }

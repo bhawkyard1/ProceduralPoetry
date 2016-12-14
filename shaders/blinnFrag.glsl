@@ -5,6 +5,7 @@ in vec3 normal;
 in vec4 position;
 
 uniform vec4 baseColour;
+uniform float luminance;
 uniform float radius;
 
 //layout( location = 0 ) out vec4 fragColour;
@@ -33,4 +34,5 @@ void main()
     outPosition = position;
 
     outRadius = vec4(radius);
+    outEmissive = vec4(luminance, luminance, luminance, 1.0);
 }
