@@ -24,6 +24,9 @@ OTHER_FILES += readme.md \
 
 CONFIG += console
 
+LIBS += -pthread
+QMAKE_CXXFLAGS += -pthread
+
 win32 {
     INCLUDEPATH += C:\SDL2\i686-w64-mingw32\include\SDL2
     INCLUDEPATH += C:\SDL2\i686-w64-mingw32\include

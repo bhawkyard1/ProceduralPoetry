@@ -29,20 +29,20 @@ public:
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
-		void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
-		void clearColourBuffer() {glClear(GL_COLOR_BUFFER_BIT );}
-		void clearDepthBuffer() {glClear( GL_DEPTH_BUFFER_BIT );}
+    void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
+    void clearColourBuffer() {glClear(GL_COLOR_BUFFER_BIT );}
+    void clearDepthBuffer() {glClear( GL_DEPTH_BUFFER_BIT );}
     slotmap<sphere> * getNodesPt() {return &m_nodes;}
     void drawSpheres();
     void drawVAO(const std::string &_id);
     void finalise();
-		void hide() {SDL_HideWindow( m_window );}
+    void hide() {SDL_HideWindow( m_window );}
     void makeCurrent() { SDL_GL_MakeCurrent(m_window, m_gl_context); }
     void mouseUp(SDL_Event _event);
     void mouseDown(SDL_Event _event);
     void mouseWheel(int _dir);
     void narrowPhase();
-		void show() {SDL_ShowWindow( m_window );}
+    void show() {SDL_ShowWindow( m_window );}
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
 
@@ -61,7 +61,7 @@ public:
 
     void toggleLight() {m_light = !m_light;}
     void toggleCameraLock() {m_lockedCamera = !m_lockedCamera;}
-		void toggleSteadicam() {m_steadicam = !m_steadicam;}
+    void toggleSteadicam() {m_steadicam = !m_steadicam;}
 private:
     GLuint createBuffer1f(std::vector<float> _vec);
     GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -130,7 +130,10 @@ private:
     float m_cameraShake;
     size_t m_order;
     std::vector<notes> m_stateBuffer;
-		bool m_steadicam;
+    bool m_steadicam;
+
+    size_t m_maxThreads;
+    size_t m_curThreads;
 };
 
 #endif

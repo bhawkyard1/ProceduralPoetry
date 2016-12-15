@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include <algorithm>
+#include <thread>
+#include <mutex>
 
 #include <ngl/NGLInit.h>
 #include <ngl/Mat3.h>
@@ -41,6 +43,9 @@ visualiser::visualiser(size_t _order) :
 
     m_cameraShake = 0.0f;
 
+    m_maxThreads = std::thread::hardware_concurrency();
+    m_curThreads = 0;
+
     std::cout << "p1\n";
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
         errorExit("SDL initialisation failed");
@@ -65,7 +70,7 @@ visualiser::visualiser(size_t _order) :
     m_window = SDL_CreateWindow("mGen",
                                 0, 0,
                                 m_w, m_h,
-																SDL_WINDOW_OPENGL );
+                                SDL_WINDOW_OPENGL );
 
     if(!m_window)
         errorExit("Unable to create window");
@@ -114,11 +119,11 @@ visualiser::visualiser(size_t _order) :
     m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
     m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT2 );
     m_framebuffer.addTexture( "radius", GL_RED, GL_R8, GL_COLOR_ATTACHMENT3 );
-		m_framebuffer.addTexture("emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4);
+    m_framebuffer.addTexture("emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4);
     m_framebuffer.addDepthAttachment("depth");
 
     m_framebuffer.activeColourAttachments(
-		{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4}
+    {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4}
                 );
 
     if(!m_framebuffer.checkComplete())
@@ -255,8 +260,10 @@ void visualiser::addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<n
     m_nodes.push_back( node );
 }
 
-void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
+void visualiser::broadPhase(std::vector<std::vector<sphere*>> &_mainnodes, ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
 {
+    //static std::mutex barrier;
+
     std::vector<sphere *> outNodes;
     outNodes.reserve( _nodes.size() );
     unsigned short count = 0;
@@ -271,24 +278,44 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
     }
 
     if(count <= 4 or _lvl > 5)
-        m_partitions.push_back( outNodes );
+    {
+        //std::lock_guard<std::mutex> block_threads_until_finish_this_job(barrier);
+        _mainnodes.push_back( outNodes );
+    }
     else
     {
         ngl::Vec3 dim = _max - _min;
         dim /= 2.0f;
+
+        std::array< std::thread, 8 > threads;
 
         for(int i = 0; i < 2; ++i)
             for(int j = 0; j < 2; ++j)
                 for(int k = 0; k < 2; ++k)
                 {
                     ngl::Vec3 newMin = _min + ngl::Vec3( dim.m_x * i, dim.m_y * j, dim.m_z * k);
-                    broadPhase(
-                                newMin,
-                                newMin + dim,
-                                outNodes,
-                                _lvl + 1
-                                );
+                    if(m_curThreads < m_maxThreads)
+                    {
+                        threads[i * 4 + j * 2 + k] = std::thread( &visualiser::broadPhase, this, newMin, newMin + dim, outNodes, _lvl + 1 );
+                        m_curThreads++;
+                    }
+                    else
+                        broadPhase(
+                                    newMin,
+                                    newMin + dim,
+                                    outNodes,
+                                    _lvl + 1
+                                    );
                 }
+
+        for(auto &thread : threads)
+        {
+            if(thread.joinable())
+            {
+                thread.join();
+                m_curThreads--;
+            }
+        }
     }
 }
 
@@ -449,7 +476,7 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts
 
     //Generate a VBO
     GLuint vertBuffer = createBuffer4f( _verts );
-    setBufferLocation( vertBuffer, 0, 3 );
+    setBufferLocation( vertBuffer, 0, 4 );
 
     std::pair<std::string, GLuint> p (_id, vao );
     m_vaos.insert( p );
@@ -475,7 +502,7 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts
 void visualiser::drawSpheres()
 {
     m_framebuffer.bind();
-		m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
+    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
     clear();
 
     m_lights.clear();
@@ -487,8 +514,8 @@ void visualiser::drawSpheres()
 
     for(auto &i : m_nodes.m_objects)
     {
-				slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() ));
-				slib->setRegisteredUniform("luminance", i.getTotalLuminance());
+        slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() ));
+        slib->setRegisteredUniform("luminance", i.getTotalLuminance());
         slib->setRegisteredUniform("radius", i.getRadius());
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
@@ -512,7 +539,7 @@ void visualiser::drawSpheres()
         {
             ngl::Vec4 pos = i.getPos();
             pos.m_w = 1.0f;
-            m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance() * 0.5f} );
+            m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance()} );
         }
     }
 
@@ -560,8 +587,8 @@ void visualiser::finalise()
 
     m_DOFbuffer.bind();
     m_DOFbuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
-		glClearColor(0.005f, 0.005f, 0.01f, 1.0f);
-		clear();
+    glClearColor(0.005f, 0.005f, 0.01f, 1.0f);
+    clear();
 
     //Draw lighting.
     slib->use("bufferLight");
@@ -573,7 +600,7 @@ void visualiser::finalise()
     m_framebuffer.bindTexture(id, "normal", "normal", 1);
     m_framebuffer.bindTexture(id, "position", "position", 2);
     m_framebuffer.bindTexture(id, "radius", "radius", 3);
-		m_framebuffer.bindTexture(id, "emissive", "emissive", 4);
+    m_framebuffer.bindTexture(id, "emissive", "emissive", 4);
 
     ngl::Vec3 camPos = m_cam.getPos(); //m_V * m_cam.getEye() - m_camCLook;
     slib->setRegisteredUniform( "camPos", camPos );
@@ -584,7 +611,7 @@ void visualiser::finalise()
 
     m_flareBuffer.bind();
     m_flareBuffer.activeColourAttachments( { GL_COLOR_ATTACHMENT0 });
-		clear();
+    clear();
 
     //Post process
     slib->use("bufferBokeh");
@@ -600,7 +627,7 @@ void visualiser::finalise()
     glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
     m_flareBuffer.unbind();
-		clear();
+    clear();
 
     slib->use("bufferFlare");
     slib->setRegisteredUniform("VP", m_cam.getV() * m_cam.getP());
@@ -895,8 +922,18 @@ void visualiser::update(const float _dt)
 
     std::pair<ngl::Vec3, ngl::Vec3> initBox = lim( points );
 
+    m_partitions.reserve( m_nodes.size() / 2 );
+
+    sim_time dt (0.0f);
+    dt.setStart();
     broadPhase( initBox.first, initBox.second, initNodes, 0 );
+    dt.setCur();
+    std::cout << "running on max " << std::thread::hardware_concurrency() << " threads\n";
+    std::cout << "bdt is " << dt.getDiff() << '\n';
+    dt.setCur();
     narrowPhase();
+    dt.setCur();
+    std::cout << "ndt is " << dt.getDiff() << '\n';
 
     for(auto &i : m_nodes.m_objects)
     {
