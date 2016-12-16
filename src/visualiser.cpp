@@ -65,7 +65,7 @@ visualiser::visualiser(size_t _order) :
     m_window = SDL_CreateWindow("mGen",
                                 0, 0,
                                 m_w, m_h,
-																SDL_WINDOW_OPENGL );
+                                SDL_WINDOW_OPENGL );
 
     if(!m_window)
         errorExit("Unable to create window");
@@ -99,7 +99,7 @@ visualiser::visualiser(size_t _order) :
 
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
-    createShaderProgram( "blinn", "MVPUVNVert", "blinnFrag" );
+    createShaderProgram( "blinn", "MVPUVNVertDistort", "blinnFrag" );
     createShaderProgram( "bufferLight", "screenquadVert", "bufferLightFrag" );
     createShaderProgram( "bufferBokeh", "screenquadVert", "bufferBokehFrag" );
     createShaderProgram( "bufferFlare", "screenquadVert", "bufferFlareFrag" );
@@ -114,11 +114,11 @@ visualiser::visualiser(size_t _order) :
     m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
     m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT2 );
     m_framebuffer.addTexture( "radius", GL_RED, GL_R8, GL_COLOR_ATTACHMENT3 );
-		m_framebuffer.addTexture("emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4);
+    m_framebuffer.addTexture("emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4);
     m_framebuffer.addDepthAttachment("depth");
 
     m_framebuffer.activeColourAttachments(
-		{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4}
+    {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4}
                 );
 
     if(!m_framebuffer.checkComplete())
@@ -258,7 +258,7 @@ void visualiser::addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<n
 void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
 {
     std::vector<sphere *> outNodes;
-    outNodes.reserve( _nodes.size() );
+    outNodes.reserve( _nodes.size() / 4 );
     unsigned short count = 0;
 
     for(auto &i : _nodes)
@@ -475,7 +475,7 @@ void visualiser::createVAO(const std::string &_id, std::vector<ngl::Vec4> _verts
 void visualiser::drawSpheres()
 {
     m_framebuffer.bind();
-		m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
+    m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
     clear();
 
     m_lights.clear();
@@ -484,12 +484,13 @@ void visualiser::drawSpheres()
     ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
     slib->use( "blinn" );
-
+    slib->setRegisteredUniform1f("iGlobalTime", m_timer.getTime());
     for(auto &i : m_nodes.m_objects)
     {
-				slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() ));
-				slib->setRegisteredUniform("luminance", i.getTotalLuminance());
+        slib->setRegisteredUniform("baseColour", ngl::Vec4( i.getColour() ));
+        slib->setRegisteredUniform("luminance", i.getTotalLuminance());
         slib->setRegisteredUniform("radius", i.getRadius());
+        slib->setRegisteredUniform1f("lum", i.getTotalLuminance());
         //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
         //m_trans.reset();
 
@@ -560,8 +561,8 @@ void visualiser::finalise()
 
     m_DOFbuffer.bind();
     m_DOFbuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
-		glClearColor(0.005f, 0.005f, 0.01f, 1.0f);
-		clear();
+    glClearColor(0.005f, 0.005f, 0.01f, 1.0f);
+    clear();
 
     //Draw lighting.
     slib->use("bufferLight");
@@ -573,7 +574,7 @@ void visualiser::finalise()
     m_framebuffer.bindTexture(id, "normal", "normal", 1);
     m_framebuffer.bindTexture(id, "position", "position", 2);
     m_framebuffer.bindTexture(id, "radius", "radius", 3);
-		m_framebuffer.bindTexture(id, "emissive", "emissive", 4);
+    m_framebuffer.bindTexture(id, "emissive", "emissive", 4);
 
     ngl::Vec3 camPos = m_cam.getPos(); //m_V * m_cam.getEye() - m_camCLook;
     slib->setRegisteredUniform( "camPos", camPos );
@@ -584,7 +585,7 @@ void visualiser::finalise()
 
     m_flareBuffer.bind();
     m_flareBuffer.activeColourAttachments( { GL_COLOR_ATTACHMENT0 });
-		clear();
+    clear();
 
     //Post process
     slib->use("bufferBokeh");
@@ -600,7 +601,7 @@ void visualiser::finalise()
     glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
     m_flareBuffer.unbind();
-		clear();
+    clear();
 
     slib->use("bufferFlare");
     slib->setRegisteredUniform("VP", m_cam.getV() * m_cam.getP());
