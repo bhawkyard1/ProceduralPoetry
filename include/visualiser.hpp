@@ -26,7 +26,7 @@ public:
     ~visualiser();
     void addFOV(const float _fov) {m_tfov += _fov;}
     void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<note> > &_state, const float _mass);
-    void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
+		void broadPhase(size_t *_index, ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
     void clear() {glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);}
