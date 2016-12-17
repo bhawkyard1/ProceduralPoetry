@@ -58,3 +58,4 @@ bieber/All In It.txt
 bieber/Hit The Ground.txt
 bieber/The Most.txt
 bieber/Home To Mama.txt
+edsheeran/edsheeran.txt
