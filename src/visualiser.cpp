@@ -513,7 +513,7 @@ void visualiser::drawSpheres()
         {
             ngl::Vec4 pos = i.getPos();
             pos.m_w = 1.0f;
-            m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance() * 0.5f} );
+						m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance()} );
         }
     }
 

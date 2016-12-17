@@ -124,8 +124,11 @@ float surface3 ( vec3 coord ) {
 
 void main()
 {
-    float n = surface3(vec3(inPosition.xy, iGlobalTime / 8192.0)) / 8192.0;
-    vec4 p = inPosition + vec4(length(UV) * normalize(inNormal), 0.0);
+    float n = surface3(vec3(inPosition.xy, iGlobalTime));
+    n = sqrt(abs(n));
+    n /= 32.0;
+    n -= n / 2.0;
+    vec4 p = inPosition + lum * vec4(n * inNormal, 0.0);
     gl_Position = MVP * p;
     UV = inUV;
     normal = /*normalMat */ inNormal;
