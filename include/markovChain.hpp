@@ -20,7 +20,6 @@
 #include "util.hpp"
 
 #include "sim_time.hpp"
-#include "sampler.hpp"
 
 #ifdef _WIN32
 #include <ciso646>

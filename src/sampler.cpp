@@ -4,11 +4,9 @@
 
 #include "sampler.hpp"
 
-#include "fft.hpp"
-#include "kiss/kiss_fft.h"
 
 #include "util.hpp"
-
+/*
 int sampler::s_sampleRate = 0;
 int sampler::s_channels = 2;
 
@@ -100,12 +98,10 @@ std::vector<float> sampler::sampleAudio(const float _start, const int _width)
 		ret.push_back( (l + r) / 2 );
 	}
 
-	/*auto m = std::max_element( ret.begin() + 1, ret.end() );
-		int ind = std::distance( ret.begin(), m );*/
+    auto m = std::max_element( ret.begin() + 1, ret.end() );
+        int ind = std::distance( ret.begin(), m );
 	//std::cout << ind * ((float)s_sampleRate / arr.size()) << " Hz -> " << *m << '\n';
 
-	//std::cout << "p1\n";
-
 	return ret;
-}
+}*/
 
