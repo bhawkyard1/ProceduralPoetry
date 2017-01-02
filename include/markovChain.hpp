@@ -11,6 +11,8 @@
 #include <queue>
 #include <string>
 
+#include "common.hpp"
+
 #include "markovState.hpp"
 #include "visualiser.hpp"
 
@@ -406,28 +408,13 @@ void markovChain<T>::loadSource(const std::string _path)
         std::vector<float> data = smpl.sampleAudio( time, sampleWidth );
 
         done = sampleWidth + smpl.secsToBytes(time) >= smpl.get()->alen;
-        time += 1.0f / 60.0f;
+				time += g_PARAM_SAMPLE_TIMESTEP;
 
         int accWidth = sampleWidth / averagedWidth;
 
         //Average values, condense into smaller array.
         std::vector<float> averaged;
         averageVector(data, averaged, accWidth);
-        /*averaged.assign( averagedWidth, 0.0f );
-
-        for(size_t i = 0; i < averaged.size(); ++i)
-        {
-            //Fucking stupid std functions.
-            for(int j = i * accWidth; j < i * accWidth + accWidth; ++j)
-            {
-                averaged[i] += data[j];
-            }
-            //averaged[i] = std::accumulate(data.begin() + i * accWidth, data.begin() + i * accWidth + accWidth - 1, 0);
-        }
-        for(auto &i : averaged)
-        {
-            i /= sampleWidth / averagedWidth;
-                }*/
 
         //Create the state, notes being played.
         std::vector<note> state;
@@ -458,12 +445,24 @@ void markovChain<T>::loadSource(const std::string _path)
             {
                 float freq = i * sampler::getSampleRate() / averaged.size();
                 note closest = closestNote(freq);
-                closest.m_position = 0;
-                if(std::find(state.begin(), state.end(), closest) == state.end())
-                {
-                    //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-                    state.push_back( closest );
-                }
+
+								if(g_PARAM_USE_OCTAVES)
+								{
+									if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
+									{
+											//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+											state.push_back( closest );
+									}
+								}
+								else
+								{
+									closest.m_position = 0;
+									if(std::find(state.begin(), state.end(), closest) == state.end())
+									{
+											//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+											state.push_back( closest );
+									}
+								}
             }
         }
         states.push_back(state);

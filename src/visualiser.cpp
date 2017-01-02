@@ -491,23 +491,14 @@ void visualiser::drawSpheres()
         slib->setRegisteredUniform("luminance", i.getTotalLuminance());
         slib->setRegisteredUniform("radius", i.getRadius());
         slib->setRegisteredUniform1f("lum", i.getTotalLuminance());
-        //std::cout << "drawing sphere at " << i.m_x << ", " << i.m_y << ", " << i.m_z << '\n';
-        //m_trans.reset();
 
-        //float dist = (i.getPos() * m_V).m_z;
-
-        ngl::Vec3 pos = i.getPos()/* + ngl::Vec3(0.0f, sin(g_TIME + (i.m_x * i.m_z) / 512.0f), 0.0f)*/;
+				ngl::Vec3 pos = i.getPos();
 
         m_scale.scale( i.getRadius(), i.getRadius(), i.getRadius() );
         m_trans.translate( pos.m_x, pos.m_y, pos.m_z );
         loadMatricesToShader();
 
-        //dist /= 32.0f;
-
-        /*size_t index = static_cast<size_t>(std::floor(dist));
-                                                                                                                                index = clamp(index, size_t(0), m_meshes.size() - 1);*/
         prim->draw( m_meshes[0] );
-        //prim->draw( m_meshes[index] );
 
         if(i.getLuminance() > 0.05f)
         {
@@ -942,13 +933,26 @@ void visualiser::update(const float _dt)
         {
             float freq = i * sampler::getSampleRate() / averaged.size();
             note closest = closestNote(freq);
-            closest.m_position = 0;
-            if(std::find(state.begin(), state.end(), closest) == state.end())
-            {
-                //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-                state.push_back( closest);
-                noteMuls += averaged[i] - averagedAverage;
-            }
+
+						if(g_PARAM_USE_OCTAVES)
+						{
+							if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
+							{
+									//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+									state.push_back( closest);
+									noteMuls += averaged[i] - averagedAverage;
+							}
+						}
+						else
+						{
+							closest.m_position = 0;
+							if(std::find(state.begin(), state.end(), closest) == state.end())
+							{
+									//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+									state.push_back( closest);
+									noteMuls += averaged[i] - averagedAverage;
+							}
+						}
         }
     }
 
