@@ -35,6 +35,7 @@ struct note
 bool operator==(const note &_lhs, const note &_rhs);
 //bool operator<(const note &_lhs, const note &_rhs);
 bool operator>(const note &_lhs, const note &_rhs);
+note operator+(const note &_lhs, const int _steps);
 
 note closestNote(float _freq);
 float freq(note _note);

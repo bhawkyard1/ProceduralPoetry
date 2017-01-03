@@ -27,14 +27,22 @@ bool operator>(const note &_lhs, const note &_rhs)
 	return _lhs.m_position > _rhs.m_position or static_cast<int>(_lhs.m_type) > static_cast<int>(_rhs.m_type);
 }
 
+note operator+(const note &_lhs, const int _steps)
+{
+	note ret = _lhs;
+
+	ret.m_position += _steps / 12;
+	ret.m_type = ret.m_type + mod(_steps, 12);
+
+	return ret;
+}
+
 note closestNote(float _freq)
 {
 	int steps = std::round((log(_freq) - logA4) / logTwelthRoot);
 	note ret (A, 4);
 
-	ret.m_position += steps / 12;
-
-	ret.m_type = ret.m_type + mod(steps, 12);
+	ret = ret + steps;
 
 	return ret;
 }
