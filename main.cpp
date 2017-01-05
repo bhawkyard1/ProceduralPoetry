@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-	markovChain<notes> mark (1);
+	markovChain<notes> mark (2);
 	printer pr;
 
 	bool done = false;
@@ -80,12 +80,12 @@ void processInput(const std::string &_input, markovChain<T> &_mark)
 		_mark.constructVisualisation();
 		visualise(_mark);
 	}
-	else if(levenshtein(cmds[0], "addsource") < LEV_THRESHOLD)
+	else if(levenshtein(cmds[0], "add") < LEV_THRESHOLD)
 	{
 		if(cmds.size() > 1)
 			_mark.loadSource( cmds[1] );
 	}
-	else if(levenshtein(cmds[0], "clearsources") < LEV_THRESHOLD)
+	else if(levenshtein(cmds[0], "clear") < LEV_THRESHOLD)
 	{
 		_mark.clear();
 	}
@@ -117,7 +117,10 @@ void visualise(markovChain<T> &_mark)
 				return;
 			case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE)
+				{
+					_mark.stopSound();
 					done = true;
+				}
 				else if(event.key.keysym.sym == SDLK_q)
 					_mark.resetPos();
 				else if(event.key.keysym.sym == SDLK_l)

@@ -73,7 +73,7 @@ public:
 
     void toggleCameraLock() {m_visualiser.toggleCameraLock();}
     void toggleLight() {m_visualiser.toggleLight();}
-
+		void stopSound() {m_visualiser.stopSound();}
 private:
     void addContext(const T &_state);
     std::vector<T> getKeyFromContext();
@@ -387,10 +387,6 @@ void markovChain<T>::loadSource(const std::string _path)
 template<class T>
 void markovChain<T>::loadSource(const std::string _path)
 {
-    const int sampleWidth = 8192;
-    const int peakWidth = 128;
-    const int averagedWidth = 4096;
-
     resetBuffers();
     std::cout << "Reading from " << _path << '\n';
 
@@ -405,12 +401,12 @@ void markovChain<T>::loadSource(const std::string _path)
     {
         //std::cout << "TIME : " << time;
         //Get raw fft
-        std::vector<float> data = smpl.sampleAudio( time, sampleWidth );
+				std::vector<float> data = smpl.sampleAudio( time, g_PARAM_SAMPLE_WIDTH );
 
-        done = sampleWidth + smpl.secsToBytes(time) >= smpl.get()->alen;
+				done = g_PARAM_SAMPLE_WIDTH + smpl.secsToBytes(time) >= smpl.get()->alen;
 				time += g_PARAM_SAMPLE_TIMESTEP;
 
-        int accWidth = sampleWidth / averagedWidth;
+				int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
 
         //Average values, condense into smaller array.
         std::vector<float> averaged;
@@ -418,13 +414,13 @@ void markovChain<T>::loadSource(const std::string _path)
 
         //Create the state, notes being played.
         std::vector<note> state;
-        state.reserve( averagedWidth );
+				state.reserve( g_PARAM_AVERAGED_WIDTH );
         //Create nodes based on averages.
         for(size_t i = 0; i < averaged.size(); ++i)
         {
             //Min and max indexes to search for peak.
-            int mindex = i - peakWidth / 2;
-            int maxdex = i + peakWidth / 2;
+						int mindex = i - g_PARAM_PEAK_WIDTH / 2;
+						int maxdex = i + g_PARAM_PEAK_WIDTH / 2;
             if(mindex < 0)
                 maxdex += -mindex;
             if(maxdex > averaged.size())
@@ -441,7 +437,7 @@ void markovChain<T>::loadSource(const std::string _path)
             averagedAverage /= maxdex - mindex;
 
             //If this is a non-duplicate peak, add a note to the state.
-            if(averaged[i] > averagedAverage)
+						if(averaged[i] > averagedAverage * g_PARAM_ACTIVATE_THRESHOLD_MUL)
             {
                 float freq = i * sampler::getSampleRate() / averaged.size();
                 note closest = closestNote(freq);

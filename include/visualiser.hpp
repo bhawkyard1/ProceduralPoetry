@@ -47,6 +47,7 @@ public:
     void update(const float _dt);
 
     void sound(const std::string _path);
+		void stopSound();
 
     void resetPos()
     {
@@ -131,6 +132,7 @@ private:
     size_t m_order;
     std::vector<notes> m_stateBuffer;
     bool m_steadicam;
+		int m_sdlchannel;
 };
 
 #endif

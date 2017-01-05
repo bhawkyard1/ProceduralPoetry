@@ -23,6 +23,7 @@ public:
     float bytesToSecs(const int _i) {return _i / (float)(s_sampleRate * s_channels);}
 		int secsToBytes(const float _i) {return std::ceil(_i * s_sampleRate * s_channels * sizeof(int16_t));}
     std::vector<float> sampleAudio(const float _start, const int _width);
+		void reset() {Mix_FreeChunk(m_snd);}
 private:
     Mix_Chunk * m_snd;
     std::vector<int16_t> m_buf;
