@@ -133,6 +133,12 @@ private:
     std::vector<notes> m_stateBuffer;
     bool m_steadicam;
 		int m_sdlchannel;
+
+		std::vector<ngl::Vec3> m_genericVerts;
+		std::vector<ngl::Vec2> m_genericUVs;
+		std::vector<float> m_genericData;
+		GLuint m_genericVAO;
+		std::vector<GLuint> m_genericVBOs;
 };
 
 #endif

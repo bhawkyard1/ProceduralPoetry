@@ -103,6 +103,7 @@ visualiser::visualiser(size_t _order) :
 	createShaderProgram( "bufferLight", "screenquadVert", "bufferLightFrag" );
 	createShaderProgram( "bufferBokeh", "screenquadVert", "bufferBokehFrag" );
 	createShaderProgram( "bufferFlare", "screenquadVert", "bufferFlareFrag" );
+	createShaderProgram( "line", "MVPVert", "debugWhiteFrag" );
 	slib->use("bufferFlare");
 	slib->setRegisteredUniform("resolution", ngl::Vec2(m_w, m_h));
 	slib->use("bufferBokeh");
@@ -229,6 +230,16 @@ visualiser::visualiser(size_t _order) :
 					ngl::Vec2(1.0, 0.0)
 				}
 				);
+
+	m_genericVBOs.push_back( createBuffer4f({}) );
+	m_genericVBOs.push_back( createBuffer2f({}) );
+	m_genericVBOs.push_back( createBuffer1f({}) );
+	glGenVertexArrays(1, &m_genericVAO);
+	glBindVertexArray(m_genericVAO);
+	setBufferLocation( m_genericVBOs[0], 0, 4 );
+	setBufferLocation( m_genericVBOs[1], 1, 2 );
+	setBufferLocation( m_genericVBOs[2], 2, 1 );
+	glBindVertexArray(0);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -480,6 +491,8 @@ void visualiser::drawSpheres()
 
 	m_lights.clear();
 
+	m_genericVerts.clear();
+
 	ngl::VAOPrimitives * prim = ngl::VAOPrimitives::instance();
 	ngl::ShaderLib * slib = ngl::ShaderLib::instance();
 
@@ -505,6 +518,16 @@ void visualiser::drawSpheres()
 			ngl::Vec4 pos = i.getPos();
 			pos.m_w = 1.0f;
 			m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance()} );
+
+			for(auto &other : *(i.getConnections()))
+			{
+				m_genericVerts.push_back( i.getPos() );
+				m_genericVerts.push_back( m_nodes.getByID(other)->getPos() );
+				m_genericUVs.push_back( ngl::Vec2(1.0, 0.0) );
+				m_genericUVs.push_back( ngl::Vec2(0.0, 0.0) );
+				m_genericData.push_back( i.getTotalLuminance() );
+				m_genericData.push_back( i.getTotalLuminance() );
+			}
 		}
 	}
 
@@ -529,6 +552,9 @@ void visualiser::drawSpheres()
 	memcpy(dat, &m_lights[0].m_pos.m_x, sizeof(light) * std::min( m_lights.size(), static_cast<size_t>(MAX_LIGHTS)));
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	m_scale.identity();
+	m_trans.identity();
 }
 
 void visualiser::finalise()
@@ -571,6 +597,38 @@ void visualiser::finalise()
 	slib->setRegisteredUniform( "camPos", camPos );
 
 	glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
+
+	std::cout << "Whoa! " << m_genericVerts.size() << " verts!\n";
+	glBindVertexArray(m_genericVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_genericVBOs[0]);
+	glBufferData(GL_ARRAY_BUFFER,
+							 sizeof(ngl::Vec3) * m_genericVerts.size(),
+							 &m_genericVerts[0].m_x,
+			GL_STATIC_DRAW
+			);
+	setBufferLocation(m_genericVBOs[0], 0, 3);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_genericVBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER,
+							 sizeof(ngl::Vec2) * m_genericUVs.size(),
+							 &m_genericUVs[0].m_x,
+			GL_STATIC_DRAW
+			);
+	setBufferLocation(m_genericVBOs[1], 1, 2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_genericVBOs[2]);
+	glBufferData(GL_ARRAY_BUFFER,
+							 sizeof(float) * m_genericData.size(),
+							 &m_genericData[0],
+			GL_STATIC_DRAW
+			);
+	setBufferLocation(m_genericVBOs[2], 2, 1);
+
+	slib->use("line");
+	slib->setRegisteredUniform( "camPos", camPos );
+	loadMatricesToShader();
+	glDrawArraysEXT(GL_LINES, 0, m_genericVerts.size());
 
 	m_DOFbuffer.unbind();
 
@@ -823,8 +881,12 @@ void visualiser::update(const float _dt)
 	else
 	{
 		ngl::Vec3 averagePos;
+		float im = 0.0f;
 		for(auto &i : m_nodes.m_objects)
-			averagePos += i.getPos();
+		{
+			averagePos += i.getPos() / i.getInvMass();
+			im += i.getInvMass();
+		}
 		averagePos /= m_nodes.size();
 
 		m_cam.setInitPos( ngl::Vec3(0.0, 0.0, 256 + 4.0f * sinf(m_timer.getTime()) + m_cameraShake + m_cZoom) );
@@ -994,7 +1056,7 @@ void visualiser::sound(const std::string _path)
 	m_sdlchannel = Mix_PlayChannel(-1, m_sampler.get(), 0);
 	m_timer.setCur();
 	std::cout << "Post play time " << m_timer.getTime() << '\n';
-	//SDL_Delay(100);
+	SDL_Delay(100);
 }
 
 void visualiser::stopSound()
