@@ -29,7 +29,20 @@ struct note
 		m_position = _position;
 	}
 
-	bool operator<(const note &_rhs) const { return m_position < _rhs.m_position or static_cast<int>(m_type) < static_cast<int>(_rhs.m_type); }
+    bool operator<(const note &_rhs) const
+    {
+        /*return
+                static_cast<int>(m_type) < static_cast<int>(_rhs.m_type) or
+                m_position < _rhs.m_position;*/
+        if(static_cast<int>(m_type) < static_cast<int>(_rhs.m_type))
+            return true;
+        else if(static_cast<int>(_rhs.m_type) < static_cast<int>(m_type))
+            return false;
+        else if(m_position < _rhs.m_position)
+            return true;
+        else if(_rhs.m_position < m_position)
+            return false;
+    }
 };
 
 bool operator==(const note &_lhs, const note &_rhs);

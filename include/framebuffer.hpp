@@ -17,6 +17,7 @@ public:
     void bindTexture(const GLint _shaderID, const std::string &_tex, const char *_uniform, int _target);
     bool checkComplete();
     void unbind();
+    GLuint get(const std::string _id) {return m_textures[_id];}
 private:
     GLuint genTexture(int _width, int _height, GLint _format, GLint _internalFormat);
     //Keeps track of textures.

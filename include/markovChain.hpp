@@ -73,7 +73,7 @@ public:
 
     void toggleCameraLock() {m_visualiser.toggleCameraLock();}
     void toggleLight() {m_visualiser.toggleLight();}
-		void stopSound() {m_visualiser.stopSound();}
+    void stopSound() {m_visualiser.stopSound();}
 private:
     void addContext(const T &_state);
     std::vector<T> getKeyFromContext();
@@ -401,12 +401,12 @@ void markovChain<T>::loadSource(const std::string _path)
     {
         //std::cout << "TIME : " << time;
         //Get raw fft
-				std::vector<float> data = smpl.sampleAudio( time, g_PARAM_SAMPLE_WIDTH );
+        std::vector<float> data = smpl.sampleAudio( time, g_PARAM_SAMPLE_WIDTH );
 
-				done = g_PARAM_SAMPLE_WIDTH + smpl.secsToBytes(time) >= smpl.get()->alen;
-				time += g_PARAM_SAMPLE_TIMESTEP;
+        done = g_PARAM_SAMPLE_WIDTH + smpl.secsToBytes(time) >= smpl.get()->alen;
+        time += g_PARAM_SAMPLE_TIMESTEP;
 
-				int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
+        int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
 
         //Average values, condense into smaller array.
         std::vector<float> averaged;
@@ -414,13 +414,13 @@ void markovChain<T>::loadSource(const std::string _path)
 
         //Create the state, notes being played.
         std::vector<note> state;
-				state.reserve( g_PARAM_AVERAGED_WIDTH );
+        state.reserve( g_PARAM_AVERAGED_WIDTH );
         //Create nodes based on averages.
         for(size_t i = 0; i < averaged.size(); ++i)
         {
             //Min and max indexes to search for peak.
-						int mindex = i - g_PARAM_PEAK_WIDTH / 2;
-						int maxdex = i + g_PARAM_PEAK_WIDTH / 2;
+            int mindex = i - g_PARAM_PEAK_WIDTH / 2;
+            int maxdex = i + g_PARAM_PEAK_WIDTH / 2;
             if(mindex < 0)
                 maxdex += -mindex;
             if(maxdex > averaged.size())
@@ -437,28 +437,28 @@ void markovChain<T>::loadSource(const std::string _path)
             averagedAverage /= maxdex - mindex;
 
             //If this is a non-duplicate peak, add a note to the state.
-						if(averaged[i] > averagedAverage * g_PARAM_ACTIVATE_THRESHOLD_MUL)
+            if(averaged[i] > averagedAverage * g_PARAM_ACTIVATE_THRESHOLD_MUL)
             {
                 float freq = i * sampler::getSampleRate() / averaged.size();
                 note closest = closestNote(freq);
 
-								if(g_PARAM_USE_OCTAVES)
-								{
-									if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
-									{
-											//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-											state.push_back( closest );
-									}
-								}
-								else
-								{
-									closest.m_position = 0;
-									if(std::find(state.begin(), state.end(), closest) == state.end())
-									{
-											//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-											state.push_back( closest );
-									}
-								}
+                if(g_PARAM_USE_OCTAVES)
+                {
+                    if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
+                    {
+                        //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+                        state.push_back( closest );
+                    }
+                }
+                else
+                {
+                    closest.m_position = 0;
+                    if(std::find(state.begin(), state.end(), closest) == state.end())
+                    {
+                        //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
+                        state.push_back( closest );
+                    }
+                }
             }
         }
         states.push_back(state);
@@ -475,10 +475,18 @@ void markovChain<T>::loadSource(const std::string _path)
         //If we have accumulated enough of a context
         if(m_seekBuffer.size() == m_order)
         {
+            std::cout << "key size " << m_seekBuffer.size() << '\n';
             if(i + 1 < states.size())
             {
-                m_states[ m_seekBuffer ].addConnection( states[i + 1] );
+                std::cout << "pre " << i << " of " << states.size() << "\n";
+                std::cout << "key count " << m_states.count(m_seekBuffer) << '\n';
+                m_states.insert(std::make_pair(m_seekBuffer, markovState<T>() ));
+                std::cout << "key count " << m_states.count(m_seekBuffer) << '\n';
+                std::cout << "mid\n";
+                m_states.at( m_seekBuffer ).addConnection( states[i + 1] );
+                std::cout << "post\n";
             }
+            std::cout << '\n';
         }
     }
     std::cout << "m_states size is " << m_states.size() << '\n';
