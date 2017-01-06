@@ -115,7 +115,7 @@ visualiser::visualiser(size_t _order) :
 	m_framebuffer.addTexture( "normal", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT1 );
 	m_framebuffer.addTexture( "position", GL_RGBA, GL_RGBA16F, GL_COLOR_ATTACHMENT2 );
 	m_framebuffer.addTexture( "radius", GL_RED, GL_R8, GL_COLOR_ATTACHMENT3 );
-	m_framebuffer.addTexture("emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4);
+	m_framebuffer.addTexture( "emissive", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT4 );
 	m_framebuffer.addDepthAttachment("depth");
 
 	m_framebuffer.activeColourAttachments(
@@ -129,12 +129,12 @@ visualiser::visualiser(size_t _order) :
 
 	m_DOFbuffer.initialise(m_w, m_h);
 	m_DOFbuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT0 );
-	m_DOFbuffer.addTexture( "depth", GL_RED, GL_R16F, GL_COLOR_ATTACHMENT1 );
+	m_DOFbuffer.addTexture( "depth", GL_RED, GL_R32F, GL_COLOR_ATTACHMENT1 );
 
-    GLuint d = m_framebuffer.get("depth");
-    glBindRenderbuffer(GL_RENDERBUFFER, d);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_w, m_h);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, d);
+	GLuint d = m_framebuffer.get("depth");
+	glBindRenderbuffer(GL_RENDERBUFFER, d);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_w, m_h);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, d);
 
 	m_DOFbuffer.activeColourAttachments(
 	{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1}
@@ -382,6 +382,9 @@ void visualiser::castRayGetNode()
 			m_nodes.getByID(con)->addLuminance( 0.5f );
 		pr.message( "Node\n" );
 		pr.message(std::to_string(pt->getTotalLuminance()));
+		pr.message("Coords " + std::to_string(pt->getPos().m_x) + ", "
+							 + std::to_string(pt->getPos().m_y) + ", "
+							 + std::to_string(pt->getPos().m_z) + '\n');
 	}
 }
 
@@ -492,7 +495,7 @@ void visualiser::drawSpheres()
 {
 	m_framebuffer.bind();
 	m_framebuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4});
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	clear();
 
 	m_lights.clear();
@@ -517,13 +520,13 @@ void visualiser::drawSpheres()
 		m_trans.translate( pos.m_x, pos.m_y, pos.m_z );
 		loadMatricesToShader();
 
-        prim->draw( m_meshes[0] );
+		prim->draw( m_meshes[0] );
 
 		if(i.getLuminance() > 0.05f)
 		{
 			ngl::Vec4 pos = i.getPos();
 			pos.m_w = 1.0f;
-            m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance() * 4.0f} );
+			m_lights.push_back( {pos, i.getColour(), i.getTotalLuminance()} );
 
 			for(auto &other : *(i.getConnections()))
 			{
@@ -545,7 +548,7 @@ void visualiser::drawSpheres()
 		{
 						-m_camCLook,
 						ngl::Vec3(1.0f, 1.0f, 1.0f),
-                        8.0f
+						8.0f
 					}
 					);
 		loadMatricesToShader();
@@ -585,9 +588,9 @@ void visualiser::finalise()
 	m_DOFbuffer.bind();
 	m_DOFbuffer.activeColourAttachments({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
 	glClearColor(0.005f, 0.005f, 0.01f, 1.0f);
-    clearColourBuffer();
+	clearColourBuffer();
 
-    glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 
 	//Draw lighting.
 	slib->use("bufferLight");
@@ -602,7 +605,7 @@ void visualiser::finalise()
 	m_framebuffer.bindTexture(id, "emissive", "emissive", 4);
 
 	ngl::Vec3 camPos = m_cam.getPos(); //m_V * m_cam.getEye() - m_camCLook;
-    slib->setRegisteredUniform( "camPos", camPos );
+	slib->setRegisteredUniform( "camPos", camPos );
 	glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindVertexArray(m_genericVAO);
@@ -635,8 +638,7 @@ void visualiser::finalise()
 	slib->setRegisteredUniform( "camPos", camPos );
 	loadMatricesToShader();
 
-    glEnable(GL_DEPTH_TEST);
-
+	glEnable(GL_DEPTH_TEST);
 	glDrawArraysEXT(GL_LINES, 0, m_genericVerts.size());
 
 	m_DOFbuffer.unbind();
@@ -647,7 +649,7 @@ void visualiser::finalise()
 
 	//Post process
 	slib->use("bufferBokeh");
-    slib->setRegisteredUniform("focalDepth", 128.0f);//(camPos - m_cam.getPivot()).length());
+	slib->setRegisteredUniform("focalDepth", 128.0f);//(camPos - m_cam.getPivot()).length());
 
 	glBindVertexArray(m_vaos["screenquad"]);
 

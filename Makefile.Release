@@ -1653,6 +1653,7 @@ obj\main.obj: main.cpp include\physicsvars.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_thread.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_atomic.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
+		include\common.hpp \
 		include\markovState.hpp \
 		include\markovEdge.hpp \
 		include\slotmap.hpp \
@@ -1687,7 +1688,6 @@ obj\main.obj: main.cpp include\physicsvars.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_render.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_system.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_timer.h \
-		include\common.hpp \
 		include\visualiser.hpp \
 		C:\NGL\include\ngl\Camera.h \
 		C:\NGL\include\ngl\Mat4.h \
@@ -4431,6 +4431,7 @@ obj\cmd.obj: src\cmd.cpp include\cmd.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_thread.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_atomic.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
+		include\common.hpp \
 		include\markovState.hpp \
 		include\markovEdge.hpp \
 		include\slotmap.hpp \
@@ -4465,7 +4466,6 @@ obj\cmd.obj: src\cmd.cpp include\cmd.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_render.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_system.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_timer.h \
-		include\common.hpp \
 		include\visualiser.hpp \
 		C:\NGL\include\ngl\Camera.h \
 		C:\NGL\include\ngl\Mat4.h \

@@ -19,7 +19,7 @@ vec3 fogCol = vec3(0.02, 0.02, 0.04);
 float fogDist = 512.0;
 
 layout( location = 0 ) out vec4 outDiffuse;
-layout( location = 1 ) out vec4 outDepth;
+layout( location = 1 ) out float outDepth;
 
 struct light
 {
@@ -88,14 +88,19 @@ void main()
 {
     if(texture(radius, UV).r == 0.0)
     {
-        outDiffuse = vec4( 0.0 );
-        outDepth = vec4( 1.0 / 0.0 );
+        outDiffuse = vec4(fogCol.xyz, 1.0);
+        outDepth = 1.0 / 0.0;
         return;
     }
 
     vec3 spos = texture(position, UV).xyz;
     float depth = distance(spos, camPos);
-    outDepth = vec4(depth);
+    outDepth = depth;
+    /*if(depth > 500)
+    {
+        outDiffuse = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }*/
 
     //Get dot.
     vec3 normVec = texture(normal, UV).xyz;

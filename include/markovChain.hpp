@@ -475,18 +475,12 @@ void markovChain<T>::loadSource(const std::string _path)
         //If we have accumulated enough of a context
         if(m_seekBuffer.size() == m_order)
         {
-            std::cout << "key size " << m_seekBuffer.size() << '\n';
             if(i + 1 < states.size())
             {
-                std::cout << "pre " << i << " of " << states.size() << "\n";
-                std::cout << "key count " << m_states.count(m_seekBuffer) << '\n';
-                m_states.insert(std::make_pair(m_seekBuffer, markovState<T>() ));
-                std::cout << "key count " << m_states.count(m_seekBuffer) << '\n';
-                std::cout << "mid\n";
-                m_states.at( m_seekBuffer ).addConnection( states[i + 1] );
-                std::cout << "post\n";
+								/*m_states.insert(std::make_pair(m_seekBuffer, markovState<T>() ));
+								m_states.at( m_seekBuffer ).addConnection( states[i + 1] );*/
+								m_states[m_seekBuffer].addConnection( states[i + 1] );
             }
-            std::cout << '\n';
         }
     }
     std::cout << "m_states size is " << m_states.size() << '\n';

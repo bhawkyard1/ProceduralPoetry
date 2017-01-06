@@ -31,9 +31,13 @@ struct note
 
     bool operator<(const note &_rhs) const
     {
-        /*return
+#ifdef _WIN32
+				return
                 static_cast<int>(m_type) < static_cast<int>(_rhs.m_type) or
-                m_position < _rhs.m_position;*/
+								m_position < _rhs.m_position;
+#endif
+
+#ifdef __linux__
         if(static_cast<int>(m_type) < static_cast<int>(_rhs.m_type))
             return true;
         else if(static_cast<int>(_rhs.m_type) < static_cast<int>(m_type))
@@ -42,6 +46,7 @@ struct note
             return true;
         else if(_rhs.m_position < m_position)
             return false;
+#endif
     }
 };
 

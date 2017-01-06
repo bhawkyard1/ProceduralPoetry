@@ -16,18 +16,18 @@ float height = bgl_dim.y; //texture height
 
 vec2 texel = vec2(1.0/width,1.0/height);
 
-uniform float focalDepth;  //external focal point value, but you may use autofocus option below
+float focalDepth = 350.0;  //external focal point value, but you may use autofocus option below
 
 //------------------------------------------
 //user variables
 
-int samples = 8; //samples on the first ring
+int samples = 16; //samples on the first ring
 int rings = 5; //ring count
 
-bool autofocus = true; //use autofocus in shader? disable if you use external focalDepth value
+bool autofocus = false; //use autofocus in shader? disable if you use external focalDepth value
 vec2 focus = vec2(0.5,0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
-float range = 4.0; //focal range
-float maxblur = 0.25; //clamp value of max blur
+float range = 128.0; //focal range
+float maxblur = 0.8; //clamp value of max blur
 
 float threshold = 0.4; //highlight threshold;
 float gain = 10.0; //highlight gain;
@@ -36,10 +36,10 @@ float bias = 0.4; //bokeh edge bias
 float fringe = 0.5; //bokeh chromatic aberration/fringing
 
 bool noise = true; //use noise instead of pattern for sample dithering
-float namount = 0.00001; //dither amount
+float namount = 0.000001; //dither amount
 
-bool depthblur = true; //blur the depth buffer?
-float dbsize = 2.0; //depthblursize
+bool depthblur = false; //blur the depth buffer?
+float dbsize = 1.0; //depthblursize
 
 /*
 next part is experimental
@@ -115,7 +115,7 @@ float bdepth(vec2 coords) //blurring depth
 
     for( int i=0; i<9; i++ )
     {
-        float tmp = texture2D(bgl_DepthTexture, coords + offset[i]).r;
+        float tmp = texture(bgl_DepthTexture, coords + offset[i]).r;
         d += tmp * kernel[i];
     }
 
@@ -127,9 +127,9 @@ vec3 color(vec2 coords,float blur) //processing the sample
 {
     vec3 col = vec3(0.0);
 
-    col.r = texture2D(bgl_RenderedTexture,coords + vec2(0.0,1.0)*texel*fringe*blur).r;
-    col.g = texture2D(bgl_RenderedTexture,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;
-    col.b = texture2D(bgl_RenderedTexture,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;
+    col.r = texture(bgl_RenderedTexture,coords + vec2(0.0,1.0)*texel*fringe*blur).r;
+    col.g = texture(bgl_RenderedTexture,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;
+    col.b = texture(bgl_RenderedTexture,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;
 
     vec3 lumcoeff = vec3(0.299,0.587,0.114);
     float lum = dot(col.rgb, lumcoeff);
@@ -154,7 +154,8 @@ void main()
 {
     vec2 uv = gl_FragCoord.xy / bgl_dim;
 
-    float depth = texture2D(bgl_DepthTexture,uv).x;
+    float depth = texture(bgl_DepthTexture,uv).r;
+
     float blur = 0.0;
 
     if (depthblur)
@@ -162,12 +163,17 @@ void main()
         depth = bdepth(uv);
     }
 
-    blur = clamp((abs(depth - focalDepth)/range)*100.0,-maxblur,maxblur);
+    /*if( (abs(depth - focalDepth) / range) < maxblur)
+    {
+        fragColour = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }*/
+    blur = clamp((abs(depth - focalDepth) / range), 0.0, maxblur);
 
     if (autofocus)
     {
-        float fDepth = texture2D(bgl_DepthTexture,focus).x;
-        blur = clamp((abs(depth - fDepth)/range)*100.0,-maxblur,maxblur);
+        float fDepth = texture(bgl_DepthTexture,focus).r;
+        blur = clamp((abs(depth - fDepth)/range) * 100.0,-maxblur,maxblur);
     }
 
     vec2 noise = rand(uv)*namount*blur;
@@ -175,7 +181,7 @@ void main()
     float w = (1.0/width)*blur+noise.x;
     float h = (1.0/height)*blur+noise.y;
 
-    vec3 col = texture2D(bgl_RenderedTexture, uv).rgb;
+    vec3 col = texture(bgl_RenderedTexture, uv).rgb;
     float s = 1.0;
 
     int ringsamples;
@@ -203,5 +209,6 @@ void main()
     col /= s;
 
     fragColour.rgb = col;
+    //fragColour.rgb = vec3(depth);
     fragColour.a = 1.0;
 }
