@@ -647,7 +647,7 @@ void visualiser::finalise()
 
 	//Post process
 	slib->use("bufferBokeh");
-	slib->setRegisteredUniform("focalDepth", (camPos - m_cam.getPivot()).length());
+    slib->setRegisteredUniform("focalDepth", 128.0f);//(camPos - m_cam.getPivot()).length());
 
 	glBindVertexArray(m_vaos["screenquad"]);
 

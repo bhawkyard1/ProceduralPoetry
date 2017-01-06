@@ -24,22 +24,22 @@ uniform float focalDepth;  //external focal point value, but you may use autofoc
 int samples = 8; //samples on the first ring
 int rings = 5; //ring count
 
-bool autofocus = false; //use autofocus in shader? disable if you use external focalDepth value
-vec2 focus = vec2(0.5, 0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
-float range = 128.0 * focalDepth; //focal range
-float maxblur = 2.0; //clamp value of max blur
+bool autofocus = true; //use autofocus in shader? disable if you use external focalDepth value
+vec2 focus = vec2(0.5,0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
+float range = 4.0; //focal range
+float maxblur = 0.25; //clamp value of max blur
 
-float threshold = 0.9; //highlight threshold;
-float gain = 32.0; //highlight gain;
+float threshold = 0.4; //highlight threshold;
+float gain = 10.0; //highlight gain;
 
-float bias = 0.25; //bokeh edge bias
+float bias = 0.4; //bokeh edge bias
 float fringe = 0.5; //bokeh chromatic aberration/fringing
 
 bool noise = true; //use noise instead of pattern for sample dithering
-float namount = 0.00005; //dither amount
+float namount = 0.00001; //dither amount
 
 bool depthblur = true; //blur the depth buffer?
-float dbsize = 0.05; //depthblursize
+float dbsize = 2.0; //depthblursize
 
 /*
 next part is experimental
@@ -47,8 +47,8 @@ not looking good with small sample and ring count
 looks okay starting from samples = 4, rings = 4
 */
 
-bool pentagon = true; //use pentagon as bokeh shape?
-float feather = 0.8; //pentagon shape feather
+bool pentagon = false; //use pentagon as bokeh shape?
+float feather = 0.4; //pentagon shape feather
 
 //------------------------------------------
 
@@ -115,7 +115,7 @@ float bdepth(vec2 coords) //blurring depth
 
     for( int i=0; i<9; i++ )
     {
-        float tmp = texture(bgl_DepthTexture, coords + offset[i]).r;
+        float tmp = texture2D(bgl_DepthTexture, coords + offset[i]).r;
         d += tmp * kernel[i];
     }
 
@@ -127,9 +127,9 @@ vec3 color(vec2 coords,float blur) //processing the sample
 {
     vec3 col = vec3(0.0);
 
-    col.r = texture(bgl_RenderedTexture, coords + vec2(0.0,1.0)*texel*fringe*blur).r;
-    col.g = texture(bgl_RenderedTexture, coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;
-    col.b = texture(bgl_RenderedTexture, coords + vec2(0.866,-0.5)*texel*fringe*blur).b;
+    col.r = texture2D(bgl_RenderedTexture,coords + vec2(0.0,1.0)*texel*fringe*blur).r;
+    col.g = texture2D(bgl_RenderedTexture,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;
+    col.b = texture2D(bgl_RenderedTexture,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;
 
     vec3 lumcoeff = vec3(0.299,0.587,0.114);
     float lum = dot(col.rgb, lumcoeff);
@@ -152,30 +152,30 @@ vec2 rand(in vec2 coord) //generating noise/pattern texture for dithering
 
 void main()
 {
-    vec2 UV = gl_FragCoord.xy / bgl_dim;
+    vec2 uv = gl_FragCoord.xy / bgl_dim;
 
-    float depth = texture(bgl_DepthTexture, UV).r;
+    float depth = texture2D(bgl_DepthTexture,uv).x;
     float blur = 0.0;
 
     if (depthblur)
     {
-        depth = bdepth(UV);
+        depth = bdepth(uv);
     }
 
-    blur = clamp((abs(depth - focalDepth) / range) /* 100.0*/, -maxblur, maxblur );
+    blur = clamp((abs(depth - focalDepth)/range)*100.0,-maxblur,maxblur);
 
     if (autofocus)
     {
-        float fDepth = texture(bgl_DepthTexture, focus).x;
-        blur = clamp((abs(depth - fDepth) / range) * 100.0, 0.0, maxblur );
+        float fDepth = texture2D(bgl_DepthTexture,focus).x;
+        blur = clamp((abs(depth - fDepth)/range)*100.0,-maxblur,maxblur);
     }
 
-    vec2 noise = rand(UV)*namount*blur;
+    vec2 noise = rand(uv)*namount*blur;
 
     float w = (1.0/width)*blur+noise.x;
     float h = (1.0/height)*blur+noise.y;
 
-    vec3 col = texture(bgl_RenderedTexture, UV).rgb;
+    vec3 col = texture2D(bgl_RenderedTexture, uv).rgb;
     float s = 1.0;
 
     int ringsamples;
@@ -194,15 +194,14 @@ void main()
             {
                 p = penta(vec2(pw,ph));
             }
-            col += color(UV + vec2(pw*w,ph*h),blur)*mix(1.0,(float(i))/(float(rings)),bias)*p;
+            col += color(uv + vec2(pw*w,ph*h),blur)*mix(1.0,(float(i))/(float(rings)),bias)*p;
             s += 1.0*mix(1.0,(float(i))/(float(rings)),bias)*p;
         }
     }
 
+
     col /= s;
 
     fragColour.rgb = col;
-    //fragColour = vec4(depth / 2048.0);
-    //fragColour = texture(bgl_RenderedTexture, UV);
     fragColour.a = 1.0;
 }
