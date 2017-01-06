@@ -598,7 +598,6 @@ void visualiser::finalise()
 
 	glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
-	std::cout << "Whoa! " << m_genericVerts.size() << " verts!\n";
 	glBindVertexArray(m_genericVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_genericVBOs[0]);
