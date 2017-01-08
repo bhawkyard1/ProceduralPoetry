@@ -35,5 +35,7 @@ private:
 };
 
 std::vector<float> getNoteVals(const std::vector<float> &_freq);
+std::vector<note> getActiveNotes(const std::vector<float> &_intensities);
+std::vector<note> getActiveNotes(const std::vector<float> &_intensities, float *_ints);
 
 #endif

@@ -973,12 +973,12 @@ void visualiser::update(const float _dt)
 	m_timer.setCur();
 	//std::cout << "TIME : " << m_timer.getTime() << '\n';
 	std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), g_PARAM_SAMPLE_WIDTH );
-	std::vector<float> averaged;
-	averageVector( data, averaged, 2 );
+    /*std::vector<float> averaged;
+    averageVector( data, averaged, 2 );*/
 
-	std::vector<note> state;
-	float noteMuls;
-	state.reserve( g_PARAM_AVERAGED_WIDTH );
+    /*std::vector<note> state;
+    float noteMuls;
+    state.reserve( g_PARAM_AVERAGED_WIDTH );
 	//Create nodes based on averages.
 	for(size_t i = 0; i < averaged.size(); ++i)
 	{
@@ -1026,9 +1026,13 @@ void visualiser::update(const float _dt)
 				}
 			}
 		}
-	}
+    }*/
 
-	fifoQueue( &m_stateBuffer, state, m_order );
+    std::vector<float> ni = getNoteVals( data );
+    float intensityMul = 0.0f;
+    std::vector<note> activeNotes = getActiveNotes(ni, &intensityMul);
+    //std::cout << "im " << intensityMul << '\n';
+    fifoQueue( &m_stateBuffer, activeNotes, m_order );
 
 	ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);
 	for(auto &i : m_nodes.m_objects)
@@ -1049,10 +1053,10 @@ void visualiser::update(const float _dt)
 			p /= dist;
 			p *= 2;
 			p += rand->getRandomNormalizedVec3();
-			float force = 5000.0f * node.getInvMass() * noteMuls;
-			node.addForce( p * force * 64.0f / dist );
-			node.addLuminance(force / 128.0f);
-			m_cameraShake += force / 20000.0f;
+            float force = 100.0f /* node.getInvMass() */ * intensityMul;
+            node.addForce( p * force * 8000.0f / dist );
+            node.addLuminance( 1.0f);// force );
+            //m_cameraShake += force / 20000.0f;
 		}
 	}
 

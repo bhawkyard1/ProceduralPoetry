@@ -406,15 +406,15 @@ void markovChain<T>::loadSource(const std::string _path)
         done = g_PARAM_SAMPLE_WIDTH + smpl.secsToBytes(time) >= smpl.get()->alen;
         time += g_PARAM_SAMPLE_TIMESTEP;
 
-        int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
+        /*int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
 
         //Average values, condense into smaller array.
         std::vector<float> averaged;
-        averageVector(data, averaged, accWidth);
+        averageVector(data, averaged, accWidth);*/
 
         //Create the state, notes being played.
-        std::vector<note> state;
-        state.reserve( g_PARAM_AVERAGED_WIDTH );
+        //std::vector<note> state;
+        /*state.reserve( g_PARAM_AVERAGED_WIDTH );
         //Create nodes based on averages.
         for(size_t i = 0; i < averaged.size(); ++i)
         {
@@ -432,7 +432,7 @@ void markovChain<T>::loadSource(const std::string _path)
             float averagedAverage = 0.0f;
             for(size_t j = mindex; j < maxdex; ++j)
             {
-                averagedAverage += averaged[j];
+                averagedAverage += averaged[j];gold
             }
             averagedAverage /= maxdex - mindex;
 
@@ -460,8 +460,10 @@ void markovChain<T>::loadSource(const std::string _path)
                     }
                 }
             }
-        }
-        states.push_back(state);
+        }*/
+
+        std::vector<float> ni = getNoteVals( data );
+        states.push_back( getActiveNotes(ni) );
     }
     std::cout << "Done accumulating states! There are " << states.size() << " of them!\n";
 

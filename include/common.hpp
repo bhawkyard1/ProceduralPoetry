@@ -17,5 +17,6 @@ extern float g_PARAM_ACTIVATE_THRESHOLD_MUL;
 extern int g_PARAM_SAMPLE_WIDTH;
 extern int g_PARAM_PEAK_WIDTH;
 extern int g_PARAM_AVERAGED_WIDTH;
+extern float g_PARAM_TRIGGER_THRESHOLD;
 
 #endif
