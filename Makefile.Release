@@ -9985,6 +9985,7 @@ obj\sampler.obj: src\sampler.cpp include\sampler.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_timer.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_mixer.h \
+		include\notes.hpp \
 		include\fft.hpp \
 		include\util.hpp \
 		C:\NGL\include\ngl\Vec2.h \

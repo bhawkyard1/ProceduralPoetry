@@ -13,25 +13,26 @@
 class sampler
 {
 public:
-    static void initialiseAudio(const int _rate, const int _channels);
-    static int getSampleRate() {return s_sampleRate;}
-    static int getChannels() {return s_channels;}
-    sampler() = default;
-    sampler(const std::string _path);
-    ~sampler();
-    void load(const std::string _path);
-    Mix_Chunk * get() {return m_snd;}
-    float getLenSecs() const {return m_len;}
-    float bytesToSecs(const int _i) {return _i / (float)(s_sampleRate * s_channels);}
+		static void initialiseAudio(const int _rate, const int _channels);
+		static int getSampleRate() {return s_sampleRate;}
+		static int getChannels() {return s_channels;}
+		sampler() = default;
+		sampler(const std::string _path);
+		~sampler();
+		void load(const std::string _path);
+		Mix_Chunk * get() {return m_snd;}
+		float getLenSecs() const {return m_len;}
+		float bytesToSecs(const int _i) {return _i / (float)(s_sampleRate * s_channels);}
 		int secsToBytes(const float _i) {return std::ceil(_i * s_sampleRate * s_channels * sizeof(int16_t));}
-    std::vector<float> sampleAudio(const float _start, const int _width);
+		std::vector<float> sampleAudio(const float _start, const int _width);
+		void denoise(std::vector<float> *_fft, float _thresholdMul);
 		void reset() {Mix_FreeChunk(m_snd);}
+		static int s_sampleRate;
+		static int s_channels;
 private:
-    Mix_Chunk * m_snd;
-    std::vector<int16_t> m_buf;
-    float m_len;
-    static int s_sampleRate;
-    static int s_channels;
+		Mix_Chunk * m_snd;
+		std::vector<int16_t> m_buf;
+		float m_len;
 };
 
 std::vector<float> getNoteVals(const std::vector<float> &_freq);

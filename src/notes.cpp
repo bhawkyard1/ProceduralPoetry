@@ -33,7 +33,7 @@ note operator+(const note &_lhs, const int _steps)
 	note ret = _lhs;
 
 	ret.m_position += _steps / 12;
-	ret.m_type = ret.m_type + mod(_steps, 12);
+	ret.m_type = static_cast<notetype>(mod(ret.m_type + _steps, 12));
 
 	return ret;
 }
