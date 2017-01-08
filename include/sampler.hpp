@@ -8,6 +8,8 @@
 #include <SDL2/SDL.h>
 #include <SDL_mixer.h>
 
+#include "notes.hpp"
+
 class sampler
 {
 public:
@@ -31,5 +33,7 @@ private:
     static int s_sampleRate;
     static int s_channels;
 };
+
+std::vector<float> getNoteVals(const std::vector<float> &_freq);
 
 #endif

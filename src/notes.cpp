@@ -60,4 +60,3 @@ int halfSteps(note _a, note _b)
 	int type = (_b.m_type - _a.m_type);
 	return octaves + type;
 }
-

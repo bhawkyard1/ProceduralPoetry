@@ -117,3 +117,32 @@ std::vector<float> sampler::sampleAudio(const float _start, const int _width)
 	return ret;
 }
 
+std::vector<float> getNoteVals (const std::vector<float> &_freq)
+{
+	std::vector<float> ret;
+	//Used to track average.
+	std::vector<size_t> num;
+	for(int octave = 0; octave < 8; ++octave)
+	{
+		for(int n = 0; n < 12; ++n)
+		{
+			ret.push_back( 0.0f );
+		}
+	}
+	num.assign( ret.size(), 0 );
+
+	for(size_t i = 0; i < _freq.size(); ++i)
+	{
+		float curfreq = i * sampler::getSampleRate() / _freq.size();
+		note closest = closestNote(curfreq);
+		size_t index = closest.m_position * 12 + closest.m_type;
+
+		ret.at( index ) += _freq[i];
+		num.at( i )++;
+	}
+
+	for(size_t i = 0; i < _freq.size(); ++i)
+		ret.at(i) /= num.at(i);
+
+	return ret;
+}

@@ -27,7 +27,7 @@ int rings = 5; //ring count
 bool autofocus = false; //use autofocus in shader? disable if you use external focalDepth value
 vec2 focus = vec2(0.5,0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
 float range = 128.0; //focal range
-float maxblur = 0.8; //clamp value of max blur
+float maxblur = 1.0; //clamp value of max blur
 
 float threshold = 0.4; //highlight threshold;
 float gain = 10.0; //highlight gain;
@@ -38,8 +38,8 @@ float fringe = 0.5; //bokeh chromatic aberration/fringing
 bool noise = true; //use noise instead of pattern for sample dithering
 float namount = 0.000001; //dither amount
 
-bool depthblur = false; //blur the depth buffer?
-float dbsize = 1.0; //depthblursize
+bool depthblur = true; //blur the depth buffer?
+float dbsize = 0.5; //depthblursize
 
 /*
 next part is experimental
@@ -168,7 +168,7 @@ void main()
         fragColour = vec4(1.0, 0.0, 0.0, 1.0);
         return;
     }*/
-    blur = clamp((abs(depth - focalDepth) / range), 0.0, maxblur);
+    blur = clamp((abs(depth - focalDepth) / range), 0.1, maxblur);
 
     if (autofocus)
     {

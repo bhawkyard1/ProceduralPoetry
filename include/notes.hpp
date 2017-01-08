@@ -23,6 +23,8 @@ struct note
 	notetype m_type;
 	int m_position;
 
+	note() = default;
+
 	note(notetype _type, int _position)
 	{
 		m_type = _type;
@@ -62,5 +64,4 @@ int halfSteps(note _a, note _b);
 const std::vector<std::string> sNotes = {"A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab" };
 
 typedef std::vector<note> notes;
-
 #endif

@@ -439,7 +439,7 @@ void markovChain<T>::loadSource(const std::string _path)
             //If this is a non-duplicate peak, add a note to the state.
             if(averaged[i] > averagedAverage * g_PARAM_ACTIVATE_THRESHOLD_MUL)
             {
-                float freq = i * sampler::getSampleRate() / averaged.size();
+								float freq = i * sampler::getSampleRate() / (averaged.size() * accWidth);
                 note closest = closestNote(freq);
 
                 if(g_PARAM_USE_OCTAVES)
