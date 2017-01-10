@@ -395,6 +395,8 @@ void markovChain<T>::loadSource(const std::string _path)
 
 	float time = 0.0f;
 
+	int sampleCount = 0;
+
 	bool done = false;
 	std::vector<T> states;
 	while(!done)
@@ -464,6 +466,11 @@ void markovChain<T>::loadSource(const std::string _path)
 				}*/
 
 		std::vector<float> ni = getNoteVals( data );
+		for(size_t i = 0; i < ni.size(); ++i)
+			g_noteIntensity[i] += ni[i];
+		sampleCount++;
+		for(size_t i = 0; i < g_noteIntensity.size(); ++i)
+			g_averageNoteIntensity[i] = g_noteIntensity[i] / sampleCount;
 		/*for(auto &i : ni)
 			std::cout << "Val " << i << '\n';*/
 		std::vector<note> activeNotes = getActiveNotes(ni);

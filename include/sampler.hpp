@@ -10,6 +10,9 @@
 
 #include "notes.hpp"
 
+extern std::vector<float> g_noteIntensity;
+extern std::vector<float> g_averageNoteIntensity;
+
 class sampler
 {
 public:

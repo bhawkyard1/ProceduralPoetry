@@ -252,6 +252,8 @@ visualiser::visualiser(size_t _order) :
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	glLineWidth(4.0f);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	clear();
 	swap();
@@ -1054,9 +1056,9 @@ void visualiser::update(const float _dt)
 			p /= dist;
 			p *= 2;
 			p += rand->getRandomNormalizedVec3();
-			float force = 512.0f * node.getInvMass() * intensityMul;
+			float force = 0.5f + 4096.0f /* node.getInvMass() */* intensityMul;
 			//std::cout << "int " << intensityMul << '\n';
-			//node.addForce( p * force * 1.0f / dist );
+			node.addForce( p * force * 128.0f / dist );
 			node.addLuminance( force );
 			//m_cameraShake += force / 20000.0f;
 		}

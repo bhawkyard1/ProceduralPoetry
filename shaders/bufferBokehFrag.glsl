@@ -38,7 +38,7 @@ float fringe = 0.5; //bokeh chromatic aberration/fringing
 bool noise = true; //use noise instead of pattern for sample dithering
 float namount = 0.000001; //dither amount
 
-bool depthblur = true; //blur the depth buffer?
+bool depthblur = false; //blur the depth buffer?
 float dbsize = 0.5; //depthblursize
 
 /*

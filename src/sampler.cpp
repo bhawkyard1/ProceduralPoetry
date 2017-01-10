@@ -8,6 +8,9 @@
 
 #include "util.hpp"
 
+std::vector<float> g_noteIntensity;
+std::vector<float> g_averageNoteIntensity;
+
 int sampler::s_sampleRate = 0;
 int sampler::s_channels = 2;
 
@@ -21,6 +24,9 @@ void sampler::initialiseAudio(const int _rate, const int _channels)
 
 	s_sampleRate = _rate;
 	s_channels = _channels;
+
+	g_noteIntensity.assign( 8 * 12, 0.0f );
+	g_averageNoteIntensity.assign( 8 * 12, 0.0f );
 }
 
 sampler::sampler(const std::string _path)
@@ -174,7 +180,7 @@ std::vector<note> getActiveNotes(const std::vector<float> &_intensities, float *
 	for(size_t i = 0; i < _intensities.size(); ++i)
 	{
 		//std::cout << _intensities[i] << '\n';
-		if( _intensities[i] < g_PARAM_TRIGGER_THRESHOLD )
+		if( _intensities[i] < g_averageNoteIntensity[i] * g_PARAM_TRIGGER_THRESHOLD )
 			continue;
 
 		note n;
@@ -184,7 +190,7 @@ std::vector<note> getActiveNotes(const std::vector<float> &_intensities, float *
 		if(n.m_position >= 0 and n.m_position <= 8)
 		{
 			//std::cout << "sub  " << _intensities[i] << " - " << g_PARAM_TRIGGER_THRESHOLD << " = " << _intensities[i] - g_PARAM_TRIGGER_THRESHOLD << " and " <<  '\n';
-			*_ints += _intensities[i] - g_PARAM_TRIGGER_THRESHOLD;
+			*_ints += _intensities[i] - g_averageNoteIntensity[i] * g_PARAM_TRIGGER_THRESHOLD;
 			active.push_back( n );
 		}
 	}
