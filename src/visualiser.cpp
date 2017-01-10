@@ -1034,7 +1034,7 @@ void visualiser::update(const float _dt)
 	std::vector<float> ni = getNoteVals( data );
 	float intensityMul = 0.0f;
 	std::vector<note> activeNotes = getActiveNotes(ni, &intensityMul);
-	//std::cout << "im " << intensityMul << '\n';
+    std::cout << "activeNotes size " << activeNotes.size() << '\n';
 	fifoQueue( &m_stateBuffer, activeNotes, m_order );
 
 	ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);

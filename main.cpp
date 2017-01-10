@@ -171,12 +171,12 @@ void visualise(markovChain<T> &_mark)
 		timer.clampAcc(0.1);
 
 		//Update the game in small time-steps (dependant on the timers fps).
-		while(timer.getAcc() > timer.getFrame())
+        while(timer.getAcc() > timer.getFrame())
 		{
 			float frame = timer.getFrame() * g_TIME_SCALE;
-			_mark.update( frame );
+            _mark.update( frame );
 			timer.incrAcc( -frame );
-		}
+        }
 
 		_mark.visualise( );
 	}

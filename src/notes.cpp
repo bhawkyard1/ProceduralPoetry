@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -60,4 +61,26 @@ int halfSteps(note _a, note _b)
 	int octaves = (_b.m_position - _a.m_position) * 12;
 	int type = (_b.m_type - _a.m_type);
 	return octaves + type;
+}
+
+bool operator==(notes &_lhs, notes &_rhs)
+{
+    return similarity( _lhs, _rhs, g_PARAM_NOTESET_SIMILARITY_TOLERANCE );
+}
+
+//Returns true if the vectors are similar enough.
+bool similarity(const notes &_lhs, const notes &_rhs, int _tolerance)
+{
+    int differences = 0;
+    for(auto &i : _lhs)
+    {
+        if(std::find(_rhs.begin(), _rhs.end(), i) == _rhs.end())
+            differences++;
+    }
+    for(auto &i : _rhs)
+    {
+        if(std::find(_lhs.begin(), _lhs.end(), i) == _lhs.end())
+            differences++;
+    }
+    return differences < _tolerance;
 }

@@ -130,7 +130,7 @@ private:
     sim_time m_timer;
     float m_cameraShake;
     size_t m_order;
-    std::vector<notes> m_stateBuffer;
+    std::vector<std::vector<note>> m_stateBuffer;
     bool m_steadicam;
 		int m_sdlchannel;
 

@@ -13,7 +13,7 @@ INCLUDEPATH += $$PWD/include
 MOC_DIR = moc
 
 SOURCES += $$PWD/main.cpp \
-                     $$PWD/src/*.cpp \
+                     $$PWD/src/*.cpp
 
 HEADERS += $$PWD/include/*.hpp
 

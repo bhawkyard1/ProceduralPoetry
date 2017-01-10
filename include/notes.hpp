@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "common.hpp"
+
 #ifdef _WIN32
 #include <ciso646>
 #endif
@@ -20,37 +22,39 @@ notetype operator+(const notetype &_lhs, const int &_rhs);
 
 struct note
 {
-	notetype m_type;
-	int m_position;
+    notetype m_type;
+    int m_position;
 
-	note() = default;
+    note() = default;
 
-	note(notetype _type, int _position)
-	{
-		m_type = _type;
-		m_position = _position;
-	}
+    note(notetype _type, int _position)
+    {
+        m_type = _type;
+        m_position = _position;
+    }
 
-		bool operator<(const note &_rhs) const
-		{
+    bool operator<(const note &_rhs) const
+    {
 #ifdef _WIN32
-				return
-								static_cast<int>(m_type) < static_cast<int>(_rhs.m_type) or
-								m_position < _rhs.m_position;
+        return
+                static_cast<int>(m_type) < static_cast<int>(_rhs.m_type) or
+                m_position < _rhs.m_position;
 #endif
 
 #ifdef __linux__
-				if(static_cast<int>(m_type) < static_cast<int>(_rhs.m_type))
-						return true;
-				else if(static_cast<int>(_rhs.m_type) < static_cast<int>(m_type))
-						return false;
-				else if(m_position < _rhs.m_position)
-						return true;
-				else if(_rhs.m_position < m_position)
-						return false;
+        if(static_cast<int>(m_type) < static_cast<int>(_rhs.m_type))
+            return true;
+        else if(static_cast<int>(_rhs.m_type) < static_cast<int>(m_type))
+            return false;
+        else if(m_position < _rhs.m_position)
+            return true;
+        else if(_rhs.m_position < m_position)
+            return false;
 #endif
-		}
+    }
 };
+
+typedef std::vector<note> notes;
 
 bool operator==(const note &_lhs, const note &_rhs);
 //bool operator<(const note &_lhs, const note &_rhs);
@@ -63,5 +67,21 @@ int halfSteps(note _a, note _b);
 
 const std::vector<std::string> sNotes = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
 
-typedef std::vector<note> notes;
+bool similarity(const notes &_lhs, const notes &_rhs, int _tolerance);
+
+struct notesComp
+{
+    bool operator()(const std::vector<notes> &_lhs, const std::vector<notes> &_rhs) const
+    {
+        for(size_t i = 0; i < _lhs.size(); ++i)
+            if( similarity( _lhs[i], _rhs[i], g_PARAM_NOTESET_SIMILARITY_TOLERANCE ) )
+                return false;
+
+        return _lhs < _rhs;
+    }
+};
+
+bool operator==(notes &_lhs, notes &_rhs);
+bool operator==(notes &_lhs, notes &_rhs);
+
 #endif
