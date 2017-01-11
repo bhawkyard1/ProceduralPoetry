@@ -81,7 +81,7 @@ struct notesComp
     }
 };
 
-bool operator==(notes &_lhs, notes &_rhs);
-bool operator==(notes &_lhs, notes &_rhs);
+bool operator==(const std::vector<notes> &_lhs, const std::vector<notes> &_rhs);
+bool operator==(const notes &_lhs, const notes &_rhs);
 
 #endif

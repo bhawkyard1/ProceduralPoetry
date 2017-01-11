@@ -8577,6 +8577,7 @@ obj\matrices.obj: src\matrices.cpp include\matrices.hpp \
 		include\common.hpp
 
 obj\notes.obj: src\notes.cpp include\notes.hpp \
+		include\common.hpp \
 		include\util.hpp \
 		C:\NGL\include\ngl\Vec2.h \
 		C:\boost\boost\python.hpp \
@@ -9931,8 +9932,7 @@ obj\notes.obj: src\notes.cpp include\notes.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_render.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_system.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_timer.h \
-		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
-		include\common.hpp
+		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h
 
 obj\physicsvars.obj: src\physicsvars.cpp include\physicsvars.hpp
 
@@ -9986,6 +9986,7 @@ obj\sampler.obj: src\sampler.cpp include\sampler.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_mixer.h \
 		include\notes.hpp \
+		include\common.hpp \
 		include\fft.hpp \
 		include\util.hpp \
 		C:\NGL\include\ngl\Vec2.h \
@@ -11298,8 +11299,7 @@ obj\sampler.obj: src\sampler.cpp include\sampler.hpp \
 		D:\Qt\5.4\msvc2013_64_opengl\include\QtOpenGL\qtopenglglobal.h \
 		D:\Qt\5.4\msvc2013_64_opengl\include\QtGui\QSurfaceFormat \
 		D:\Qt\5.4\msvc2013_64_opengl\include\QtGui\qsurfaceformat.h \
-		C:\NGL\include\ngl\Vec3.h \
-		include\common.hpp
+		C:\NGL\include\ngl\Vec3.h
 
 obj\shape.obj: src\shape.cpp C:\NGL\include\ngl\Types.h \
 		C:\NGL\include\ngl\glew.h \
@@ -13977,6 +13977,7 @@ obj\sphere.obj: src\sphere.cpp include\sphere.hpp \
 		C:\NGL\include\ngl\Vec4.h \
 		C:\NGL\include\ngl\Vec2.h \
 		include\notes.hpp \
+		include\common.hpp \
 		include\slotmap.hpp \
 		include\util.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL.h \
@@ -14021,8 +14022,7 @@ obj\sphere.obj: src\sphere.cpp include\sphere.hpp \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_render.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_system.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_timer.h \
-		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h \
-		include\common.hpp
+		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_version.h
 
 obj\util.obj: src\util.cpp C:\SDL2\i686-w64-mingw32\include\SDL2\SDL.h \
 		C:\SDL2\i686-w64-mingw32\include\SDL2\SDL_main.h \

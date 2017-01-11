@@ -63,7 +63,16 @@ int halfSteps(note _a, note _b)
 	return octaves + type;
 }
 
-bool operator==(notes &_lhs, notes &_rhs)
+bool operator==(const std::vector< notes > &_lhs, const std::vector< notes > &_rhs)
+{
+	//std::cout << _lhs.size() << " vs " << _rhs.size() << '\n';
+	bool r = true;
+	for(size_t i = 0; i < _lhs.size(); ++i)
+		r = r and similarity(_lhs.at(i), _rhs.at(i), g_PARAM_NOTESET_SIMILARITY_TOLERANCE);
+	return r;
+}
+
+bool operator==(const notes &_lhs, const notes &_rhs)
 {
     return similarity( _lhs, _rhs, g_PARAM_NOTESET_SIMILARITY_TOLERANCE );
 }
@@ -72,6 +81,8 @@ bool operator==(notes &_lhs, notes &_rhs)
 bool similarity(const notes &_lhs, const notes &_rhs, int _tolerance)
 {
     int differences = 0;
+		if(_lhs.size() == 0 or _rhs.size() == 0)
+			return false;
     for(auto &i : _lhs)
     {
         if(std::find(_rhs.begin(), _rhs.end(), i) == _rhs.end())

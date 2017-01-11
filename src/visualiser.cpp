@@ -936,7 +936,7 @@ void visualiser::update(const float _dt)
 				dist = sqrt(dist);
 				dir /= pow(dist, g_GRAVITY_ATTENUATION);
 				//Add forces to both current node and connection node (connections are one-way so we must do both here).
-				i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 2.0f );
+				i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 8.0f );
 			}
 			else
 				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
@@ -975,7 +975,6 @@ void visualiser::update(const float _dt)
 	m_timer.setCur();
 	//std::cout << "TIME : " << m_timer.getTime() << '\n';
 	std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), g_PARAM_SAMPLE_WIDTH );
-	//m_sampler.denoise( &data, g_PARAM_DENOISE_MUL );
 	/*std::vector<float> averaged;
 		averageVector( data, averaged, 2 );*/
 
@@ -1031,10 +1030,19 @@ void visualiser::update(const float _dt)
 		}
 		}*/
 
+	std::cout << "p1\n";
 	std::vector<float> ni = getNoteVals( data );
+
+	for(size_t i = 0; i < ni.size(); ++i)
+		fifoQueue( &g_noteIntensity[i], ni[i], g_noteIntensityOrder );
+	for(size_t i = 0; i < g_noteIntensity.size(); ++i)
+			g_averageNoteIntensity[i] = std::accumulate(g_noteIntensity[i].begin(), g_noteIntensity[i].end(), 0.0f) / g_noteIntensity[i].size();
+
 	float intensityMul = 0.0f;
+	std::cout << "p2\n";
 	std::vector<note> activeNotes = getActiveNotes(ni, &intensityMul);
-    std::cout << "activeNotes size " << activeNotes.size() << '\n';
+	std::cout << "p3\n";
+	//std::cout << "activeNotes size " << activeNotes.size() << '\n';
 	fifoQueue( &m_stateBuffer, activeNotes, m_order );
 
 	ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);
@@ -1042,25 +1050,29 @@ void visualiser::update(const float _dt)
 		averagePos += i.getPos();
 	averagePos /= m_nodes.size();
 
-	for(auto &node : m_nodes.m_objects)
+	if(m_stateBuffer.size() == m_order)
 	{
-		/*ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);
-		for(auto &i : *node.getConnections())
-			averagePos += m_nodes.getByID(i)->getPos();
-		averagePos /= node.getConnections()->size();*/
-		if(node.getName() == m_stateBuffer)
+		for(auto &node : m_nodes.m_objects)
 		{
-			ngl::Random * rand = ngl::Random::instance();
-			ngl::Vec3 p = node.getPos() - averagePos;
-			float dist = p.length();
-			p /= dist;
-			p *= 2;
-			p += rand->getRandomNormalizedVec3();
-			float force = 0.5f + 4096.0f /* node.getInvMass() */* intensityMul;
-			//std::cout << "int " << intensityMul << '\n';
-			node.addForce( p * force * 128.0f / dist );
-			node.addLuminance( force );
-			//m_cameraShake += force / 20000.0f;
+			/*ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);
+			for(auto &i : *node.getConnections())
+				averagePos += m_nodes.getByID(i)->getPos();
+			averagePos /= node.getConnections()->size();*/
+			if(node.getName() == m_stateBuffer)
+			{
+				ngl::Random * rand = ngl::Random::instance();
+				ngl::Vec3 p = node.getPos() - averagePos;
+				float dist = p.length();
+				p /= dist;
+				p *= 2;
+				p += rand->getRandomNormalizedVec3();
+				//std::cout << "ints " << intensityMul << '\n';
+				float force = 2.0f + 512.0f * node.getInvMass() * intensityMul;
+				//std::cout << "int " << intensityMul << '\n';
+				node.addForce( p * force * 8192.0f / dist );
+				node.addLuminance( force );
+				//m_cameraShake += force / 20000.0f;
+			}
 		}
 	}
 

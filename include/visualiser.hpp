@@ -25,7 +25,7 @@ public:
     visualiser(size_t _order);
     ~visualiser();
     void addFOV(const float _fov) {m_tfov += _fov;}
-    void addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<note> > &_state, const float _mass);
+		void addPoint(const ngl::Vec3 &_vec, const std::vector< notes > &_state, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
@@ -130,7 +130,7 @@ private:
     sim_time m_timer;
     float m_cameraShake;
     size_t m_order;
-    std::vector<std::vector<note>> m_stateBuffer;
+		std::vector< notes > m_stateBuffer;
     bool m_steadicam;
 		int m_sdlchannel;
 

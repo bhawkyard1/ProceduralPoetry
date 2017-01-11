@@ -10,7 +10,8 @@
 
 #include "notes.hpp"
 
-extern std::vector<float> g_noteIntensity;
+extern std::vector<std::vector<float>> g_noteIntensity;
+extern int g_noteIntensityOrder;
 extern std::vector<float> g_averageNoteIntensity;
 
 class sampler
@@ -28,7 +29,6 @@ public:
 		float bytesToSecs(const int _i) {return _i / (float)(s_sampleRate * s_channels);}
 		int secsToBytes(const float _i) {return std::ceil(_i * s_sampleRate * s_channels * sizeof(int16_t));}
 		std::vector<float> sampleAudio(const float _start, const int _width);
-		void denoise(std::vector<float> *_fft, float _thresholdMul);
 		void reset() {Mix_FreeChunk(m_snd);}
 		static int s_sampleRate;
 		static int s_channels;
