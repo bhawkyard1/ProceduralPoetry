@@ -192,7 +192,7 @@ void markovChain<T>::constructVisualisation()
 			pr.message(".");
 	}
 
-	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME;
+    g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_runtime"); //;gint("noteset_similarity_tolerance_runtime")/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME*/;
 
 	m_visualiser.show();
 	m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
@@ -404,12 +404,12 @@ void markovChain<T>::loadSource(const std::string _path)
 	{
 		//std::cout << "TIME : " << time;
 		//Get raw fft
-		std::vector<float> data = smpl.sampleAudio( time, g_PARAM_SAMPLE_WIDTH );
+        std::vector<float> data = smpl.sampleAudio( time, gint("sample_width_bytes") );/*g_PARAM_SAMPLE_WIDTH*/
 
-		done = g_PARAM_SAMPLE_WIDTH + smpl.secsToBytes(time) >= smpl.get()->alen;
-		time += g_PARAM_SAMPLE_TIMESTEP;
+        done = gint("sample_width_bytes")/*g_PARAM_SAMPLE_WIDTH*/ + smpl.secsToBytes(time) >= smpl.get()->alen;
+        time += gflt("sound_sample_frequency")/*g_PARAM_SAMPLE_TIMESTEP*/;
 
-		/*int accWidth = g_PARAM_SAMPLE_WIDTH / g_PARAM_AVERAGED_WIDTH;
+        /*int accWidth = gint("sample_width_bytes") / g_PARAM_AVERAGED_WIDTH;
 
 								//Average values, condense into smaller array.
 								std::vector<float> averaged;
@@ -447,7 +447,7 @@ void markovChain<T>::loadSource(const std::string _path)
 
 																if(g_PARAM_USE_OCTAVES)
 																{
-																				if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
+                                                                                if(closest.m_position > gint("min_octave")/*g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < gint("max_octave")g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
 																				{
 																								//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
 																								state.push_back( closest );

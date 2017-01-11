@@ -21,6 +21,8 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
+    loadConfig();
+
     markovChain<notes> mark (2);
 	printer pr;
 

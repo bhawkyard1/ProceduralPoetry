@@ -25,7 +25,7 @@ void sampler::initialiseAudio(const int _rate, const int _channels)
 
     s_sampleRate = _rate;
     s_channels = _channels;
-    g_noteIntensityOrder = 1.0f / g_PARAM_SAMPLE_TIMESTEP * g_PARAM_NOTE_INTENSITY_ACCUMULATION;
+    g_noteIntensityOrder = 1.0f / gflt("sound_sample_frequency")/*g_PARAM_SAMPLE_TIMESTEP*/ * gflt("intensity_accumulation_secs")/*g_PARAM_NOTE_INTENSITY_ACCUMULATION*/;
 
     //g_noteIntensity.assign( 8 * 12, 0.0f );
     g_averageNoteIntensity.assign( 8 * 12, 0.0f );
@@ -204,7 +204,7 @@ std::vector<note> getActiveNotes(const std::vector<float> &_intensities, float *
     std::vector<note> active;
     for(size_t i = 0; i < _intensities.size(); ++i)
     {
-        float m = std::min( g_averageNoteIntensity[i] * g_PARAM_TRIGGER_THRESHOLD, average * g_PARAM_TRIGGER_THRESHOLD );
+        float m = std::min( g_averageNoteIntensity[i] * gflt("intensity_trigger_threshold")/*g_PARAM_TRIGGER_THRESHOLD*/, average * gflt("intensity_trigger_threshold")/*g_PARAM_TRIGGER_THRESHOLD*/ );
         //std::cout << _intensities[i] << '\n';
         if( _intensities[i] < m )
             continue;
@@ -215,7 +215,7 @@ std::vector<note> getActiveNotes(const std::vector<float> &_intensities, float *
 
         if(n.m_position >= 0 and n.m_position <= 8)
         {
-            //std::cout << "sub  " << _intensities[i] << " - " << g_PARAM_TRIGGER_THRESHOLD << " = " << _intensities[i] - g_PARAM_TRIGGER_THRESHOLD << " and " <<  '\n';
+            //std::cout << "sub  " << _intensities[i] << " - " << gflt("intensity_trigger_threshold")/*g_PARAM_TRIGGER_THRESHOLD*/ << " = " << _intensities[i] - gflt("intensity_trigger_threshold")/*g_PARAM_TRIGGER_THRESHOLD*/ << " and " <<  '\n';
             *_ints += _intensities[i] - m;
             active.push_back( n );
         }

@@ -936,7 +936,7 @@ void visualiser::update(const float _dt)
                 dist = sqrt(dist);
                 dir /= pow(dist, g_GRAVITY_ATTENUATION);
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
-                i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 2.0f );
+                i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 6.0f );
             }
             else
                 i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
@@ -974,7 +974,7 @@ void visualiser::update(const float _dt)
 
     m_timer.setCur();
     //std::cout << "TIME : " << m_timer.getTime() << '\n';
-    std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), g_PARAM_SAMPLE_WIDTH );
+    std::vector<float> data = m_sampler.sampleAudio( m_timer.getTime(), gint("SAMPLE_WIDTH_BYTES")/*G_PARAM_SAMPLE_WIDTH*/ );
     /*std::vector<float> averaged;
         averageVector( data, averaged, 2 );*/
 
@@ -1010,7 +1010,7 @@ void visualiser::update(const float _dt)
 
             if(g_PARAM_USE_OCTAVES)
             {
-                if(closest.m_position > g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
+                if(closest.m_position > gint("min_octave")g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < gint("max_octave")/*g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
                 {
                     //std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
                     state.push_back( closest);
@@ -1058,7 +1058,6 @@ void visualiser::update(const float _dt)
             averagePos /= node.getConnections()->size();*/
             if(node.getName() == m_stateBuffer)
             {
-                ngl::Random * rand = ngl::Random::instance();
                 ngl::Vec3 p = node.getPos() - averagePos;
                 float dist = p.length();
                 p /= dist;
@@ -1074,6 +1073,7 @@ void visualiser::update(const float _dt)
         }
     }
 
+    m_cameraShake += intensityMul * 8.0f;
     m_cameraShake = std::min(m_cameraShake, 10.0f);
     m_cameraShake *= 0.9f;
 }

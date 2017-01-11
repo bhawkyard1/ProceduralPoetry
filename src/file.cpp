@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "common.hpp"
 #include "file.hpp"
@@ -10,9 +11,13 @@
 
 std::vector<std::string> getSources()
 {
-    std::vector<std::string> ret;
+    return getLinesFromFile( g_RESOURCE_LOC + "/sources.txt" );
+}
 
-    std::ifstream src( g_RESOURCE_LOC + "sources.txt");
+std::vector<std::string> getLinesFromFile(const std::string &_path)
+{
+    std::vector<std::string> ret;
+    std::ifstream src( _path );
 
     std::string cur;
 
@@ -47,3 +52,4 @@ std::vector<std::string> loadMarkovSource(const std::string _path)
 
     return ret;
 }
+
