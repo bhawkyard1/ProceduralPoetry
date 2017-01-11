@@ -93,5 +93,5 @@ bool similarity(const notes &_lhs, const notes &_rhs, int _tolerance)
         if(std::find(_lhs.begin(), _lhs.end(), i) == _lhs.end())
             differences++;
     }
-    return differences < _tolerance;
+    return differences <= _tolerance;
 }
