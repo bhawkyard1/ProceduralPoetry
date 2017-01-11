@@ -15,8 +15,8 @@ uniform sampler2D emissive;
 uniform int activeLights;
 
 vec3 sssCol = vec3(0.8, 0.1, 0.2);
-vec3 fogCol = vec3(0.02, 0.02, 0.04);
-float fogDist = 512.0;
+vec3 fogCol = vec3(0.01, 0.01, 0.0125);
+float fogDist = 1024.0;
 
 layout( location = 0 ) out vec4 outDiffuse;
 layout( location = 1 ) out float outDepth;

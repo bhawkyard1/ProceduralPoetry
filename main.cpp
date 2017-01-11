@@ -21,9 +21,10 @@ int main(int argc, char* argv[])
 {
 	std::cout << "Oh heck!\n";
 
-    loadConfig();
+	loadConfig();
+	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_build");
 
-    markovChain<notes> mark (2);
+	markovChain<notes> mark (2);
 	printer pr;
 
 	bool done = false;
@@ -173,12 +174,12 @@ void visualise(markovChain<T> &_mark)
 		timer.clampAcc(0.1);
 
 		//Update the game in small time-steps (dependant on the timers fps).
-        while(timer.getAcc() > timer.getFrame())
+		while(timer.getAcc() > timer.getFrame())
 		{
 			float frame = timer.getFrame() * g_TIME_SCALE;
-            _mark.update( frame );
+			_mark.update( frame );
 			timer.incrAcc( -frame );
-        }
+		}
 
 		_mark.visualise( );
 	}

@@ -5,6 +5,11 @@
 #include <Windows.h>
 #endif
 
+printer::~printer()
+{
+	setColour(GREY);
+}
+
 void printer::message(const std::string &_msg, const textColour _col)
 {
     setColour( _col );

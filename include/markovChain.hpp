@@ -192,7 +192,7 @@ void markovChain<T>::constructVisualisation()
 			pr.message(".");
 	}
 
-    g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_runtime"); //;gint("noteset_similarity_tolerance_runtime")/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME*/;
+	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_runtime"); //;gint("noteset_similarity_tolerance_runtime")/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME*/;
 
 	m_visualiser.show();
 	m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
@@ -402,80 +402,25 @@ void markovChain<T>::loadSource(const std::string _path)
 	std::vector<T> states;
 	while(!done)
 	{
-		//std::cout << "TIME : " << time;
+		//std::cout << "TIME : " << time << '\n';
 		//Get raw fft
-        std::vector<float> data = smpl.sampleAudio( time, gint("sample_width_bytes") );/*g_PARAM_SAMPLE_WIDTH*/
+		std::vector<float> data = smpl.sampleAudio( time, gint("sample_width_bytes") );/*g_PARAM_SAMPLE_WIDTH*/
 
-        done = gint("sample_width_bytes")/*g_PARAM_SAMPLE_WIDTH*/ + smpl.secsToBytes(time) >= smpl.get()->alen;
-        time += gflt("sound_sample_frequency")/*g_PARAM_SAMPLE_TIMESTEP*/;
-
-        /*int accWidth = gint("sample_width_bytes") / g_PARAM_AVERAGED_WIDTH;
-
-								//Average values, condense into smaller array.
-								std::vector<float> averaged;
-								averageVector(data, averaged, accWidth);*/
-
-		//Create the state, std::vector<note> being played.
-		//std::vector<note> state;
-		/*state.reserve( g_PARAM_AVERAGED_WIDTH );
-								//Create nodes based on averages.
-								for(size_t i = 0; i < averaged.size(); ++i)
-								{
-												//Min and max indexes to search for peak.
-												int mindex = i - g_PARAM_PEAK_WIDTH / 2;
-												int maxdex = i + g_PARAM_PEAK_WIDTH / 2;
-												if(mindex < 0)
-																maxdex += -mindex;
-												if(maxdex > averaged.size())
-																mindex += averaged.size() - maxdex;
-												mindex = std::max(0, mindex);
-												maxdex = std::min((int)averaged.size() , maxdex);
-
-												//Get average around current index. Average of an average, I know. This probably isn't very nice to read.
-												float averagedAverage = 0.0f;
-												for(size_t j = mindex; j < maxdex; ++j)
-												{
-																averagedAverage += averaged[j];gold
-												}
-												averagedAverage /= maxdex - mindex;
-
-												//If this is a non-duplicate peak, add a note to the state.
-												if(averaged[i] > averagedAverage * g_PARAM_ACTIVATE_THRESHOLD_MUL)
-												{
-																float freq = i * sampler::getSampleRate() / (averaged.size() * accWidth);
-																note closest = closestNote(freq);
-
-																if(g_PARAM_USE_OCTAVES)
-																{
-                                                                                if(closest.m_position > gint("min_octave")/*g_PARAM_OCTAVE_MIN_CLIP and closest.m_position < gint("max_octave")g_PARAM_OCTAVE_MAX_CLIP and std::find(state.begin(), state.end(), closest) == state.end())
-																				{
-																								//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-																								state.push_back( closest );
-																				}
-																}
-																else
-																{
-																				closest.m_position = 0;
-																				if(std::find(state.begin(), state.end(), closest) == state.end())
-																				{
-																								//std::cout << "Adding note " << closest.m_type << " " << closest.m_position << '\n';
-																								state.push_back( closest );
-																				}
-																}
-												}
-								}*/
+		done = gint("sample_width_bytes")/*g_PARAM_SAMPLE_WIDTH*/ + smpl.secsToBytes(time) >= smpl.get()->alen;
+		time += 1.0f / gflt("sound_sample_frequency")/*g_PARAM_SAMPLE_TIMESTEP*/;
 
 		std::vector<float> ni = getNoteVals( data );
 
 		for(size_t i = 0; i < ni.size(); ++i)
 			fifoQueue( &g_noteIntensity[i], ni[i], g_noteIntensityOrder );
 		for(size_t i = 0; i < g_noteIntensity.size(); ++i)
+		{
+			auto a = std::accumulate(g_noteIntensity[i].begin(), g_noteIntensity[i].end(), 0.0f);
+			//std::cout << "a " << a << '\n';
 			g_averageNoteIntensity[i] = std::accumulate(g_noteIntensity[i].begin(), g_noteIntensity[i].end(), 0.0f) / g_noteIntensity[i].size();
+		}
 
-		/*for(auto &i : ni)
-						std::cout << "Val " << i << '\n';*/
 		std::vector<note> activeNotes = getActiveNotes(ni);
-		//std::cout << "activeNotes size " << activeNotes.size() << '\n';
 		if(activeNotes.size() > 0)
 			states.push_back( activeNotes );
 	}
@@ -495,19 +440,11 @@ void markovChain<T>::loadSource(const std::string _path)
 		{
 			if(i + 1 < states.size())
 			{
-				/*m_states.insert(std::make_pair(m_seekBuffer, markovState<T>() ));
-																m_states.at( m_seekBuffer ).addConnection( states[i + 1] );*/
 				m_states[m_seekBuffer].addConnection( states[i + 1] );
 			}
 		}
 	}
 	std::cout << "m_states size is " << m_states.size() << '\n';
-
-	/* for(auto &state : m_states)
-				{
-								std::cout << "state " << &state << " has : " << state.second.getNumConnections() << '\n';
-				}
-				std::cout << "Loaded, m_states.size() = " << m_states.size() << '\n';*/
 }
 
 template<class T>
