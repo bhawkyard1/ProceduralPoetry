@@ -209,6 +209,12 @@ void main()
     col /= s;
 
     fragColour.rgb = col;
+
+    /*if(depth > 500 && depth < 750)
+    {
+        fragColour.rgb = vec3(1.0, 0.0, 0.0);
+    }*/
+
     //fragColour.rgb = vec3(depth);
     fragColour.a = 1.0;
 }

@@ -23,7 +23,8 @@
 visualiser::visualiser(size_t _order) :
 	m_timer(0.0f),
 	m_lockedCamera(true),
-	m_steadicam(false)
+    m_steadicam(false),
+    m_threadPool( 16 )
 {
 	m_order = _order;
 	std::cout << "p0\n";
@@ -194,7 +195,7 @@ visualiser::visualiser(size_t _order) :
 
 	for(int i = 0; i < 4; ++i)
 	{
-		std::string name ("sphereLOD" + std::to_string( i ));
+        std::string name ("sphereLO128D" + std::to_string( i ));
 		prim->createSphere(
 					name,
 					1.0f,
@@ -276,7 +277,7 @@ void visualiser::addPoint(const ngl::Vec3 &_vec, const std::vector<std::vector<n
 void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl)
 {
 	std::vector<sphere *> outNodes;
-	outNodes.reserve( _nodes.size() / 4 );
+    //outNodes.reserve( _nodes.size() / 4 );
 	unsigned short count = 0;
 
 	for(auto &i : _nodes)
@@ -288,7 +289,7 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 		}
 	}
 
-	if(count <= 4 or _lvl > 5)
+    if(count <= 16 or _lvl > 4)
 		m_partitions.push_back( outNodes );
 	else
 	{
@@ -308,7 +309,7 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 								);
 				}
 	}
-}
+}//0.002~
 
 void visualiser::castRayGetNode()
 {
@@ -714,7 +715,7 @@ void visualiser::mouseDown(SDL_Event _event)
 		{
 			m_lmb = true;
 		}
-		break;
+        break;
 	case SDL_BUTTON_MIDDLE:
 		m_mmb = true;
 		break;
@@ -761,78 +762,96 @@ void visualiser::setBufferLocation(GLuint _buffer, int _index, int _size)
 void visualiser::narrowPhase()
 {
 	//std::cout << "Narrow phase start!\n";
-	for(size_t i = 0; i < m_partitions.size(); ++i)
+    for(size_t i = 0; i < m_partitions.size(); i += m_threadPool.size())
 	{
-		//std::cout << "Partition " << i << " of " << m_partitions.size() << ". Size : " << m_partitions[i].size() << '\n';
-		for(size_t j = 0; j < m_partitions[i].size(); ++j)
-		{
-			auto a = m_partitions[i][j];
-			for(size_t k = j; k < m_partitions[i].size(); ++k)
-			{
-				auto b = m_partitions[i][k];
-				if(a == b)
-					continue;
-
-				ngl::Vec3 normal = b->getPos() - a->getPos();
-
-				float ar = a->getRadius();
-				float br = b->getRadius();
-
-				float dist = normal.lengthSquared();
-				if( dist > sqr(ar + br) )
-					continue;
-
-				dist = sqrt(dist);
-				normal /= dist;
-
-				float aim = a->getInvMass();
-				float bim = b->getInvMass();
-				float sumMass = aim + bim;
-
-				float penetration = (ar + br) - dist;
-				penetration = std::max(penetration - (ar + br) * g_BALL_PENETRATION_LENIENCY, 0.0f);
-				penetration /= sumMass;
-				penetration *= 0.2f;
-
-				if(dist == 0.0f)
-				{
-					penetration = ar;
-					normal = ngl::Vec3(0.0f, 1.0f, 0.0f);
-				}
-
-				ngl::Vec3 toMove = normal * penetration;
-
-				a->addPos( -toMove * aim / sumMass );
-				b->addPos( toMove * bim / sumMass );
-
-				ngl::Vec3 rv = b->getVel() - a->getVel();
-				float separation = rv.dot( normal );
-
-				if(separation >= 0.0f) continue;
-
-				float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
-				force /= sumMass;
-
-				ngl::Vec3 impulse = force * normal;
-
-				/*a->setVel(ngl::Vec3(0,0,0));
-																b->setVel(ngl::Vec3(0,0,0));*/
-				a->addVel( -aim * impulse );
-				b->addVel( bim * impulse );
-
-				if(force > 0.05f)
-				{
-					a->addLuminance(force * aim / sumMass * 0.01f);
-					b->addLuminance(force * bim / sumMass * 0.01f);
-				}
-			}
-		}
+        //m_threadPool[i] = std::thread( &visualiser::resolvePartition, this, i );
+        for(size_t t = 0; t < m_threadPool.size() and (i + t < m_partitions.size()); ++t)
+        {
+            m_threadPool[t] = std::thread( &visualiser::resolvePartition, this, i + t );
+        }
+        for(size_t i = 0; i < m_threadPool.size(); ++i)
+        {
+            if(m_threadPool[i].joinable())
+                m_threadPool[i].join();
+        }
 	}
+
 	//std::cout << "Narrow phase end!\n";
+}
+
+void visualiser::resolvePartition(const size_t _i)
+{
+    //std::cout << "Partition " << i << " of " << m_partitions.size() << ". Size : " << m_partitions[i].size() << '\n';
+    for(size_t j = 0; j < m_partitions[_i].size(); ++j)
+    {
+        auto a = m_partitions[_i][j];
+        for(size_t k = j; k < m_partitions[_i].size(); ++k)
+        {
+            auto b = m_partitions[_i][k];
+            if(a == b)
+                continue;
+
+            ngl::Vec3 normal = b->getPos() - a->getPos();
+
+            float ar = a->getRadius();
+            float br = b->getRadius();
+
+            float dist = normal.lengthSquared();
+            if( dist > sqr(ar + br) )
+                continue;
+
+            dist = sqrt(dist);
+            normal /= dist;
+
+            float aim = a->getInvMass();
+            float bim = b->getInvMass();
+            float sumMass = aim + bim;
+
+            float penetration = (ar + br) - dist;
+            penetration = std::max(penetration - (ar + br) * g_BALL_PENETRATION_LENIENCY, 0.0f);
+            penetration /= sumMass;
+            penetration *= 0.2f;
+
+            if(dist == 0.0f)
+            {
+                penetration = ar;
+                normal = ngl::Vec3(0.0f, 1.0f, 0.0f);
+            }
+
+            ngl::Vec3 toMove = normal * penetration;
+
+            a->addPos( -toMove * aim / sumMass );
+            b->addPos( toMove * bim / sumMass );
+
+            ngl::Vec3 rv = b->getVel() - a->getVel();
+            float separation = rv.dot( normal );
+
+            if(separation >= 0.0f) continue;
+
+            float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
+            force /= sumMass;
+
+            ngl::Vec3 impulse = force * normal;
+
+            /*a->setVel(ngl::Vec3(0,0,0));
+                                                            b->setVel(ngl::Vec3(0,0,0));*/
+            a->addVel( -aim * impulse );
+            b->addVel( bim * impulse );
+
+            if(force > 0.05f)
+            {
+                a->addLuminance(force * aim / sumMass * 0.01f);
+                b->addLuminance(force * bim / sumMass * 0.01f);
+            }
+        }
+    }
 }
 
 void visualiser::update(const float _dt)
 {
+    sim_time d (0.0f);
+    d.setStart();
+
 	m_cam.clearTransforms();
 
 	float interpDiv = 8.0f;
@@ -955,8 +974,16 @@ void visualiser::update(const float _dt)
 
 	std::pair<ngl::Vec3, ngl::Vec3> initBox = lim( points );
 
+    d.setCur();
+
 	broadPhase( initBox.first, initBox.second, initNodes, 0 );
+
+    d.setCur();
+    std::cout << "      Broad phase time " << d.getDiff() << " seconds, " << m_partitions.size() << " entries\n";
+
 	narrowPhase();
+    d.setCur();
+    std::cout << "      Narrow phase time " << d.getDiff() << " seconds\n";
 
 	for(auto &i : m_nodes.m_objects)
 	{

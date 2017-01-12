@@ -19,7 +19,8 @@ HEADERS += $$PWD/include/*.hpp
 
 OTHER_FILES += readme.md \
                            ./shaders/*.glsl \
-                           ./resources/*.txt
+                           ./resources/*.txt \
+                           ./config.txt
 
 CONFIG += console
 

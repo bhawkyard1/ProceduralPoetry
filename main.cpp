@@ -167,7 +167,11 @@ void visualise(markovChain &_mark)
 
 		timer.setCur();
 
-		timer.clampAcc(0.1);
+        timer.clampAcc(0.05);
+
+        sim_time d (0.0f);
+
+        d.setStart();
 
 		//Update the game in small time-steps (dependant on the timers fps).
 		while(timer.getAcc() > timer.getFrame())
@@ -177,7 +181,12 @@ void visualise(markovChain &_mark)
 			timer.incrAcc( -frame );
 		}
 
+        d.setCur();
+        std::cout << "Update time : " << d.getDiff() << " seconds\n";
+
 		_mark.visualise( );
+        d.setCur();
+        std::cout << "Draw time : " << d.getDiff() << " seconds\n";
 	}
 	_mark.hideVisualiser();
 }

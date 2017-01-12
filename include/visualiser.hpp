@@ -1,6 +1,8 @@
 #ifndef VISUALISER_HPP
 #define VISUALISER_HPP
 
+#include <thread>
+
 #include <SDL2/SDL.h>
 
 #include <ngl/Camera.h>
@@ -25,7 +27,7 @@ public:
     visualiser(size_t _order);
     ~visualiser();
     void addFOV(const float _fov) {m_tfov += _fov;}
-		void addPoint(const ngl::Vec3 &_vec, const std::vector< notes > &_state, const float _mass);
+    void addPoint(const ngl::Vec3 &_vec, const std::vector< notes > &_state, const float _mass);
     void broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sphere *> &_nodes, unsigned short _lvl);
     void castRayGetNode();
     void clearPoints() {m_nodes.clear();}
@@ -42,12 +44,13 @@ public:
     void mouseDown(SDL_Event _event);
     void mouseWheel(int _dir);
     void narrowPhase();
+    void resolvePartition(const size_t _i);
     void show() {SDL_ShowWindow( m_window );}
     void swap() {SDL_GL_SwapWindow(m_window);}
     void update(const float _dt);
 
     void sound(const std::string _path);
-		void stopSound();
+    void stopSound();
 
     void resetPos()
     {
@@ -130,15 +133,17 @@ private:
     sim_time m_timer;
     float m_cameraShake;
     size_t m_order;
-		std::vector< notes > m_stateBuffer;
+    std::vector< notes > m_stateBuffer;
     bool m_steadicam;
-		int m_sdlchannel;
+    int m_sdlchannel;
 
-		std::vector<ngl::Vec3> m_genericVerts;
-		std::vector<ngl::Vec2> m_genericUVs;
-		std::vector<float> m_genericData;
-		GLuint m_genericVAO;
-		std::vector<GLuint> m_genericVBOs;
+    std::vector<ngl::Vec3> m_genericVerts;
+    std::vector<ngl::Vec2> m_genericUVs;
+    std::vector<float> m_genericData;
+    GLuint m_genericVAO;
+    std::vector<GLuint> m_genericVBOs;
+
+    std::vector<std::thread> m_threadPool;
 };
 
 #endif
