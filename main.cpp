@@ -11,11 +11,9 @@
 
 #define LEV_THRESHOLD 2
 
-template<class T>
-void processInput(const std::string &_input, markovChain<T> &_mark);
+void processInput(const std::string &_input, markovChain &_mark);
 
-template<class T>
-void visualise( markovChain<T> &_mark );
+void visualise( markovChain &_mark );
 
 int main(int argc, char* argv[])
 {
@@ -24,7 +22,7 @@ int main(int argc, char* argv[])
 	loadConfig();
 	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_build");
 
-	markovChain<notes> mark (2);
+	markovChain mark (2);
 	printer pr;
 
 	bool done = false;
@@ -43,8 +41,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-template<class T>
-void processInput(const std::string &_input, markovChain<T> &_mark)
+void processInput(const std::string &_input, markovChain &_mark)
 {
 	printer pr;
 	std::vector<std::string> cmds = split( _input, ' ' );
@@ -104,8 +101,7 @@ void processInput(const std::string &_input, markovChain<T> &_mark)
 	std::cin.clear();
 }
 
-template<class T>
-void visualise(markovChain<T> &_mark)
+void visualise(markovChain &_mark)
 {
 	sim_time timer(120.0f);
 	bool done = false;
