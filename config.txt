@@ -15,3 +15,7 @@ stickiness 0.9
 stickiness_radius_mul 1.0
 collision_energy_conservation 0.1
 gravity_attentuation 1.0
+
+#Graphical parameters
+win_width 1920
+win_height 1080
