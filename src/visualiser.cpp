@@ -955,7 +955,7 @@ void visualiser::update(const float _dt)
 				dist = sqrt(dist);
 				dir /= pow(dist, g_GRAVITY_ATTENUATION);
 				//Add forces to both current node and connection node (connections are one-way so we must do both here).
-				i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 4.0f );
+				i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 2.0f );
 			}
 			else
 				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
