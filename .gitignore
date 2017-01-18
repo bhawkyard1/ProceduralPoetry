@@ -3,4 +3,5 @@
 *.obj
 *.o
 *.wav
+*.dll
 Makefile

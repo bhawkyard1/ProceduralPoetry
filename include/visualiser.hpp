@@ -45,7 +45,7 @@ public:
 	void mouseWheel(int _dir);
 	void narrowPhase();
 	void resolvePartition(const size_t _i);
-	void show() {SDL_ShowWindow( m_window );}
+	void show() {SDL_ShowWindow( m_window ); SDL_MaximizeWindow( m_window );}
 	void swap() {SDL_GL_SwapWindow(m_window);}
 	void update(const float _dt);
 
@@ -144,6 +144,7 @@ private:
 	std::vector<GLuint> m_genericVBOs;
 
 	std::vector<std::thread> m_threadPool;
+	int m_thread;
 
 	ngl::Vec3 m_rimLightTCol;
 	ngl::Vec3 m_rimLightCCol;

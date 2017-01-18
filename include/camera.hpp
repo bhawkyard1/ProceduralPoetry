@@ -28,19 +28,19 @@ public:
 	void setInitPivot(const ngl::Vec3 &_pivot) {m_initPivot = _pivot;}
 	void setUp(const ngl::Vec3 &_up) {m_up = _up;}
 
-    void moveCamera(const ngl::Vec3 _translation);
-    void moveWorld(const ngl::Vec3 _translation);
-    void rotateCamera(const float _pitch, const float _yaw, const float _roll);
-    void rotateWorld(const float _pitch, const float _yaw, const float _roll);
-    void transformCamera(const ngl::Mat4 _trans) {m_cameraTransformationStack.push_back(_trans);}
-    void transformWorld(const ngl::Mat4 _trans) {m_worldTransformationStack.push_back(_trans);}
+	void moveCamera(const ngl::Vec3 _translation);
+	void moveWorld(const ngl::Vec3 _translation);
+	void rotateCamera(const float _pitch, const float _yaw, const float _roll);
+	void rotateWorld(const float _pitch, const float _yaw, const float _roll);
+	void transformCamera(const ngl::Mat4 _trans) {m_cameraTransformationStack.push_back(_trans);}
+	void transformWorld(const ngl::Mat4 _trans) {m_worldTransformationStack.push_back(_trans);}
 
-    void clearTransforms() {m_cameraTransformationStack.clear(); m_worldTransformationStack.clear();}
+	void clearTransforms() {m_cameraTransformationStack.clear(); m_worldTransformationStack.clear();}
 
-    ngl::Vec3 back() {return m_V.transpose().getBackVector();}
-    ngl::Vec3 forwards() {return m_V.transpose().getForwardVector();}
-	ngl::Vec3 up() {return m_V.getUpVector();}
-	ngl::Vec3 right() {return m_V.transpose().getRightVector();}
+	ngl::Vec3 back() {return ngl::Mat4(m_V).transpose().getBackVector();}
+	ngl::Vec3 forwards() {return ngl::Mat4(m_V).transpose().getForwardVector();}
+	ngl::Vec3 up() {return ngl::Mat4(m_V).getUpVector();}
+	ngl::Vec3 right() {return ngl::Mat4(m_V).transpose().getRightVector();}
 private:
 	float m_fov;
 	float m_aspect;
@@ -50,19 +50,19 @@ private:
 	ngl::Vec3 m_pivot;
 	ngl::Vec3 m_initPivot;
 
-    std::vector<ngl::Mat4> m_cameraTransformationStack;
-    ngl::Mat4 m_cameraTransformation;
-    std::vector<ngl::Mat4> m_worldTransformationStack;
-    ngl::Mat4 m_worldTransformation;
+	std::vector<ngl::Mat4> m_cameraTransformationStack;
+	ngl::Mat4 m_cameraTransformation;
+	std::vector<ngl::Mat4> m_worldTransformationStack;
+	ngl::Mat4 m_worldTransformation;
 
 	ngl::Mat4 m_P;
 	ngl::Mat4 m_V;
-	ngl::Mat4 m_VP;	
+	ngl::Mat4 m_VP;
 
 	ngl::Vec3 m_up = ngl::Vec3(0.0f, 1.0f, 0.0f);
 
-    ngl::Mat4 rotationMatrix(float _pitch, float _yaw, float _roll);
-    ngl::Mat4 translationMatrix(const ngl::Vec3 &_vec);
+	ngl::Mat4 rotationMatrix(float _pitch, float _yaw, float _roll);
+	ngl::Mat4 translationMatrix(const ngl::Vec3 &_vec);
 };
 
 #endif

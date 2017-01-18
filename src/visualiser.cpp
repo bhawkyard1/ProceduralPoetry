@@ -13,12 +13,16 @@
 
 #include <time.h>
 
+#include <mutex>
+
 #include "common.hpp"
 #include "physicsvars.hpp"
 #include "printer.hpp"
 #include "shape.hpp"
 #include "visualiser.hpp"
 #include "util.hpp"
+
+std::mutex m;
 
 visualiser::visualiser(size_t _order) :
 	m_timer(0.0f),
@@ -66,7 +70,7 @@ visualiser::visualiser(size_t _order) :
 	m_window = SDL_CreateWindow("mGen",
 															0, 0,
 															m_w, m_h,
-															SDL_WINDOW_OPENGL );
+															SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
 
 	if(!m_window)
 		errorExit("Unable to create window");
@@ -241,7 +245,7 @@ visualiser::visualiser(size_t _order) :
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glLineWidth(4.0f);
+	glLineWidth(1.0f);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	clear();
@@ -249,7 +253,7 @@ visualiser::visualiser(size_t _order) :
 	hide();
 
 	ngl::Random * r = ngl::Random::instance();
-	m_rimLightTCol = r->getRandomNormalizedVec3();
+	m_rimLightTCol = (r->getRandomNormalizedVec3() + ngl::Vec3(1.0f, 1.0f, 1.0f)) / 2.0f;
 	m_rimLightCCol = m_rimLightCCol;
 }
 
@@ -282,7 +286,9 @@ void visualiser::broadPhase(ngl::Vec3 _min, ngl::Vec3 _max, const std::vector<sp
 	}
 
 	if(count <= 8 or _lvl > 3)
-		m_partitions.push_back( outNodes );
+	{
+		m_partitions.push_back(outNodes);
+	}
 	else
 	{
 		ngl::Vec3 dim = _max - _min;
@@ -602,6 +608,8 @@ void visualiser::finalise()
 	ngl::Vec3 camPos = m_cam.getPos(); //m_V * m_cam.getEye() - m_camCLook;
 	slib->setRegisteredUniform( "camPos", camPos );
 	slib->setRegisteredUniform( "camDir", m_cam.forwards() );
+	slib->setRegisteredUniform( "rimLightCol", m_rimLightCCol );
+
 	glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindVertexArray(m_genericVAO);
@@ -852,7 +860,7 @@ void visualiser::update(const float _dt)
 	if(m_steadicam)
 		interpDiv = 64.0f;
 
-	m_rimLightCCol += (m_rimLightTCol - m_rimLightCCol) * _dt * 0.1f;
+	m_rimLightCCol += (m_rimLightTCol - m_rimLightCCol) * _dt;
 
 	m_fov += (m_tfov - m_fov) / interpDiv;
 	m_cam.setFOV(m_fov);
@@ -972,7 +980,17 @@ void visualiser::update(const float _dt)
 
 	//d.setCur();
 
+	m_thread = 0;
 	broadPhase( initBox.first, initBox.second, initNodes, 0 );
+	for(auto &thread : m_threadPool)
+	{
+		if(thread.joinable())
+		{
+			std::cout << "pre join\n";
+			thread.join();
+			std::cout << "post join\n";
+		}
+	}
 
 	/*d.setCur();
 	std::cout << "      Broad phase time " << d.getDiff() << " seconds, " << m_partitions.size() << " entries\n";*/
@@ -1003,8 +1021,8 @@ void visualiser::update(const float _dt)
 	//std::cout << "activeNotes size " << activeNotes.size() << '\n';
 	fifoQueue( &m_stateBuffer, activeNotes, m_order );
 
-	if(intensityMul > 0.01f)
-		m_rimLightTCol = rand->getRandomNormalizedVec3();
+	if(intensityMul > 0.01)
+		m_rimLightTCol = (rand->getRandomNormalizedVec3() + ngl::Vec3(1.0f, 1.0f, 1.0f)) / 2.0f;
 
 	ngl::Vec3 averagePos = ngl::Vec3(0.0f, 0.0f, 0.0f);
 	for(auto &i : m_nodes.m_objects)
@@ -1029,13 +1047,13 @@ void visualiser::update(const float _dt)
 				//std::cout << "ints " << intensityMul << '\n';
 				float force = 1.0f + 256.0f * node.getInvMass() * intensityMul;
 				//std::cout << "int " << intensityMul << '\n';
-				node.addForce( p * force * 8192.0f / dist );
+				node.addForce( p * force * 5000.0f / dist );
 				node.addLuminance( force );
 				//m_cameraShake += force / 20000.0f;
 			}
 		}
 	}
-	m_cameraShake += intensityMul;
+	m_cameraShake += intensityMul * 2.0f;
 	m_cameraShake = std::min(m_cameraShake, 10.0f);
 	m_cameraShake *= 0.9f;
 }

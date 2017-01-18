@@ -5,6 +5,7 @@
 in vec2 UV;
 
 uniform vec3 camPos;
+uniform vec3 camDir;
 
 uniform sampler2D diffuse;
 uniform sampler2D normal;
@@ -13,6 +14,8 @@ uniform sampler2D radius;
 uniform sampler2D emissive;
 
 uniform int activeLights;
+
+uniform vec3 rimLightCol;
 
 vec3 sssCol = vec3(0.8, 0.1, 0.2);
 vec3 fogCol = vec3(0.01, 0.01, 0.0125);
@@ -40,10 +43,10 @@ struct dirLight
     float lum;
 };
 
-float dotLight( vec3 lv, vec3 nv )
+float dotLight( vec3 lv, vec3 nv, float tolerance )
 {
     //Normal based multiplier.
-    float mul = dot( lv, nv );
+    float mul = dot( lv, nv ) + tolerance;
     mul = clamp( mul, 0.0f, 1.0f );
 
     return mul;
@@ -58,7 +61,7 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 
     len = 0.125 * pow(len, 2.0);
     //Normal based multiplier.
-    float mul = dotLight( diff, snorm );
+    float mul = dotLight( diff, snorm, 0.0f );
     //Quadratic attenuation.
     mul = (llum * mul) / len;
     //Diffuse lit colour
@@ -82,7 +85,7 @@ vec3 computeLighting( vec3 spos, vec3 snorm, vec3 lpos, vec3 lcol, float llum )
 
 dirLight mainLight = dirLight( normalize(vec3(0.3, 0.2, 0.0)), vec3(0.15, 0.19, 0.2), 0.4 );
 dirLight accentLight = dirLight( normalize(vec3(-0.5, -0.2, 0.3)), vec3(0.1, 0.4, 0.3), 0.2 );
-dirLight fillLight = dirLight( normalize(vec3(0.2, 0.2, -0.3)), vec3(0.3, 0.3, 0.3), 0.2 );
+dirLight fillLight = dirLight( camDir, rimLightCol, 2.0 );
 
 void main()
 {
@@ -117,9 +120,9 @@ void main()
                     );
     }
 
-    lightcol += dotLight( mainLight.dir, normVec ) * mainLight.col * mainLight.lum;
-    lightcol += dotLight( accentLight.dir, normVec ) * accentLight.col * accentLight.lum;
-    lightcol += dotLight( fillLight.dir, normVec ) * fillLight.col * fillLight.lum;
+    lightcol += dotLight( mainLight.dir, normVec, 0.1 ) * mainLight.col * mainLight.lum;
+    lightcol += dotLight( accentLight.dir, normVec, 0.1 ) * accentLight.col * accentLight.lum;
+    lightcol += dotLight( fillLight.dir, normVec, 0.1 ) * fillLight.col * fillLight.lum;
 
     float t = clamp(depth / fogDist, 0.0, 1.0);
 
