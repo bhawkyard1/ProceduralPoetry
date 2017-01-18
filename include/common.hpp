@@ -10,6 +10,7 @@ extern std::default_random_engine g_RANDOM_TWISTER;
 extern std::string g_DEFAULT_FILE_PATH;
 
 extern float g_TIME;
+extern float g_TIME_SCALE;
 
 extern int g_PARAM_NOTESET_SIMILARITY_TOLERANCE;
 

@@ -99,7 +99,7 @@ void main()
     vec3 spos = texture(position, UV).xyz;
     float depth = distance(spos, camPos);
     outDepth = depth;
-    /*if(depth > 500 && depth < 750)
+    /*if(depth > 250 && depth < 500)
     {
         outDiffuse = vec4(1.0, 0.0, 0.0, 1.0);
         return;

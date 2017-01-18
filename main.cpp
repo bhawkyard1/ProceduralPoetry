@@ -2,7 +2,6 @@
 #include <time.h>
 #include <random>
 
-#include "physicsvars.hpp"
 #include "markovChain.hpp"
 #include "notes.hpp"
 #include "printer.hpp"

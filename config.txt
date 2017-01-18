@@ -4,7 +4,7 @@ max_octave 6
 min_octave 1
 sample_width_bytes 16384
 intensity_accumulation_secs 0.1
-intensity_trigger_threshold 1.885
+intensity_trigger_threshold 1.865
 noteset_similarity_tolerance_build 0
 noteset_similarity_tolerance_runtime 0
 

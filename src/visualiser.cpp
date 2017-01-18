@@ -16,7 +16,6 @@
 #include <mutex>
 
 #include "common.hpp"
-#include "physicsvars.hpp"
 #include "printer.hpp"
 #include "shape.hpp"
 #include "visualiser.hpp"
@@ -70,7 +69,7 @@ visualiser::visualiser(size_t _order) :
 	m_window = SDL_CreateWindow("mGen",
 															0, 0,
 															m_w, m_h,
-															SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
+                                                            SDL_WINDOW_OPENGL );
 
 	if(!m_window)
 		errorExit("Unable to create window");
@@ -134,7 +133,7 @@ visualiser::visualiser(size_t _order) :
 
 	m_DOFbuffer.initialise(m_w, m_h);
 	m_DOFbuffer.addTexture( "diffuse", GL_RGBA, GL_RGBA, GL_COLOR_ATTACHMENT0 );
-	m_DOFbuffer.addTexture( "depth", GL_RED, GL_R32F, GL_COLOR_ATTACHMENT1 );
+    m_DOFbuffer.addTexture( "cdepth", GL_RED, GL_R16F, GL_COLOR_ATTACHMENT1 );
 
 	GLuint d = m_framebuffer.get("depth");
 	glBindRenderbuffer(GL_RENDERBUFFER, d);
@@ -660,7 +659,7 @@ void visualiser::finalise()
 	id = slib->getProgramID("bufferBokeh");
 
 	m_DOFbuffer.bindTexture(id, "diffuse", "bgl_RenderedTexture", 0);
-	m_DOFbuffer.bindTexture(id, "depth", "bgl_DepthTexture", 1);
+    m_DOFbuffer.bindTexture(id, "cdepth", "bgl_DepthTexture", 1);
 
 	glDrawArraysEXT(GL_TRIANGLE_FAN, 0, 4);
 
@@ -812,7 +811,7 @@ void visualiser::resolvePartition(const size_t _i)
 			float sumMass = aim + bim;
 
 			float penetration = (ar + br) - dist;
-			penetration = std::max(penetration - (ar + br) * g_BALL_PENETRATION_LENIENCY, 0.0f);
+            penetration = std::max(penetration - (ar + br) * gflt("penetration_leniency"), 0.0f);
 			penetration /= sumMass;
 			penetration *= 0.2f;
 
@@ -832,7 +831,7 @@ void visualiser::resolvePartition(const size_t _i)
 
 			if(separation >= 0.0f) continue;
 
-			float force = -(1.0f + g_COLLISION_ENERGY_CONSERVATION) * separation;
+            float force = -(1.0f + gflt("collision_energy_conservation")) * separation;
 			force /= sumMass;
 
 			ngl::Vec3 impulse = force * normal;
@@ -949,16 +948,16 @@ void visualiser::update(const float _dt)
 			float dist = dir.lengthSquared();
 			dist = std::max(dist, 0.0f);
 
-			float mrad = sumRad * g_BALL_STICKINESS_RADIUS_MULTIPLIER;
+            float mrad = sumRad * gflt("stickiness_radius_mul");
 			if(dist > mrad * mrad)
 			{
 				dist = sqrt(dist);
-				dir /= pow(dist, g_GRAVITY_ATTENUATION);
+                dir /= pow(dist, gflt("gravity_attentuation"));
 				//Add forces to both current node and connection node (connections are one-way so we must do both here).
 				i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 2.0f );
 			}
 			else
-				i.addForce( -i.getVel() * std::min( g_BALL_STICKINESS * (dist / mrad), 1.0f) );
+                i.addForce( -i.getVel() * std::min( gflt("stickiness") * (dist / mrad), 1.0f) );
 		}
 	}
 
@@ -1001,8 +1000,7 @@ void visualiser::update(const float _dt)
 
 	for(auto &i : m_nodes.m_objects)
 	{
-		//i.setVel( i.getVel() * (1.0f - g_AMBIENT_FRICTION) );
-		i.addForce( -i.getVel() * g_AMBIENT_FRICTION * i.getRadius() );
+        i.addForce( -i.getVel() * gflt("ambient_friction") * i.getRadius() );
 		i.update( _dt );
 	}
 

@@ -8,6 +8,7 @@ std::default_random_engine g_RANDOM_TWISTER ((std::random_device())());
 std::string g_DEFAULT_FILE_PATH;
 
 float g_TIME = 0;
+float g_TIME_SCALE = 1.0f;
 
 int g_PARAM_NOTESET_SIMILARITY_TOLERANCE = 0/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_BUILD*/;
 
