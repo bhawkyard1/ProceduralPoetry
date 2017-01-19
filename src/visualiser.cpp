@@ -77,7 +77,7 @@ visualiser::visualiser(size_t _order) :
     m_window = SDL_CreateWindow("mGen",
                                 0, 0,
                                 m_w, m_h,
-                                SDL_WINDOW_OPENGL );
+																SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
 
     if(!m_window)
         errorExit("Unable to create window");

@@ -163,11 +163,11 @@ void main()
         depth = bdepth(uv);
     }
 
-    if(depth > 200)
+    /*if(depth > 200)
     {
         fragColour = vec4(0.0, 0.0, 1.0, 1.0);
         return;
-    }
+    }*/
     blur = clamp((abs(depth - focalDepth) / range), 0.1, maxblur);
 
     if (autofocus)

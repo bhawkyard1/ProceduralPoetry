@@ -3,8 +3,8 @@ sound_sample_frequency 60.0
 max_octave 6
 min_octave 1
 sample_width_bytes 16384
-intensity_accumulation_secs 0.1
-intensity_trigger_threshold 1.865
+intensity_accumulation_secs 0.5
+intensity_trigger_threshold 1.93
 noteset_similarity_tolerance_build 0
 noteset_similarity_tolerance_runtime 0
 
