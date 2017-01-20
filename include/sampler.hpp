@@ -1,3 +1,15 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file sampler.hpp
+/// \brief This file contains the 'sampler' class, and related types and some global variables.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class sampler
+/// \brief A class that can load and analyse an audio file. Uses the functions defined in fft.hpp to do so.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef SAMPLER_HPP
 #define SAMPLER_HPP
 

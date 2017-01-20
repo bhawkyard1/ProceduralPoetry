@@ -1,22 +1,28 @@
-#ifndef SIM_TIME_HPP
-#define SIM_TIME_HPP
-
-#include <algorithm>
-#include <chrono>
-
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file contains work developed as a part of
+// my Year 2 Computing for Animation 1 project, with
+// some minor alterations to functionality. It should
+// not be marked.
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //----------------------------------------------------------------------------------------------------------------------
 /// \file sim_time.hpp
 /// \brief This file contains the sim_time class, useful for timing events.
 /// \author Ben Hawkyard
 /// \version 1.0
-/// \date 11/04/16
+/// \date 19/01/17
 /// Revision History :
-/// This is an initial version used for the game.
+/// This is an initial version used for the program.
 /// \class sim_time
 /// \brief Used to control time-stepping in-game. Also stores some values it probably needn't, since
 /// they aren't strictly necessary for the class to function, but I found it useful to have them all in one
 /// place.
 //----------------------------------------------------------------------------------------------------------------------
+
+#ifndef SIM_TIME_HPP
+#define SIM_TIME_HPP
+
+#include <algorithm>
+#include <chrono>
 
 class sim_time
 {

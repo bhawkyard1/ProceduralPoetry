@@ -1,3 +1,22 @@
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file contains work developed as a part of
+// my Year 2 Computing for Animation 1 project, with
+// some large alterations to functionality. It
+// may not be appropriate to consider it.
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//----------------------------------------------------------------------------------------------------------------------
+/// \file slotmap.hpp
+/// \brief This file contains the 'slotmap' class, and related structs.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class slotmap
+/// \brief A wrapper around stl std::vector which allows the user to extract persistant references to entities
+/// contained within.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef slotmap_HPP
 #define slotmap_HPP
 

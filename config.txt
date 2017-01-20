@@ -1,15 +1,15 @@
 #Sampling parameters
-sound_sample_frequency 60.0
+sound_sample_frequency 40.0
 max_octave 6
 min_octave 1
 sample_width_bytes 16384
-intensity_accumulation_secs 0.5
-intensity_trigger_threshold 1.93
+intensity_accumulation_secs 0.1
+intensity_trigger_threshold 1.87
 noteset_similarity_tolerance_build 0
 noteset_similarity_tolerance_runtime 0
 
 #Simulation parameters
-ambient_friction 0.55
+ambient_friction 0.85
 penetration_leniency 0.5
 stickiness 0.9
 stickiness_radius_mul 1.0

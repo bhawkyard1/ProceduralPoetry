@@ -1,3 +1,17 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file markovState.hpp
+/// \brief This file contains the markov state class, one of the constituent classes of markovChain
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class markovState
+/// \brief The states are the main component of a markov chain. In my case, they are stored in a map in the markovChain.
+/// They are indexed by the state contents and the state you see here holds data about the connections. In a way, this
+/// class only really represents one half of a markov state, but this configuration makes sense for storage.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef MARKOVSTATE_HPP
 #define MARKOVSTATE_HPP
 

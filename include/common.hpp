@@ -1,3 +1,13 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file common.hpp
+/// \brief This file contains the global variables used throughout the program.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef COMMON_HPP
 #define COMMON_HPP
 

@@ -1,3 +1,14 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file util.hpp
+/// \brief This file contains utility functions which do not belong anywhere in particular, or are required so frequently
+/// they need to be extracted.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef UTIL_HPP
 #define UTIL_HPP
 

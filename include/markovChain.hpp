@@ -1,3 +1,16 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file markovChain.hpp
+/// \brief This file contains the markov chain class, one of the two main classes in the program. Of particular
+/// interest should be the loadSource() function.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class markovChain
+/// \brief Contains a set of states which the user can build a visualisation from.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef MARKOVCHAIN_HPP
 #define MARKOVCHAIN_HPP
 

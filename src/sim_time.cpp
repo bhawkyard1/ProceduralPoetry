@@ -1,3 +1,10 @@
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file contains work developed as a part of
+// my Year 2 Computing for Animation 1 project, with
+// some minor alterations to functionality. It should
+// not be marked.
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #include "sim_time.hpp"
 
 sim_time::sim_time(float _fps)

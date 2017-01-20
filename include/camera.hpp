@@ -1,3 +1,20 @@
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file contains work developed as a part of
+// my Computing for Animation 2 project, but used
+// here. This code should not be marked here.
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//----------------------------------------------------------------------------------------------------------------------
+/// \file camera.hpp
+/// \brief This class acts as a simple camera, that the user can move around the scene.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class camera
+/// \brief Contains a set of matrices representing a camera.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 

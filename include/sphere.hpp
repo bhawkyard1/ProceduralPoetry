@@ -1,3 +1,17 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file sphere.hpp
+/// \brief This file contains the sphere class, which represents the nodes in the visualisation. Main data is position,
+/// velocity and 'luminance', a measure of how triggered the node is by the audio.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class sphere
+/// \brief Contains physical attributes such as position and velocity, also luminance. Stored in the visualiser and
+/// updated each frame.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 

@@ -21,6 +21,8 @@
 #include "visualiser.hpp"
 #include "util.hpp"
 
+#define CINEMATIC_MODE 0
+
 std::mutex m;
 
 visualiser::visualiser(size_t _order) :
@@ -74,10 +76,18 @@ visualiser::visualiser(size_t _order) :
 
     std::cout << "Screen dimensions " << m_w << ", " << m_h << " : " << SDL_GetNumVideoDisplays() << '\n';
 
+#if CINEMATIC_MODE == 0
     m_window = SDL_CreateWindow("mGen",
                                 0, 0,
                                 m_w, m_h,
+																SDL_WINDOW_OPENGL );
+#endif
+#if CINEMATIC_MODE == 1
+		m_window = SDL_CreateWindow("mGen",
+																0, 0,
+																m_w, m_h,
 																SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
+#endif
 
     if(!m_window)
         errorExit("Unable to create window");
@@ -962,7 +972,7 @@ void visualiser::update(const float _dt)
                 dist = sqrt(dist);
                 dir /= pow(dist, gflt("gravity_attentuation"));
                 //Add forces to both current node and connection node (connections are one-way so we must do both here).
-                i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()) * 2.0f );
+								i.addForce( dir * (i.getInvMass() / sumMass) * (1.0f + i.getTotalLuminance()));
             }
             else
                 i.addForce( -i.getVel() * std::min( gflt("stickiness") * (dist / mrad), 1.0f) );
@@ -1051,7 +1061,7 @@ void visualiser::update(const float _dt)
                 p *= 2;
                 p += rand->getRandomNormalizedVec3();
                 //std::cout << "ints " << intensityMul << '\n';
-                float force = 1.0f + 256.0f * node.getInvMass() * intensityMul;
+								float force = 1.0f + 128.0f * node.getInvMass() * intensityMul;
                 //std::cout << "int " << intensityMul << '\n';
                 node.addForce( p * force * 5000.0f / dist );
                 node.addLuminance( force );

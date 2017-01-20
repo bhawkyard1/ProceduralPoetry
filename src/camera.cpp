@@ -1,3 +1,9 @@
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file contains work developed as a part of
+// my Computing for Animation 2 project, but used
+// here. This code should not be marked here.
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #include <ngl/Util.h>
 #include <iostream>
 #include "camera.hpp"

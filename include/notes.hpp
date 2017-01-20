@@ -1,3 +1,13 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file notes.hpp
+/// \brief This file contains code related to the 'notes' class.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef NOTES_HPP
 #define NOTES_HPP
 
@@ -20,6 +30,11 @@ enum notetype { C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B };
 
 notetype operator+(const notetype &_lhs, const int &_rhs);
 
+//----------------------------------------------------------------------------------------------------------------------
+/// \struct note
+/// \brief A struct representing a musical note, consists of a 'type' (A-G) and a 'position' (ie, octave). There is
+/// functionality here to convert between raw frequencies and their closest notes.
+//----------------------------------------------------------------------------------------------------------------------
 struct note
 {
     notetype m_type;
@@ -69,6 +84,11 @@ const std::vector<std::string> sNotes = {"C", "Db", "D", "Eb", "E", "F", "Gb", "
 
 bool similarity(const notes &_lhs, const notes &_rhs, int _tolerance);
 
+//----------------------------------------------------------------------------------------------------------------------
+/// \struct notesComp
+/// \brief A struct simply used to compare two vectors containing notes. This is a critical section of code, it is
+/// used to index the sets of notes stored in the markovChains central std::map.
+//----------------------------------------------------------------------------------------------------------------------
 struct notesComp
 {
     bool operator()(const std::vector<notes> &_lhs, const std::vector<notes> &_rhs) const

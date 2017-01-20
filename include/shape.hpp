@@ -1,3 +1,14 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file shape.hpp
+/// \brief This file contains functions related to collision detection between various geometry. Used quite extensively
+/// by the visualiser class in its collision detection.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 

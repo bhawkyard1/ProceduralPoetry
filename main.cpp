@@ -1,3 +1,14 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file main.cpp
+/// \brief The main file in the project. The interesting functions here are main(), and visualise(), which is where most
+/// of the action takes place. I also recommend looking at markovChain.hpp and visualiser.hpp after this.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+//----------------------------------------------------------------------------------------------------------------------
+
 #include <iostream>
 #include <time.h>
 #include <random>
@@ -166,11 +177,11 @@ void visualise(markovChain &_mark)
 
 		timer.setCur();
 
-        timer.clampAcc(0.05);
+		timer.clampAcc(0.05);
 
-        sim_time d (0.0f);
+		sim_time d (0.0f);
 
-        d.setStart();
+		d.setStart();
 
 		//Update the game in small time-steps (dependant on the timers fps).
 		while(timer.getAcc() > timer.getFrame())
@@ -180,12 +191,12 @@ void visualise(markovChain &_mark)
 			timer.incrAcc( -frame );
 		}
 
-        d.setCur();
-        std::cout << "Update time : " << d.getDiff() << " seconds\n";
+		d.setCur();
+		std::cout << "Update time : " << d.getDiff() << " seconds\n";
 
 		_mark.visualise( );
-        d.setCur();
-        std::cout << "Draw time : " << d.getDiff() << " seconds\n";
+		d.setCur();
+		std::cout << "Draw time : " << d.getDiff() << " seconds\n";
 	}
 	_mark.hideVisualiser();
 }

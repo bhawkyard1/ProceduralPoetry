@@ -1,3 +1,17 @@
+//----------------------------------------------------------------------------------------------------------------------
+/// \file visualiser.hpp
+/// \brief This file contains the 'visualiser' class.
+/// \author Ben Hawkyard
+/// \version 1.0
+/// \date 19/01/17
+/// Revision History :
+/// This is an initial version used for the program.
+/// \class slotmap
+/// \brief Uses Jon Macey's NGL library to draw a representation of the markovChain to the screen. Contains all
+/// functionality for windowing, lighting, shading, and mouse input. Also has a lightweight version of markovChains
+/// functionality built in, so that it can light up in real time.
+//----------------------------------------------------------------------------------------------------------------------
+
 #ifndef VISUALISER_HPP
 #define VISUALISER_HPP
 
