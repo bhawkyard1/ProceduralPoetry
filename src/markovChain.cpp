@@ -100,7 +100,7 @@ void markovChain::constructVisualisation()
 	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_runtime"); //;gint("noteset_similarity_tolerance_runtime")/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME*/;
 
 	m_visualiser.show();
-	m_visualiser.sound( g_RESOURCE_LOC + "poems/" + getSources()[0] );
+	m_visualiser.sound( g_RESOURCE_LOC + "songs/" + getSources()[0] );
 }
 
 
@@ -214,7 +214,7 @@ void markovChain::loadSource(const std::string _path)
 	std::cout << "Reading from " << _path << '\n';
 
 	sampler::initialiseAudio( 44100, 2 );
-	sampler smpl( g_RESOURCE_LOC + "poems/" + _path );
+	sampler smpl( g_RESOURCE_LOC + "songs/" + _path );
 
 	float time = 0.0f;
 

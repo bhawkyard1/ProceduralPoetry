@@ -1,21 +1,57 @@
-#Sampling parameters
+#######################
+##Sampling parameters##
+#######################
+
+#Music is sampled this number of times per second 30 - 60 is good.
 sound_sample_frequency 40.0
+
+#Disregard notes in higher octaves than this, 6 is good.
 max_octave 6
+
+#Disregard notes in lower octaves than this, 1 - 2 is good.
 min_octave 1
+
+#Each sample is this width, in bytes. Should be a power of two, 16384 is a good value, rarely needs to be changed.
 sample_width_bytes 16384
+
+#We maintain a rolling average of each notes intensity as the song is sampled. Notes which exceed this are triggered. 0.1 - 1 works well.
 intensity_accumulation_secs 0.1
+
+#How many times greater than the intensity must be than the average for the note to be triggered. Depends of the audio used, 1.5 - 2.0 is usually good.
 intensity_trigger_threshold 1.87
+
+#When searching for sets of notes which are the same, we can add a tolerance threshold. Setting these higher will cause the model to see many
+#different sets of notes the same. These are advanced options, and should probably not be changed. Setting them both to 1 occasionally creates interesting
+#results.
 noteset_similarity_tolerance_build 0
 noteset_similarity_tolerance_runtime 0
 
-#Simulation parameters
-ambient_friction 0.85
+#########################
+##Simulation parameters##
+#########################
+
+#The ambient friction in the scene. The greater the value, the slower the nodes will collect.
+ambient_friction 0.55
+
+#0 means that nodes will resolve collision as soon as they collide. 1 means they will pass through one another.
 penetration_leniency 0.5
+
+#When nodes get close to one another, an extra friction-like force is applied. This value is its multiplier.
 stickiness 0.9
+
+#The radius multiplier for the effect of this force. 1.0 is exactly the radius of the node.
 stickiness_radius_mul 1.0
+
+#The coefficient of restitution of each node. Has little effect.
 collision_energy_conservation 0.1
+
+#How sharply gravity attenuates. 2.0 produces true results, 1.0 tends to work better, with high friction.
 gravity_attentuation 1.0
 
-#Graphical parameters
+#########################
+###Graphical parameters##
+#########################
+
+#Set these both to -1 to detect the screen dimensions automatically.
 win_width 1920
 win_height 1080

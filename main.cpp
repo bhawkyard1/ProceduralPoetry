@@ -22,8 +22,8 @@
 #define LEV_THRESHOLD 2
 
 void processInput(const std::string &_input, markovChain &_mark);
-
 void visualise( markovChain &_mark );
+void printHelp();
 
 int main(int argc, char* argv[])
 {
@@ -56,26 +56,7 @@ void processInput(const std::string &_input, markovChain &_mark)
 	printer pr;
 	std::vector<std::string> cmds = split( _input, ' ' );
 
-	if(levenshtein(cmds[0], "write") < LEV_THRESHOLD)
-	{
-		size_t wordCount = randInt(100, 200);
-		if(cmds.size() > 1)
-			wordCount = stoi(cmds[1]);
-		_mark.write(wordCount);
-	}
-	else if(levenshtein(cmds[0], "diagnose") < LEV_THRESHOLD)
-	{
-		if(cmds.size() < 2)
-		{
-			std::string ret = "Average number of connections per node in this chain : " + std::to_string(_mark.getAverageNumConnections()) + '\n';
-			pr.message( ret, BLUE );
-		}
-		else
-		{
-			_mark.diagnoseNode( cmds[1] );
-		}
-	}
-	else if(levenshtein(cmds[0], "order") < LEV_THRESHOLD)
+	if(levenshtein(cmds[0], "order") < LEV_THRESHOLD)
 	{
 		if(cmds.size() == 1)
 			pr.message( "Order is " + std::to_string( _mark.getOrder() ) + '\n', YELLOW);
@@ -85,7 +66,7 @@ void processInput(const std::string &_input, markovChain &_mark)
 			_mark.reload( std::stoi( cmds[1] ) );
 		}
 	}
-	else if(levenshtein(cmds[0], "v") < LEV_THRESHOLD)
+	else if(levenshtein(cmds[0], "visualise") < LEV_THRESHOLD)
 	{
 		_mark.constructVisualisation();
 		visualise(_mark);
@@ -102,6 +83,10 @@ void processInput(const std::string &_input, markovChain &_mark)
 	else if(levenshtein(cmds[0], "quit") < LEV_THRESHOLD)
 	{
 		exit( EXIT_SUCCESS );
+	}
+	else if(levenshtein(cmds[0], "help") < LEV_THRESHOLD)
+	{
+		printHelp();
 	}
 	else
 	{
@@ -199,4 +184,11 @@ void visualise(markovChain &_mark)
 		std::cout << "Draw time : " << d.getDiff() << " seconds\n";
 	}
 	_mark.hideVisualiser();
+}
+
+void printHelp()
+{
+	printer pr;
+	std::string message = "Commands :\norder : Prints the order of the markov model.\norder <arg> : Sets the order of the markov model to <arg>.\nvisualise : Visualise the model.\nadd <arg> : Add a source named <arg> from within the resources/songs/ folder.\nclear : Clears the markov model.\nquit : Quits the program.\nhelp : Shows this help message.\n";
+	pr.message( message, PURPLE );
 }

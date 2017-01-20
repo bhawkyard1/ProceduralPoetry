@@ -47,7 +47,7 @@ void sampler::load(const std::string _path)
     m_snd = Mix_LoadWAV(_path.c_str());
     if(!m_snd)
     {
-        std::cerr << "Could not load wav file! " << Mix_GetError() << '\n';
+				std::cerr << "Could not load wav file at " << _path << "! " << Mix_GetError() << '\n';
         exit(EXIT_FAILURE);
     }
 
