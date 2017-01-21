@@ -100,7 +100,7 @@ void markovChain::constructVisualisation()
 	g_PARAM_NOTESET_SIMILARITY_TOLERANCE = gint("noteset_similarity_tolerance_runtime"); //;gint("noteset_similarity_tolerance_runtime")/*g_PARAM_NOTESET_SIMILARITY_TOLERANCE_RUNTIME*/;
 
 	m_visualiser.show();
-	m_visualiser.sound( g_RESOURCE_LOC + "songs/" + getSources()[0] );
+	m_visualiser.sound( g_RESOURCE_LOC + "songs/" + g_SOURCE );
 }
 
 
@@ -140,8 +140,10 @@ void markovChain::load()
 	std::vector<std::string> sources = getSources();
 	pr.message( "Generating chain...\n" );
 	for(auto &source : sources)
+	{
+		g_SOURCE = source;
 		loadSource(source);
-
+	}
 	pr.message( "Chain size : " + std::to_string(m_states.size()) + '\n' );
 }
 

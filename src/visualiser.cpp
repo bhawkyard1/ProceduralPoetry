@@ -1084,8 +1084,9 @@ void visualiser::sound(const std::string _path)
     SDL_Delay(100);
 }
 
-void visualiser::stopSound()
+void visualiser::stop()
 {
     Mix_Pause( m_sdlchannel );
     m_sampler.reset();
+		m_nodes.clear();
 }

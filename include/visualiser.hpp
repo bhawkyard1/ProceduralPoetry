@@ -64,7 +64,7 @@ public:
 	void update(const float _dt);
 
 	void sound(const std::string _path);
-	void stopSound();
+	void stop();
 
 	void resetPos()
 	{

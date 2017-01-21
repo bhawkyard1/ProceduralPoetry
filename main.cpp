@@ -74,7 +74,10 @@ void processInput(const std::string &_input, markovChain &_mark)
 	else if(levenshtein(cmds[0], "add") < LEV_THRESHOLD)
 	{
 		if(cmds.size() > 1)
+		{
 			_mark.loadSource( cmds[1] );
+			g_SOURCE = cmds[1];
+		}
 	}
 	else if(levenshtein(cmds[0], "clear") < LEV_THRESHOLD)
 	{
@@ -112,7 +115,7 @@ void visualise(markovChain &_mark)
 			case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE)
 				{
-					_mark.stopSound();
+					_mark.stopVisualising();
 					done = true;
 				}
 				else if(event.key.keysym.sym == SDLK_q)

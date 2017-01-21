@@ -14,7 +14,8 @@ on linux.
 
 USAGE:
 
-Once the program is built, we need to give it music to work with.
+Once the program is built, we need to give it music to work with. This program currently works only with stereo, 16-bit WAV files. 
+A 441000 Hz sampling rate is recommended.
 
 config.txt
 Contains a set of parameters that the user can set before the program is run. None of these should be deleted. Comments begin 

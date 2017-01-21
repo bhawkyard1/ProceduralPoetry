@@ -84,7 +84,7 @@ public:
 
 	void toggleCameraLock() {m_visualiser.toggleCameraLock();}
 	void toggleLight() {m_visualiser.toggleLight();}
-	void stopSound() {m_visualiser.stopSound();}
+	void stopVisualising() {m_visualiser.stop();}
 private:
 	void addContext(const notes &_state);
 	std::vector<notes> getKeyFromContext();

@@ -18,6 +18,7 @@
 extern std::string g_RESOURCE_LOC;
 extern std::default_random_engine g_RANDOM_TWISTER;
 extern std::string g_DEFAULT_FILE_PATH;
+extern std::string g_SOURCE;
 
 extern float g_TIME;
 extern float g_TIME_SCALE;
