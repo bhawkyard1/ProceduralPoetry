@@ -80,6 +80,11 @@ public:
 	void toggleLight() {m_light = !m_light;}
 	void toggleCameraLock() {m_lockedCamera = !m_lockedCamera;}
 	void toggleSteadicam() {m_steadicam = !m_steadicam;}
+	void togglePause();
+
+	void incrNear(const float _f) {m_clip.first = clamp(m_clip.first + _f, 0.001f, m_clip.second);}
+	void incrFar(const float _f) {m_clip.second = clamp(m_clip.second + _f, m_clip.first, 99999.0f);}
+	void toggleCutout() {m_cutout = !m_cutout;}
 private:
 	GLuint createBuffer1f(std::vector<float> _vec);
 	GLuint createBuffer2f(std::vector<ngl::Vec2> _vec);
@@ -162,6 +167,11 @@ private:
 
 	ngl::Vec3 m_rimLightTCol;
 	ngl::Vec3 m_rimLightCCol;
+
+	std::pair<float, float> m_clip;
+
+	bool m_paused;
+	bool m_cutout;
 };
 
 #endif

@@ -17,6 +17,8 @@ uniform int activeLights;
 
 uniform vec3 rimLightCol;
 
+uniform bool cutout;
+
 vec3 sssCol = vec3(0.8, 0.1, 0.2);
 vec3 fogCol = vec3(0.01, 0.01, 0.0125);
 float fogDist = 1024.0;
@@ -134,6 +136,9 @@ void main()
     vec3 base = (1.0 - t) * (texture(diffuse, UV).xyz * lightcol) + t * fogCol;
 
     outDiffuse.xyz = base + luminance;
+
+    if(cutout)
+        outDiffuse = vec4(1.0);
 
     //outDiffuse.xyz = luminance;
     outDiffuse.a = 1.0;

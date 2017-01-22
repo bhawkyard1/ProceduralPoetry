@@ -50,8 +50,8 @@ void camera::calculateP()
     m_P = ngl::perspective(
                 m_fov,
                 m_aspect,
-                0.1f,
-                10000.0f
+								m_near,
+								m_far
                 );
 }
 

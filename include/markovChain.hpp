@@ -63,10 +63,6 @@ public:
 
 	void loadSource( const std::string _path );
 
-	void mouseDown(SDL_Event _event) {m_visualiser.mouseDown(_event);}
-	void mouseUp(SDL_Event _event) {m_visualiser.mouseUp(_event);}
-	void mouseWheel(int _dir) {m_visualiser.mouseWheel(_dir);}
-
 	void write(size_t _wordCount);
 
 	void reload(int _order);
@@ -79,12 +75,6 @@ public:
 
 	void update(const float _dt);
 	void visualise();
-
-	void resetPos() {m_visualiser.resetPos();}
-
-	void toggleCameraLock() {m_visualiser.toggleCameraLock();}
-	void toggleLight() {m_visualiser.toggleLight();}
-	void stopVisualising() {m_visualiser.stop();}
 private:
 	void addContext(const notes &_state);
 	std::vector<notes> getKeyFromContext();

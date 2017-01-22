@@ -56,11 +56,18 @@ public:
 
 	ngl::Vec3 back() {return ngl::Mat4(m_V).transpose().getBackVector();}
 	ngl::Vec3 forwards() {return ngl::Mat4(m_V).transpose().getForwardVector();}
-	ngl::Vec3 up() {return ngl::Mat4(m_V).getUpVector();}
+	ngl::Vec3 up() {return ngl::Mat4(m_V).transpose().getUpVector();}
 	ngl::Vec3 right() {return ngl::Mat4(m_V).transpose().getRightVector();}
+
+	void setNear(const float _near) {m_near = _near;}
+	void setFar(const float _far) {m_far = _far;}
+	float getNear() const {return m_near;}
+	float getFar() const {return m_far;}
 private:
 	float m_fov;
 	float m_aspect;
+	float m_near;
+	float m_far;
 
 	ngl::Vec3 m_pos;
 	ngl::Vec3 m_initPos;

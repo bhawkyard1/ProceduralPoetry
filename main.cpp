@@ -101,6 +101,7 @@ void processInput(const std::string &_input, markovChain &_mark)
 
 void visualise(markovChain &_mark)
 {
+	visualiser * v = _mark.getVis();
 	sim_time timer(120.0f);
 	bool done = false;
 	while(!done)
@@ -115,22 +116,22 @@ void visualise(markovChain &_mark)
 			case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE)
 				{
-					_mark.stopVisualising();
+					v->stop();
 					done = true;
 				}
 				else if(event.key.keysym.sym == SDLK_q)
-					_mark.resetPos();
+					v->resetPos();
 				else if(event.key.keysym.sym == SDLK_l)
 				{
-					_mark.toggleLight();
+					v->toggleLight();
 				}
 				else if(event.key.keysym.sym == SDLK_o)
 				{
-					_mark.getVis()->addFOV( 1.0f );
+					v->addFOV( 1.0f );
 				}
 				else if(event.key.keysym.sym == SDLK_p)
 				{
-					_mark.getVis()->addFOV( -1.0f );
+					v->addFOV( -1.0f );
 				}
 				else if(event.key.keysym.sym == SDLK_EQUALS)
 				{
@@ -143,18 +144,30 @@ void visualise(markovChain &_mark)
 					g_TIME_SCALE = clamp( g_TIME_SCALE - 0.1f, 0.0f, F_MAX );
 				}
 				else if(event.key.keysym.sym == SDLK_c)
-					_mark.toggleCameraLock();
+					v->toggleCameraLock();
 				else if(event.key.keysym.sym == SDLK_s)
-					_mark.getVis()->toggleSteadicam();
+					v->toggleSteadicam();
+				else if(event.key.keysym.sym == SDLK_SPACE)
+					v->togglePause();
+				else if(event.key.keysym.sym == SDLK_k)
+					v->incrFar(50.0f);
+				else if(event.key.keysym.sym == SDLK_j)
+					v->incrNear(50.0f);
+				else if(event.key.keysym.sym == SDLK_m)
+					v->incrFar(-50.0f);
+				else if(event.key.keysym.sym == SDLK_n)
+					v->incrNear(-50.0f);
+				else if(event.key.keysym.sym == SDLK_u)
+					v->toggleCutout();
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				_mark.mouseDown( event );
+				v->mouseDown( event );
 				break;
 			case SDL_MOUSEBUTTONUP:
-				_mark.mouseUp( event );
+				v->mouseUp( event );
 				break;
 			case SDL_MOUSEWHEEL:
-				_mark.mouseWheel( event.wheel.y );
+				v->mouseWheel( event.wheel.y );
 				break;
 			default:
 				break;
