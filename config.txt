@@ -3,7 +3,7 @@
 #######################
 
 #Music is sampled this number of times per second 30 - 60 is good.
-sound_sample_frequency 40.0
+sound_sample_frequency 60.0
 
 #Disregard notes in higher octaves than this, 6 is good.
 max_octave 6
@@ -18,7 +18,7 @@ sample_width_bytes 16384
 intensity_accumulation_secs 0.1
 
 #How many times greater than the intensity must be than the average for the note to be triggered. Depends of the audio used, 1.5 - 2.0 is usually good.
-intensity_trigger_threshold 1.87
+intensity_trigger_threshold 1.9
 
 #When searching for sets of notes which are the same, we can add a tolerance threshold. Setting these higher will cause the model to see many
 #different sets of notes the same. These are advanced options, and should probably not be changed. Setting them both to 1 occasionally creates interesting
@@ -31,7 +31,7 @@ noteset_similarity_tolerance_runtime 0
 #########################
 
 #The ambient friction in the scene. The greater the value, the slower the nodes will collect.
-ambient_friction 0.55
+ambient_friction 0.3
 
 #0 means that nodes will resolve collision as soon as they collide. 1 means they will pass through one another.
 penetration_leniency 0.5

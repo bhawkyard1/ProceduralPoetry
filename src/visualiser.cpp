@@ -21,7 +21,7 @@
 #include "visualiser.hpp"
 #include "util.hpp"
 
-#define CINEMATIC_MODE 0
+#define CINEMATIC_MODE 1
 
 std::mutex m;
 
@@ -946,9 +946,6 @@ void visualiser::update(const float _dt)
 	}
 
 	m_cam.calculate();
-
-	std::cout << m_clip.first << ", " << m_clip.second << '\n';
-	std::cout << m_cutout << '\n';
 
 	if(m_paused)
 		return;
