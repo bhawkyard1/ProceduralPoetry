@@ -23,8 +23,6 @@
 
 #define CINEMATIC_MODE 1
 
-std::mutex m;
-
 visualiser::visualiser(size_t _order) :
 	m_timer(0.0f),
 	m_lockedCamera(true),
@@ -88,7 +86,7 @@ visualiser::visualiser(size_t _order) :
 	m_window = SDL_CreateWindow("mGen",
 															0, 0,
 															m_w, m_h,
-															SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN );
+															SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS );
 #endif
 
 	if(!m_window)

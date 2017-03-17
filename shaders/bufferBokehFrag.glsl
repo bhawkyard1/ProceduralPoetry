@@ -39,7 +39,7 @@ bool noise = true; //use noise instead of pattern for sample dithering
 float namount = 0.000001; //dither amount
 
 bool depthblur = true; //blur the depth buffer?
-float dbsize = 2.0; //depthblursize
+float dbsize = 16.0; //depthblursize
 
 /*
 next part is experimental

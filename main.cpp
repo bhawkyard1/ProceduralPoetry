@@ -193,11 +193,11 @@ void visualise(markovChain &_mark)
 		}
 
 		d.setCur();
-		std::cout << "Update time : " << d.getDiff() << " seconds\n";
+		//std::cout << "Update time : " << d.getDiff() << " seconds\n";
 
 		_mark.visualise( );
 		d.setCur();
-		std::cout << "Draw time : " << d.getDiff() << " seconds\n";
+		//std::cout << "Draw time : " << d.getDiff() << " seconds\n";
 	}
 	_mark.hideVisualiser();
 }

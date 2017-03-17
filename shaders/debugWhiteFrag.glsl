@@ -14,7 +14,7 @@ layout( location = 1 ) out float outDepth;
 void main()
 {
     outDepth = distance(camPos.xyz, position.xyz);
-    outDiffuse = vec4(1.0, 1.0, 1.0, UV.x * (generic - 2.0) * 0.75);
+    outDiffuse = vec4(1.0, 1.0, 1.0, UV.x * (generic - 1.0) * 0.75);
     if(cutout)
         outDiffuse = vec4(1.0);
 }

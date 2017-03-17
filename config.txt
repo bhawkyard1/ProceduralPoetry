@@ -3,7 +3,7 @@
 #######################
 
 #Music is sampled this number of times per second 30 - 60 is good.
-sound_sample_frequency 60.0
+sound_sample_frequency 40.0
 
 #Disregard notes in higher octaves than this, 6 is good.
 max_octave 6
@@ -15,7 +15,7 @@ min_octave 1
 sample_width_bytes 16384
 
 #We maintain a rolling average of each notes intensity as the song is sampled. Notes which exceed this are triggered. 0.1 - 1 works well.
-intensity_accumulation_secs 0.1
+intensity_accumulation_secs 0.5
 
 #How many times greater than the intensity must be than the average for the note to be triggered. Depends of the audio used, 1.5 - 2.0 is usually good.
 intensity_trigger_threshold 1.9
